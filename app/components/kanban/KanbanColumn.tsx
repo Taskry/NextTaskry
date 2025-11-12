@@ -3,10 +3,6 @@
 import { Task, TaskStatus } from "@/app/types";
 import TaskCard from "../TaskCard";
 
-/**
- * 칸반보드의 열(Column) 하나
- * 예: "할 일", "진행 중", "완료"
- */
 interface KanbanColumnProps {
   id: TaskStatus;
   title: string;
@@ -16,21 +12,27 @@ interface KanbanColumnProps {
 
 const KanbanColumn = ({ id, title, color, tasks }: KanbanColumnProps) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow-lg">
-      {/* 열 제목 */}
-      <h2 className="font-bold text-xl mb-4 flex items-center gap-2">
-        <span className={`w-3 h-3 rounded-full ${color}`}></span>
-        {title}
-        <span className="text-sm text-gray-500 font-normal">
-          ({tasks.length})
-        </span>
-      </h2>
+    <div className="w-80 flex-shrink-0">
+      {" "}
+      {/* 👈 320px 고정 */}
+      <div className="bg-gray-50 p-3 rounded-lg h-full flex flex-col">
+        {/* 열 제목 */}
+        <div className="mb-3">
+          <h2 className="font-bold text-base flex items-center gap-2">
+            <span className={`w-2.5 h-2.5 rounded-full ${color}`}></span>
+            {title}
+            <span className="text-xs text-gray-500 font-normal ml-1">
+              {tasks.length}
+            </span>
+          </h2>
+        </div>
 
-      {/* 이 열에 속한 Task들 */}
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
-        ))}
+        {/* Task 카드 목록 - 세로 스크롤 */}
+        <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+          {tasks.map((task) => (
+            <TaskCard key={task.id} task={task} />
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -2,26 +2,20 @@
 
 import { KANBAN_COLUMNS, MOCK_TASKS_DATA } from "@/lib/constants";
 import KanbanColumn from "./KanbanColumn";
-import Button from "../Button/Button";
 
 const KanbanBoard = () => {
   return (
     <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
       {/* 헤더 */}
-      <div className="p-6 border-b border-gray-200 bg-blue-50">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">
-            프로젝트명이 들어갑니다
-          </h2>
-          <Button variant="bgMain300" size="base" textColor="white">
-            + 새 작업
-          </Button>
-        </div>
+      <div className="px-6 py-4 border-b border-gray-200 bg-main-200/80">
+        <h2 className="text-xl font-bold text-gray-800">
+          프로젝트명이 들어갑니다
+        </h2>
       </div>
 
       {/* 칸반 그리드 */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-3 gap-6">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4">
+        <div className="flex gap-4 h-full">
           {KANBAN_COLUMNS.map((column) => (
             <KanbanColumn
               key={column.id}

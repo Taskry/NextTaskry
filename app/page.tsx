@@ -6,53 +6,67 @@ import { useState } from "react";
 import KanbanBoard from "./components/kanban/KanbanBoard";
 import MemoPanel from "./components/kanban/MemoPanel";
 import BottomNavigation from "./components/BottomNavigation";
+import Button from "./components/Button/Button";
 
 type ViewType = "calendar" | "kanban" | "memo" | "project";
 
 const Home = () => {
   const [currentView, setCurrentView] = useState<ViewType>("kanban");
   const [showMemoPanel, setShowMemoPanel] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 메모 버튼 클릭 시 토글
   const handleViewChange = (view: ViewType) => {
     if (view === "memo") {
-      // 메모 버튼 누르면 토글
       setShowMemoPanel(!showMemoPanel);
     } else {
-      // 다른 뷰로 전환
       setCurrentView(view);
-      setShowMemoPanel(false); // 메모패널 닫기
+      setShowMemoPanel(false);
     }
   };
 
   return (
     <div className="h-full flex flex-col bg-gray-50">
+      {/* 버튼 영역 -> 오른쪽 끝 위치고정 */}
+      <div className="px-6 pt-6 pb-2 flex justify-end">
+        <Button
+          variant="bgMain300"
+          size="base"
+          textColor="white"
+          onClick={() => setIsModalOpen(true)}
+        >
+          + 새 작업
+        </Button>
+      </div>
+
       {/* 메인 영역 */}
-      <div className="flex-1 flex overflow-hidden gap-6 p-6">
-        {/* 메인 뷰 - 메모패널 열리면 좁아짐 */}
+      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-6 min-h-0">
+        {/* 왼쪽: 메인 뷰 */}
         <div
-          className={`overflow-hidden transition-all duration-300 ${
+          className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
             showMemoPanel ? "flex-[0.7]" : "flex-1"
           }`}
         >
-          {currentView === "kanban" && <KanbanBoard />}
+          {/* 컨텐츠 영역 */}
+          <div className="flex-1 overflow-hidden min-h-0">
+            {currentView === "kanban" && <KanbanBoard />}
 
-          {currentView === "calendar" && (
-            <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
-              <p className="text-gray-400 text-lg">📅 캘린더 (준비 중)</p>
-            </div>
-          )}
+            {currentView === "calendar" && (
+              <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
+                <p className="text-gray-400 text-lg">📅 캘린더 (준비 중)</p>
+              </div>
+            )}
 
-          {currentView === "project" && (
-            <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
-              <p className="text-gray-400 text-lg">📁 프로젝트 (준비 중)</p>
-            </div>
-          )}
+            {currentView === "project" && (
+              <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
+                <p className="text-gray-400 text-lg">📁 프로젝트 (준비 중)</p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* 메모 패널 - 토글로 나타남/사라짐 */}
+        {/* 오른쪽: 메모 패널 */}
         <div
-          className={`transition-all duration-300 overflow-hidden ${
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 ${
             showMemoPanel ? "flex-[0.3] opacity-100" : "w-0 opacity-0"
           }`}
         >
@@ -61,10 +75,12 @@ const Home = () => {
       </div>
 
       {/* 하단 네비게이션 */}
-      <BottomNavigation
-        activeView={showMemoPanel ? "memo" : currentView}
-        onViewChange={handleViewChange}
-      />
+      <div className="shrink-0">
+        <BottomNavigation
+          activeView={showMemoPanel ? "memo" : currentView}
+          onViewChange={handleViewChange}
+        />
+      </div>
     </div>
   );
 };
