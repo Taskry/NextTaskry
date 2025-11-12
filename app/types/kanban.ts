@@ -2,7 +2,7 @@
 export type TaskStatus = "todo" | "inprogress" | "done";
 
 // Task 우선순위 - DB: task_priority ENUM
-export type TaskPriority = "낮음" | "보통" | "높음";
+export type TaskPriority = "low" | "normal" | "high";
 
 // ============================================
 // Subtask - DB에서 JSON으로 저장됨
