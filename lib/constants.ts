@@ -15,12 +15,12 @@ import { Task, TaskStatus, TaskPriority } from "@/app/types";
 export const KANBAN_COLUMNS = [
   {
     id: "todo" as const, // as const = 값을 변경 불가능하게
-    title: "할 일",
+    title: "TODO",
     color: "bg-gray-500",
   },
   {
     id: "inprogress" as const,
-    title: "진행 중",
+    title: "진행중",
     color: "bg-blue-500",
   },
   {
@@ -34,9 +34,9 @@ export const KANBAN_COLUMNS = [
 // 우선순위별 색상 (Tailwind CSS 클래스)
 // ============================================
 export const PRIORITY_COLORS = {
-  low: "bg-green-100 text-green-800",
-  normal: "bg-yellow-100 text-yellow-800",
-  high: "bg-red-100 text-red-800",
+  low: "bg-green-100/40 text-green-800",
+  normal: "bg-yellow-100/40 text-yellow-800",
+  high: "bg-red-100/40 text-red-800",
 };
 
 /**
