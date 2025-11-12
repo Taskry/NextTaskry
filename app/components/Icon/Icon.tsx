@@ -5,7 +5,7 @@ import { TbSun, TbMoon, TbSunMoon } from "react-icons/tb";
 import { TbUsers, TbUserPlus, TbUserCircle, TbUserCheck } from "react-icons/tb";
 
 // CRUD?
-import { TbPencil, TbEdit, TbTrash } from "react-icons/tb";
+import { TbPencil, TbEdit, TbTrash, TbAlertTriangle } from "react-icons/tb";
 
 // Calendar & Clock
 import {
@@ -67,6 +67,7 @@ const ICON_MAP: Record<string, IconType> = {
   pencil: TbPencil,
   edit: TbEdit,
   trash: TbTrash,
+  alertTriangle: TbAlertTriangle,
 
   //Calendar & Clock
   calendar: TbCalendar,
