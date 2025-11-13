@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Button from "../Button/Button";
 import { Icon } from "../Icon/Icon";
 import { useEffect } from "react";
-import { ModalProps } from "../../types/modal";
+import { ModalProps } from "@/app/types/modal";
 import { modalConfigs } from "./modalConfigs";
 
 const modalClasses = clsx(
@@ -33,8 +33,12 @@ export default function Modal({
   description,
   warning,
   buttonDisabled,
+  children,
 }: ModalProps) {
-  const config = type ? modalConfigs[type as keyof typeof modalConfigs] : {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const config = type
+    ? modalConfigs[type as keyof typeof modalConfigs]
+    : ({} as any);
   // prop으로 전달받은 title, description이 있다면 사용하고, 없으면 config 값 사용
   const finalTitle = title ?? config.title;
   const finalDescription = description ?? config.description;
@@ -84,22 +88,28 @@ export default function Modal({
           <Icon type="x" />
         </button>
 
-        {/* 텍스트 */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">{finalTitle}</h2>
-          <p
-            className="text-base font-medium mt-2"
-            dangerouslySetInnerHTML={{ __html: finalDescription }}
-          />
+        {/* 텍스트 또는 커스텀 컨텐츠 */}
+        <div className="text-center w-full">
+          {children ? (
+            children
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold">{finalTitle}</h2>
+              <p
+                className="text-base font-medium mt-2"
+                dangerouslySetInnerHTML={{ __html: finalDescription }}
+              />
 
-          {finalWarning && (
-            <p className="text-sm font-semibold mt-5 text-red-500">
-              {finalWarning}
-            </p>
-          )}
+              {finalWarning && (
+                <p className="text-sm font-semibold mt-5 text-red-500">
+                  {finalWarning}
+                </p>
+              )}
 
-          {config.info && (
-            <p className={`text-sm font-medium mt-5`}>{config.info}</p>
+              {config.info && (
+                <p className={`text-sm font-medium mt-5`}>{config.info}</p>
+              )}
+            </>
           )}
         </div>
 

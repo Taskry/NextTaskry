@@ -1,4 +1,4 @@
-interface ModalProps {
+export interface ModalProps {
   type?: "delete" | "success" | "error" | "progress";
   isOpen: boolean;
   onClose: () => void;
@@ -7,4 +7,5 @@ interface ModalProps {
   description?: string;
   warning?: string;
   buttonDisabled?: boolean;
+  children?: React.ReactNode;
 }
