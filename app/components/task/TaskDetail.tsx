@@ -28,8 +28,13 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
       return;
     }
 
-    // Mock: API 호출 없이 바로 업데이트
-    onUpdate?.(editedTask);
+    const updatedTask = {
+      ...editedTask,
+      updated_at: new Date().toISOString(),
+    };
+
+    onUpdate?.(updatedTask);
+    setEditingField(null);
   };
 
   const handleClose = () => {
@@ -38,7 +43,6 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
       if (confirmed) {
         handleSave();
       } else {
-        // 저장하지 않고 닫기
         setEditedTask(task);
       }
     }
@@ -226,36 +230,83 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
       </div>
 
       {/* 담당자 */}
-      <div
-        onClick={() =>
-          editingField !== "assigned_to" && setEditingField("assigned_to")
-        }
-      >
+      <div>
         <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
           <Icon type="userCircle" size={16} color="#6B7280" />
           담당자
         </h3>
         {editingField === "assigned_to" ? (
-          <input
-            type="text"
-            value={editedTask.assigned_to || ""}
-            onChange={(e) =>
-              setEditedTask({ ...editedTask, assigned_to: e.target.value })
-            }
-            onBlur={() => setEditingField(null)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") setEditingField(null);
-              if (e.key === "Escape") {
-                setEditedTask(task);
-                setEditingField(null);
-              }
-            }}
-            autoFocus
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
-            placeholder="담당자 이름"
-          />
+          <div className="space-y-2">
+            <div className="relative">
+              <Icon
+                type="search"
+                size={18}
+                color="#9CA3AF"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+              />
+              <input
+                type="text"
+                value={editedTask.assigned_to || ""}
+                onChange={(e) =>
+                  setEditedTask({ ...editedTask, assigned_to: e.target.value })
+                }
+                onBlur={() => setEditingField(null)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setEditingField(null);
+                  if (e.key === "Escape") {
+                    setEditedTask(task);
+                    setEditingField(null);
+                  }
+                }}
+                autoFocus
+                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
+                placeholder="팀원 이름 검색..."
+              />
+            </div>
+            {/* 팀원 목록 */}
+            {editedTask.assigned_to && (
+              <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+                {[
+                  "김철수",
+                  "이영희",
+                  "박민수",
+                  "최지원",
+                  "정수현",
+                  "강민지",
+                  "윤대현",
+                  "송하늘",
+                  "임서연",
+                ]
+                  .filter((name) =>
+                    name
+                      .toLowerCase()
+                      .includes(editedTask.assigned_to?.toLowerCase() || "")
+                  )
+                  .map((name) => (
+                    <div
+                      key={name}
+                      onClick={() => {
+                        setEditedTask({ ...editedTask, assigned_to: name });
+                        setEditingField(null);
+                      }}
+                      className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-main-200 flex items-center justify-center">
+                        <span className="text-sm font-medium text-main-600">
+                          {name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-700">{name}</span>
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
         ) : task.assigned_to ? (
-          <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+          <div
+            onClick={() => setEditingField("assigned_to")}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+          >
             <div className="w-8 h-8 rounded-full bg-main-200 flex items-center justify-center">
               <span className="text-sm font-medium text-main-600">
                 {task.assigned_to.charAt(0).toUpperCase()}
@@ -264,7 +315,10 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
             <span className="text-gray-700">{task.assigned_to}</span>
           </div>
         ) : (
-          <p className="text-gray-400 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+          <p
+            onClick={() => setEditingField("assigned_to")}
+            className="text-gray-400 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
+          >
             클릭하여 담당자 추가
           </p>
         )}
@@ -332,15 +386,19 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
       </div>
 
       {/* 하위 할 일 */}
-      {task.subtasks && task.subtasks.length > 0 && (
-        <div>
-          <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-            <Icon type="checkList" size={16} color="#6B7280" />
-            하위 할 일
-          </h3>
-          <SubtaskList subtasks={task.subtasks} />
-        </div>
-      )}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-600 mb-3 flex items-center gap-2">
+          <Icon type="checkList" size={16} color="#6B7280" />
+          하위 할 일
+        </h3>
+        <SubtaskList
+          subtasks={editedTask.subtasks || []}
+          editable={true}
+          onUpdate={(updatedSubtasks) =>
+            setEditedTask({ ...editedTask, subtasks: updatedSubtasks })
+          }
+        />
+      </div>
 
       {/* 메모 */}
       <div onClick={() => editingField !== "memo" && setEditingField("memo")}>
@@ -375,6 +433,27 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
           </p>
         )}
       </div>
+
+      {/* 저장 버튼 */}
+      {hasChanges() && (
+        <div className="flex gap-3 pt-4 border-t">
+          <Button
+            variant="basic"
+            size="base"
+            onClick={() => setEditedTask(task)}
+          >
+            취소
+          </Button>
+          <Button
+            variant="bgMain300"
+            size="base"
+            textColor="white"
+            onClick={handleSave}
+          >
+            저장
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
