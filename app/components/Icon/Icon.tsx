@@ -29,6 +29,7 @@ import {
   TbDetails,
   TbLayoutKanbanFilled,
   TbProgressAlert,
+  TbFolder,
 } from "react-icons/tb";
 
 // check
@@ -43,7 +44,7 @@ import {
 } from "react-icons/tb";
 
 // etc
-import { TbX, TbPlus, TbBrandGoogleFilled } from "react-icons/tb";
+import { TbX, TbPlus, TbBrandGoogleFilled, TbBellFilled } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { PiImageSquare } from "react-icons/pi";
@@ -90,6 +91,7 @@ const ICON_MAP: Record<string, IconType> = {
   details: TbDetails,
   kanban: TbLayoutKanbanFilled,
   squareCheck: TbSquareCheck,
+  folder: TbFolder,
 
   //circle
   circleCheck: TbCircleCheck,
@@ -110,6 +112,7 @@ const ICON_MAP: Record<string, IconType> = {
   speakerPhone: HiOutlineSpeakerphone,
   dot: TbDots,
   description: GrTextAlignFull,
+  bellFilled: TbBellFilled,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
@@ -134,9 +137,7 @@ const Icon = ({
   const iconType = type ? type : "x";
   const IconComponent = ICON_MAP[iconType]; // type에 맞는 아이콘이 없으면 TbX를 기본으로 사용
 
-  return (
-    <IconComponent size={size} color={color} className={className} />
-  );
+  return <IconComponent size={size} color={color} className={className} />;
 };
 
 export { Icon };
