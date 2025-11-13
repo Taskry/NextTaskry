@@ -39,6 +39,7 @@ import {
   TbCirclePlus,
   TbCirclePlusFilled,
   TbSquareCheck,
+  TbAlertCircleFilled,
 } from "react-icons/tb";
 
 // etc
@@ -97,6 +98,7 @@ const ICON_MAP: Record<string, IconType> = {
   circlePlus: TbCirclePlus,
   circlePlusFilled: TbCirclePlusFilled,
   progressAlert: TbProgressAlert,
+  alertCircleFilled: TbAlertCircleFilled,
 
   // etc
   x: TbX,
