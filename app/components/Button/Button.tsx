@@ -5,7 +5,7 @@ import {
   baseSizeClasses,
   baseRadiusClasses,
   baseTextColorClasses,
-  borderClasses,
+  borderClasses, 
   borderColorClasses,
   iconSizeClasses,
   iconColorClasses,
