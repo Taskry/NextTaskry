@@ -4,6 +4,8 @@ import "./globals.css";
 import { Header } from "../app/components/Header/Header"
 import  Provider  from "../app/providers/providers";
 import { Navigation } from "./components/Navigation";
+import Toaster from "./components/Toaster/Toaster";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -37,6 +39,8 @@ export default function RootLayout({
           <Header/>
           <Navigation />
           <div className="flex-1 overflow-hidden">{children}</div>
+
+          <Toaster />
         </div>
 
         </Provider>
