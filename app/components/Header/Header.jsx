@@ -8,7 +8,7 @@ export function Header() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <header className="w-full h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 bg-white dark:bg-gray-800">
+    <header className="w-full h-14 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 bg-white dark:bg-black">
       
       {/* 왼쪽: 로고 */}
       <Link href="/" className="flex items-center gap-2">
