@@ -25,7 +25,7 @@ const Home = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-gray-50 ">
       {/* 버튼 영역 -> 오른쪽 끝 위치고정 */}
       <div className="px-6 pt-6 pb-2 flex justify-end">
         <Button

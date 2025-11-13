@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Header } from "../app/components/Header/Header"
+import  Provider  from "./providers";
 import { Navigation } from "./components/Navigation";
 import Toaster from "./components/Toaster/Toaster";
 
@@ -25,17 +27,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body 
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden bg-white dark:bg-black text-gray-900 dark:text-gray-100` }
         suppressHydrationWarning={true}
-      >
-        <div className="h-full flex flex-col">
+        >
+
+        <Provider >
+
+        <div className="h-full flex flex-col dark:dark:bg-black">
+          <Header/>
           <Navigation />
           <div className="flex-1 overflow-hidden">{children}</div>
 
           <Toaster />
         </div>
+
+        </Provider>
       </body>
     </html>
   );
