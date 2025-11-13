@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "../app/components/Header/Header"
-import  Provider  from "./providers";
+import  Provider  from "./providers/providers";
 import { Navigation } from "./components/Navigation";
 import Toaster from "./components/Toaster/Toaster";
+import AuthProviders from "./providers/AuthProviders";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +35,7 @@ export default function RootLayout({
         >
 
         <Provider >
-
+        <AuthProviders>
         <div className="h-full flex flex-col dark:dark:bg-black">
           <Header/>
           <Navigation />
@@ -42,6 +43,7 @@ export default function RootLayout({
 
           <Toaster />
         </div>
+        </AuthProviders>
 
         </Provider>
       </body>
