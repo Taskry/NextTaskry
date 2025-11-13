@@ -1,10 +1,10 @@
 // components/TaskCard.tsx
 
 import { Task } from "@/app/types";
-import PriorityBadge from "./task/PriorityBadge";
-import AssigneeInfo from "./task/AssigneeInfo";
-import SubtaskList from "./task/SubtaskList";
-import DateInfo from "./task/DateInfo";
+import PriorityBadge from "./PriorityBadge";
+import AssigneeInfo from "./AssigneeInfo";
+import SubtaskList from "./SubtaskList";
+import DateInfo from "./DateInfo";
 
 interface TaskCardProps {
   task: Task;

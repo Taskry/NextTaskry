@@ -1,7 +1,7 @@
 // app/components/task/TaskDetail.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Task, TaskPriority, TaskStatus } from "@/app/types/kanban";
 import PriorityBadge from "./PriorityBadge";
 import SubtaskList from "./SubtaskList";
@@ -45,6 +45,10 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
     onClose?.();
   };
 
+  useEffect(() => {
+    return () => {};
+  }, []);
+
   const handleDelete = () => {
     if (!confirm("정말 이 작업을 삭제하시겠습니까?")) return;
 
@@ -62,15 +66,7 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
             생성일: {new Date(task.created_at).toLocaleDateString("ko-KR")}
           </span>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="basic"
-            size="sm"
-            textColor="txtMain600"
-            onClick={handleClose}
-          >
-            닫기
-          </Button>
+        <div className="flex">
           <Button
             variant="lightRed100"
             size="sm"
@@ -137,21 +133,23 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
               <option value="done">완료</option>
             </select>
           ) : (
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-                task.status === "todo"
-                  ? "bg-gray-100 text-gray-700"
+            <div className="flex">
+              <span
+                className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                  task.status === "todo"
+                    ? "bg-gray-100 text-gray-700"
+                    : task.status === "inprogress"
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-green-100 text-green-700"
+                }`}
+              >
+                {task.status === "todo"
+                  ? "할 일"
                   : task.status === "inprogress"
-                  ? "bg-blue-100 text-blue-700"
-                  : "bg-green-100 text-green-700"
-              }`}
-            >
-              {task.status === "todo"
-                ? "할 일"
-                : task.status === "inprogress"
-                ? "진행 중"
-                : "완료"}
-            </span>
+                  ? "진행 중"
+                  : "완료"}
+              </span>
+            </div>
           )}
         </div>
 
@@ -333,12 +331,12 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
         </div>
       </div>
 
-      {/* 서브태스크 */}
+      {/* 하위 할 일 */}
       {task.subtasks && task.subtasks.length > 0 && (
         <div>
           <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
             <Icon type="checkList" size={16} color="#6B7280" />
-            서브 태스크
+            하위 할 일
           </h3>
           <SubtaskList subtasks={task.subtasks} />
         </div>
