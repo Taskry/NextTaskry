@@ -7,6 +7,9 @@ import KanbanBoard from "./components/kanban/KanbanBoard";
 import MemoPanel from "./components/kanban/MemoPanel";
 import BottomNavigation from "./components/BottomNavigation";
 import Button from "./components/Button/Button";
+import Modal from "./components/Modal/Modal";
+import TaskForm from "@/app/components/TaskForm";
+import { Task } from "./types";
 
 type ViewType = "calendar" | "kanban" | "memo" | "project";
 
@@ -21,6 +24,37 @@ const Home = () => {
     } else {
       setCurrentView(view);
       setShowMemoPanel(false);
+    }
+  };
+
+  const handleCreateTask = async (
+    taskData: Omit<Task, "id" | "created_at" | "updated_at">
+  ) => {
+    try {
+      console.log("Sending task data:", taskData);
+
+      const response = await fetch("/api/card", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(taskData),
+      });
+
+      const responseData = await response.json();
+      console.log("Response:", responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData.error || "Task creation failed");
+      }
+
+      console.log("Task created:", responseData);
+
+      // 칸반보드 새로고침
+      window.location.reload();
+    } catch (error) {
+      console.error("Error creating task:", error);
+      alert(`작업 생성 실패: ${error}`);
     }
   };
 
@@ -81,6 +115,18 @@ const Home = () => {
           onViewChange={handleViewChange}
         />
       </div>
+
+      {/* Task 생성 모달 */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">새 작업 생성</h2>
+          <TaskForm
+            boardId="550e8400-e29b-41d4-a716-446655440000"
+            onSubmit={handleCreateTask}
+            onCancel={() => setIsModalOpen(false)}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
