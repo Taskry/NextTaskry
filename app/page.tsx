@@ -27,35 +27,25 @@ const Home = () => {
     }
   };
 
-  const handleCreateTask = async (
+  const handleCreateTask = (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
-    try {
-      console.log("Sending task data:", taskData);
+    // Mock: 새 Task 객체 생성 (DB 없이 로컬에서만 작동)
+    const newTask: Task = {
+      ...taskData,
+      id: `mock-${Date.now()}`, // 임시 ID 생성
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
 
-      const response = await fetch("/api/card", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(taskData),
-      });
+    console.log("Mock task created:", newTask);
+    alert("작업이 생성되었습니다! (Mock 데이터 - 새로고침 시 사라집니다)");
 
-      const responseData = await response.json();
-      console.log("Response:", responseData);
+    // 모달 닫기
+    setIsModalOpen(false);
 
-      if (!response.ok) {
-        throw new Error(responseData.error || "Task creation failed");
-      }
-
-      console.log("Task created:", responseData);
-
-      // 칸반보드 새로고침
-      window.location.reload();
-    } catch (error) {
-      console.error("Error creating task:", error);
-      alert(`작업 생성 실패: ${error}`);
-    }
+    // TODO: 실제 구현 시 KanbanBoard에 newTask 추가하는 로직 필요
+    // 현재는 Mock이므로 새로고침하면 사라짐
   };
 
   return (

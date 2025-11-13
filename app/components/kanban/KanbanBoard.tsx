@@ -1,44 +1,17 @@
 // components/kanban/KanbanBoard.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/app/types";
 import KanbanColumn from "./KanbanColumn";
 import Modal from "../Modal/Modal";
 import TaskDetail from "../task/TaskDetail";
+import { mockTasks } from "@/app/data/mockTasks";
 
 const KanbanBoard = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [tasks, setTasks] = useState<Task[]>(mockTasks); // Mock 데이터로 초기화
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          "/api/card?kanbanBoardId=550e8400-e29b-41d4-a716-446655440000"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch tasks");
-        }
-
-        const data = await response.json();
-        setTasks(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
-        setError("작업을 불러오는데 실패했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, []);
 
   // 상태별로 작업 그룹화
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
@@ -50,7 +23,7 @@ const KanbanBoard = () => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
     );
-    setSelectedTask(null);
+    setSelectedTask(updatedTask); // 모달 유지하며 데이터 업데이트
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -67,36 +40,21 @@ const KanbanBoard = () => {
         </h2>
       </div>
 
-      {/* 로딩/에러 상태 */}
-      {loading && (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500">작업을 불러오는 중...</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-red-500">{error}</p>
-        </div>
-      )}
-
       {/* 칸반 그리드 */}
-      {!loading && !error && (
-        <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4">
-          <div className="flex gap-4 h-full">
-            {KANBAN_COLUMNS.map((column) => (
-              <KanbanColumn
-                key={column.id}
-                id={column.id}
-                title={column.title}
-                color={column.color}
-                tasks={groupedTasks[column.id] || []}
-                onTaskClick={(task) => setSelectedTask(task)}
-              />
-            ))}
-          </div>
+      <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4">
+        <div className="flex gap-4 h-full">
+          {KANBAN_COLUMNS.map((column) => (
+            <KanbanColumn
+              key={column.id}
+              id={column.id}
+              title={column.title}
+              color={column.color}
+              tasks={groupedTasks[column.id] || []}
+              onTaskClick={(task) => setSelectedTask(task)}
+            />
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Task 상세 모달 */}
       {selectedTask && (

@@ -23,70 +23,33 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
     return JSON.stringify(editedTask) !== JSON.stringify(task);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!hasChanges()) {
       return;
     }
 
-    try {
-      const response = await fetch(`/api/card?id=${task.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editedTask),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update task");
-      }
-
-      const updatedTask = await response.json();
-      onUpdate?.(updatedTask);
-    } catch (error) {
-      console.error("Error updating task:", error);
-      alert("작업 수정에 실패했습니다.");
-      throw error;
-    }
+    // Mock: API 호출 없이 바로 업데이트
+    onUpdate?.(editedTask);
   };
 
-  const handleClose = async () => {
+  const handleClose = () => {
     if (hasChanges()) {
       const confirmed = confirm("변경 사항이 있습니다. 저장하시겠습니까?");
       if (confirmed) {
-        try {
-          await handleSave();
-          onClose?.();
-        } catch {
-          // 저장 실패 시 모달을 닫지 않음
-        }
+        handleSave();
       } else {
         // 저장하지 않고 닫기
         setEditedTask(task);
-        onClose?.();
       }
-    } else {
-      onClose?.();
     }
+    onClose?.();
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!confirm("정말 이 작업을 삭제하시겠습니까?")) return;
 
-    try {
-      const response = await fetch(`/api/card?id=${task.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete task");
-      }
-
-      onDelete?.(task.id);
-    } catch (error) {
-      console.error("Error deleting task:", error);
-      alert("작업 삭제에 실패했습니다.");
-    }
+    // Mock: API 호출 없이 바로 삭제
+    onDelete?.(task.id);
   };
 
   return (
