@@ -74,7 +74,7 @@ export default function Modal({
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
       <div className={modalInnerClasses}>
         {/* 모달 아이콘 */}
-        {config.icon && (
+        {config?.icon && (
           <div className={modalIconClasses}>
             <Icon
               type={config.icon}
@@ -95,10 +95,7 @@ export default function Modal({
           ) : (
             <>
               <h2 className="text-2xl font-bold">{finalTitle}</h2>
-              <p
-                className="text-base font-medium mt-2"
-                dangerouslySetInnerHTML={{ __html: finalDescription }}
-              />
+              <p className="text-base font-medium mt-2">{finalDescription}</p>
 
               {finalWarning && (
                 <p className="text-sm font-semibold mt-5 text-red-500">
@@ -106,7 +103,7 @@ export default function Modal({
                 </p>
               )}
 
-              {config.info && (
+              {config?.info && (
                 <p className={`text-sm font-medium mt-5`}>{config.info}</p>
               )}
             </>
@@ -114,16 +111,16 @@ export default function Modal({
         </div>
 
         {/* 버튼 */}
-        {(config.buttonCancelText || config.buttonConfirmText) && (
+        {(config?.buttonCancelText || config?.buttonConfirmText) && (
           <div className="flex gap-3 justify-center mt-6">
-            {config.buttonCancelText && (
+            {config?.buttonCancelText && (
               <Button variant="basic" size="base" onClick={onClose}>
                 {config.buttonCancelText}
               </Button>
             )}
-            {config.buttonConfirmText && (
+            {config?.buttonConfirmText && (
               <Button
-                variant={config.confirmVariant}
+                variant="warning"
                 size="base"
                 onClick={onConfirm}
                 textColor="white"
