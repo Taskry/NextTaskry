@@ -8,7 +8,7 @@ import MemoPanel from "./components/kanban/MemoPanel";
 import BottomNavigation from "./components/BottomNavigation";
 import Button from "./components/Button/Button";
 import Modal from "./components/Modal/Modal";
-import TaskForm from "./components/TaskForm";
+import TaskForm from "./components/task/TaskForm";
 import { Task } from "./types/kanban";
 
 type ViewType = "calendar" | "kanban" | "memo" | "project";
