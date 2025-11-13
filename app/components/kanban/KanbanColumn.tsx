@@ -12,7 +12,7 @@ interface KanbanColumnProps {
 
 const KanbanColumn = ({ id, title, color, tasks }: KanbanColumnProps) => {
   return (
-    <div className="w-80 flex-shrink-0">
+    <div className="w-80 shrink-0">
       {" "}
       {/* 👈 320px 고정 */}
       <div className="bg-gray-50 p-3 rounded-lg h-full flex flex-col">

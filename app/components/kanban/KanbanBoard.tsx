@@ -5,7 +5,7 @@ import KanbanColumn from "./KanbanColumn";
 
 const KanbanBoard = () => {
   return (
-    <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden w-full">
       {/* 헤더 */}
       <div className="px-6 py-4 border-b border-gray-200 bg-main-200/80">
         <h2 className="text-xl font-bold text-gray-800">

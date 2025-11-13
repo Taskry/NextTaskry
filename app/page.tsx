@@ -7,6 +7,9 @@ import KanbanBoard from "./components/kanban/KanbanBoard";
 import MemoPanel from "./components/kanban/MemoPanel";
 import BottomNavigation from "./components/BottomNavigation";
 import Button from "./components/Button/Button";
+import Modal from "./components/Modal/Modal";
+import TaskForm from "./components/TaskForm";
+import { Task } from "./types/kanban";
 
 type ViewType = "calendar" | "kanban" | "memo" | "project";
 
@@ -24,6 +27,16 @@ const Home = () => {
     }
   };
 
+  const handleCreateTask = (
+    taskData: Omit<Task, "id" | "created_at" | "updated_at">
+  ) => {
+    // TODO: 실제 Task 생성 로직 구현
+    console.log("새 작업 생성:", taskData);
+    setIsModalOpen(false);
+    // 임시로 alert 표시
+    alert(`새 작업이 생성되었습니다: ${taskData.title}`);
+  };
+
   return (
     <div className="h-full flex flex-col bg-gray-50">
       {/* 버튼 영역 -> 오른쪽 끝 위치고정 */}
@@ -39,7 +52,7 @@ const Home = () => {
       </div>
 
       {/* 메인 영역 */}
-      <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-6 min-h-0">
+      <div className="flex-1 flex overflow-hidden pl-6 pb-6 gap-6 min-h-0">
         {/* 왼쪽: 메인 뷰 */}
         <div
           className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
@@ -81,6 +94,15 @@ const Home = () => {
           onViewChange={handleViewChange}
         />
       </div>
+
+      {/* Task 생성 모달 */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <TaskForm
+          onSubmit={handleCreateTask}
+          onCancel={() => setIsModalOpen(false)}
+          boardId="main-board" // 현재 칸반보드 ID 전달
+        />
+      </Modal>
     </div>
   );
 };
