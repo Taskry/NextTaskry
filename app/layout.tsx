@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "./components/Navigation";
 import Toaster from "./components/Toaster/Toaster";
-
+import AuthProviders from "./providers/AuthProviders";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -30,12 +30,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
         suppressHydrationWarning={true}
       >
+        <AuthProviders>
         <div className="h-full flex flex-col">
           <Navigation />
           <div className="flex-1 overflow-hidden">{children}</div>
 
           <Toaster />
         </div>
+        </AuthProviders>
       </body>
     </html>
   );
