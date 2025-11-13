@@ -121,6 +121,7 @@ interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
   color?: string;
   props?: any;
+  className?: string;
 }
 
 const Icon = ({
@@ -134,9 +135,7 @@ const Icon = ({
   const IconComponent = ICON_MAP[iconType]; // type에 맞는 아이콘이 없으면 TbX를 기본으로 사용
 
   return (
-    <div className={`flex items-center justify-center ${className}`} {...props}>
-      <IconComponent size={size} color={color} />
-    </div>
+    <IconComponent size={size} color={color} className={className} />
   );
 };
 

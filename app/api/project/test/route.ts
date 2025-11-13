@@ -15,6 +15,23 @@ export async function GET(request: Request) {
     params: {
       projectId: id || '파라미터 없음',
     },
+    data: [
+       {
+            id: "project01",
+            projectName: "project01",
+            description: "IOS와 Android를 지원하는 크로스 플랫폼 앱을 개발합니다"
+        },
+        {
+            id: "project02",
+            projectName: "project02",
+            description: "IOS와 Android를 지원하는 크로스 플랫폼 앱을 개발합니다"
+        },
+        {
+            id: "project03",
+            projectName: "project03",
+            description: "IOS와 Android를 지원하는 크로스 플랫폼 앱을 개발합니다"
+        }
+    ],
     timestamp: new Date().toISOString()
   }
 
