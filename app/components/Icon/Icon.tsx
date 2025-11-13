@@ -1,11 +1,11 @@
 // Theme
-import { TbSun, TbMoon, TbSunMoon } from 'react-icons/tb';
+import { TbSun, TbMoon, TbSunMoon } from "react-icons/tb";
 
 // User
-import { TbUsers, TbUserPlus, TbUserCircle, TbUserCheck } from 'react-icons/tb';
+import { TbUsers, TbUserPlus, TbUserCircle, TbUserCheck } from "react-icons/tb";
 
 // CRUD?
-import { TbPencil, TbEdit, TbTrash } from 'react-icons/tb';
+import { TbPencil, TbEdit, TbTrash, TbAlertTriangle } from "react-icons/tb";
 
 // Calendar & Clock
 import {
@@ -14,12 +14,12 @@ import {
   TbCalendarCheck,
   TbCalendarShare,
   TbCalendarPlus,
-  TbCalendarEventFilled
-} from 'react-icons/tb';
-import { TbClock } from 'react-icons/tb';
+  TbCalendarEventFilled,
+} from "react-icons/tb";
+import { TbClock } from "react-icons/tb";
 
 // search
-import { TbSearch, TbFilter } from 'react-icons/tb';
+import { TbSearch, TbFilter } from "react-icons/tb";
 
 // project
 import {
@@ -28,8 +28,8 @@ import {
   TbChecklist,
   TbDetails,
   TbLayoutKanbanFilled,
-  TbProgressAlert
-} from 'react-icons/tb';
+  TbProgressAlert,
+} from "react-icons/tb";
 
 // check
 import {
@@ -38,74 +38,76 @@ import {
   TbInfoCircle,
   TbCirclePlus,
   TbCirclePlusFilled,
-  TbSquareCheck
-} from 'react-icons/tb';
+  TbSquareCheck,
+} from "react-icons/tb";
 
 // etc
-import { TbX, TbPlus } from 'react-icons/tb';
-import { IoIosArrowDown } from 'react-icons/io';
-import { IoEye } from 'react-icons/io5';
-import { PiImageSquare } from 'react-icons/pi';
-import { HiOutlineSpeakerphone } from 'react-icons/hi';
-import { TbDots } from 'react-icons/tb';
-import { GrTextAlignFull } from 'react-icons/gr';
-import { IconType } from 'react-icons';
+import { TbX, TbPlus, TbBrandGoogleFilled } from "react-icons/tb";
+import { IoIosArrowDown } from "react-icons/io";
+import { IoEye } from "react-icons/io5";
+import { PiImageSquare } from "react-icons/pi";
+import { HiOutlineSpeakerphone } from "react-icons/hi";
+import { TbDots } from "react-icons/tb";
+import { GrTextAlignFull } from "react-icons/gr";
+import { IconType } from "react-icons";
 
 const ICON_MAP: Record<string, IconType> = {
   //Theme
-  'sun': TbSun,
-  'moon': TbMoon,
-  'sunMoon': TbSunMoon,
+  sun: TbSun,
+  moon: TbMoon,
+  sunMoon: TbSunMoon,
 
   //User
-  'users': TbUsers,
-  'userPlus': TbUserPlus,
-  'userCircle': TbUserCircle,
-  'userCheck': TbUserCheck,
+  users: TbUsers,
+  userPlus: TbUserPlus,
+  userCircle: TbUserCircle,
+  userCheck: TbUserCheck,
 
   //CRUD?
-  'pencil': TbPencil,
-  'edit': TbEdit,
-  'trash': TbTrash,
+  pencil: TbPencil,
+  edit: TbEdit,
+  trash: TbTrash,
+  alertTriangle: TbAlertTriangle,
 
   //Calendar & Clock
-  'calendar': TbCalendar,
-  'calendarPlus': TbCalendarPlus,
-  'calendarCheck': TbCalendarCheck,
-  'calendarShare': TbCalendarShare,
-  'calendarStar': TbCalendarStar,
-  'calendarEvent': TbCalendarEventFilled,
-  'clock': TbClock,
+  calendar: TbCalendar,
+  calendarPlus: TbCalendarPlus,
+  calendarCheck: TbCalendarCheck,
+  calendarShare: TbCalendarShare,
+  calendarStar: TbCalendarStar,
+  calendarEvent: TbCalendarEventFilled,
+  clock: TbClock,
 
   // search
-  'search': TbSearch,
-  'filter': TbFilter,
+  search: TbSearch,
+  filter: TbFilter,
 
   //project
-  'board': TbLayoutBoard,
-  'notes': TbNotes,
-  'checkList': TbChecklist,
-  'details': TbDetails,
-  'kanban': TbLayoutKanbanFilled,
-  'squareCheck': TbSquareCheck,
+  board: TbLayoutBoard,
+  notes: TbNotes,
+  checkList: TbChecklist,
+  details: TbDetails,
+  kanban: TbLayoutKanbanFilled,
+  squareCheck: TbSquareCheck,
 
   //circle
-  'circleCheck': TbCircleCheck,
-  'circleCheckFilled': TbCircleCheckFilled,
-  'circleInfo': TbInfoCircle,
-  'circlePlus': TbCirclePlus,
-  'circlePlusFilled': TbCirclePlusFilled,
-  'progressAlert': TbProgressAlert,
+  circleCheck: TbCircleCheck,
+  circleCheckFilled: TbCircleCheckFilled,
+  circleInfo: TbInfoCircle,
+  circlePlus: TbCirclePlus,
+  circlePlusFilled: TbCirclePlusFilled,
+  progressAlert: TbProgressAlert,
 
   // etc
-  'x': TbX,
-  'plus': TbPlus,
-  'arrowDown': IoIosArrowDown,
-  'eye': IoEye,
-  'imageSquare': PiImageSquare,
-  'speakerPhone': HiOutlineSpeakerphone,
-  'dot': TbDots,
-  'description': GrTextAlignFull
+  x: TbX,
+  plus: TbPlus,
+  google: TbBrandGoogleFilled,
+  arrowDown: IoIosArrowDown,
+  eye: IoEye,
+  imageSquare: PiImageSquare,
+  speakerPhone: HiOutlineSpeakerphone,
+  dot: TbDots,
+  description: GrTextAlignFull,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
@@ -123,14 +125,14 @@ const Icon = ({
   type, // type의 기본값으로 'x' 설정
   size = 24,
   color, // color의 기본값으로 'gray' 설정
-  className = '',
+  className = "",
   ...props
 }: IconProps) => {
-    const iconType = type? type : 'x';
-    const IconComponent = ICON_MAP[iconType]; // type에 맞는 아이콘이 없으면 TbX를 기본으로 사용
+  const iconType = type ? type : "x";
+  const IconComponent = ICON_MAP[iconType]; // type에 맞는 아이콘이 없으면 TbX를 기본으로 사용
 
   return (
-    <div className={`flex items-center justify-center ${className}`} style={{ width: size, height: size }} {...props}>
+    <div className={`flex items-center justify-center ${className}`} {...props}>
       <IconComponent size={size} color={color} />
     </div>
   );
