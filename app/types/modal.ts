@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface ModalProps {
   type?: "delete" | "success" | "error" | "progress";
   isOpen: boolean;

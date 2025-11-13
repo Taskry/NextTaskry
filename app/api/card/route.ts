@@ -1,93 +1,169 @@
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id') || 'all';
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+import { supabase } from "@/lib/supabase";
+import { NextRequest } from "next/server";
 
-  // 쿼리 실행 [카드(tesk) 조회]
-  const result = { 
-    message: `카드[${id}] 정보 조회`,
-    params: {
-      cardId: id || '파라미터 없음',
-    },
-    timestamp: new Date().toISOString()
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    const kanbanBoardId = searchParams.get("kanbanBoardId");
+
+    // 특정 카드 조회
+    if (id && id !== "all") {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+
+      return Response.json(data);
+    }
+
+    // 칸반보드별 카드 목록 조회
+    if (kanbanBoardId) {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .eq("kanban_board_id", kanbanBoardId)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        return Response.json({ error: error.message }, { status: 500 });
+      }
+
+      return Response.json(data);
+    }
+
+    // 전체 카드 조회 (개발용)
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json(data);
+  } catch (error) {
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
 
-export async function POST(request: Request) {
-  const body = await request.json();
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
 
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+    // 필수 필드 검증
+    if (!body.title || !body.kanban_board_id) {
+      return Response.json(
+        { error: "title과 kanban_board_id는 필수입니다." },
+        { status: 400 }
+      );
+    }
 
-  // 쿼리 실행 [카드(tesk) 정보 생성]
-  const result = {
-    message: `카드 정보 생성`,
-    receivedData: body,
-    timestamp: new Date().toISOString()
+    // Task 생성
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert([
+        {
+          kanban_board_id: body.kanban_board_id,
+          title: body.title,
+          description: body.description,
+          status: body.status || "todo",
+          priority: body.priority,
+          assigned_to: body.assigned_to,
+          subtasks: body.subtasks,
+          memo: body.memo,
+          started_at: body.started_at,
+          ended_at: body.ended_at,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json(data, { status: 201 });
+  } catch (error) {
+    console.error("Task creation error:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
 
-export async function PUT(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const body = await request.json();
+export async function PUT(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-  const id = searchParams.get('id');  
-  const { data } = body;
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+    if (!id) {
+      return Response.json(
+        { error: "id 파라미터가 필요합니다." },
+        { status: 400 }
+      );
+    }
 
-  // 쿼리 실행 [카드(tesk) 정보 업데이트]
-  const result = {
-    message: `카드[${id}] 정보 업데이트`,
-    receivedData: body,
-    timestamp: new Date().toISOString()
+    const body = await request.json();
+
+    // Task 업데이트
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({
+        title: body.title,
+        description: body.description,
+        status: body.status,
+        priority: body.priority,
+        assigned_to: body.assigned_to,
+        subtasks: body.subtasks,
+        memo: body.memo,
+        started_at: body.started_at,
+        ended_at: body.ended_at,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json(data);
+  } catch (error) {
+    console.error("Task update error:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
 
-export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');  
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-  
-  // 쿼리 실행 [카드(tesk) 정보 삭제]
-  const result = {
-    message: `카드[${id}] 정보 삭제`,
-    params: {
-      cardId: id || '파라미터 없음',
-    },
-    timestamp: new Date().toISOString()
-  }
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-  // 결과 반환
-  return Response.json(result);
+    if (!id) {
+      return Response.json(
+        { error: "id 파라미터가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    // Task 삭제
+    const { error } = await supabase.from("tasks").delete().eq("id", id);
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ message: "Task deleted successfully" });
+  } catch (error) {
+    console.error("Task deletion error:", error);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

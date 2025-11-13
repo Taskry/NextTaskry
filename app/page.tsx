@@ -30,11 +30,22 @@ const Home = () => {
   const handleCreateTask = (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
-    // TODO: 실제 Task 생성 로직 구현
-    console.log("새 작업 생성:", taskData);
+    // Mock: 새 Task 객체 생성 (DB 없이 로컬에서만 작동)
+    const newTask: Task = {
+      ...taskData,
+      id: `mock-${Date.now()}`, // 임시 ID 생성
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    console.log("Mock task created:", newTask);
+    alert("작업이 생성되었습니다! (Mock 데이터 - 새로고침 시 사라집니다)");
+
+    // 모달 닫기
     setIsModalOpen(false);
-    // 임시로 alert 표시
-    alert(`새 작업이 생성되었습니다: ${taskData.title}`);
+
+    // TODO: 실제 구현 시 KanbanBoard에 newTask 추가하는 로직 필요
+    // 현재는 Mock이므로 새로고침하면 사라짐
   };
 
   return (
