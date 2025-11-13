@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navigation } from "./components/Navigation";
 import { Header } from "../app/components/Header/Header"
-
+import  Provider  from "../app/providers/providers";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,15 +24,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body 
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100` }
         suppressHydrationWarning={true}
-      >
-        <div className="h-full flex flex-col">
-          <Navigation />
+        >
+
+        <Provider >
+
+        <div className="h-full flex flex-col dark:bg-gray-900">
+          <Header/>
+          {/* <Navigation /> */}
           <div className="flex-1 overflow-hidden">{children}</div>
         </div>
+
+        </Provider>
       </body>
     </html>
   );
