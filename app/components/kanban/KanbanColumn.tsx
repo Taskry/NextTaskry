@@ -8,11 +8,17 @@ interface KanbanColumnProps {
   title: string;
   color: string;
   tasks: Task[];
+  onTaskClick?: (task: Task) => void;
 }
 
-const KanbanColumn = ({ id, title, color, tasks }: KanbanColumnProps) => {
+const KanbanColumn = ({
+  title,
+  color,
+  tasks,
+  onTaskClick,
+}: KanbanColumnProps) => {
   return (
-    <div className="w-80 flex-shrink-0">
+    <div className="w-80 shrink-0">
       {" "}
       {/* 👈 320px 고정 */}
       <div className="bg-gray-50 p-3 rounded-lg h-full flex flex-col">
@@ -30,7 +36,11 @@ const KanbanColumn = ({ id, title, color, tasks }: KanbanColumnProps) => {
         {/* Task 카드 목록 - 세로 스크롤 */}
         <div className="flex-1 overflow-y-auto space-y-2 pr-1">
           {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} />
+            <TaskCard
+              key={task.id}
+              task={task}
+              onClick={() => onTaskClick?.(task)}
+            />
           ))}
         </div>
       </div>

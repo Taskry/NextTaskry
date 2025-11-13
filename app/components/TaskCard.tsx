@@ -8,11 +8,15 @@ import DateInfo from "./task/DateInfo";
 
 interface TaskCardProps {
   task: Task;
+  onClick?: () => void;
 }
 
-const TaskCard = ({ task }: TaskCardProps) => {
+const TaskCard = ({ task, onClick }: TaskCardProps) => {
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border hover:shadow-lg transition-shadow">
+    <div
+      className="bg-white p-4 rounded-lg shadow-md border hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={onClick}
+    >
       {/* 제목 */}
       <h3 className="font-bold text-lg mb-2">{task.title}</h3>
 
