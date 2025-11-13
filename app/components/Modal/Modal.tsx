@@ -1,0 +1,130 @@
+"use client";
+
+import clsx from "clsx";
+import Button from "../Button/Button";
+import { Icon } from "../Icon/Icon";
+import { useEffect } from "react";
+import { ModalProps } from "../../types/modal";
+import { modalConfigs } from "./modalConfigs";
+
+const modalClasses = clsx(
+  "fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40",
+  "w-full h-full",
+  "flex items-center"
+);
+
+const modalInnerClasses = clsx(
+  "relative m-auto w-xl min-h-68 py-9 px-7",
+  "flex flex-col items-center justify-center",
+  "border border-gray-100 rounded-2xl shadow-sm bg-white"
+);
+const modalIconClasses = clsx(
+  "size-15 flex items-center justify-center",
+  "absolute -top-8 left-1/2 transform -translate-x-1/2",
+  "shadow-lg rounded-full bg-white"
+);
+
+export default function Modal({
+  type,
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  warning,
+  buttonDisabled,
+}: ModalProps) {
+  const config = type ? modalConfigs[type as keyof typeof modalConfigs] : {};
+  // prop으로 전달받은 title, description이 있다면 사용하고, 없으면 config 값 사용
+  const finalTitle = title ?? config.title;
+  const finalDescription = description ?? config.description;
+  const finalWarning = warning ?? config.warning;
+
+  // 성공 타입은 5초 자동 닫힘
+  useEffect(() => {
+    if (type === "success") {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [type, onClose]);
+
+  // body 스크롤 방지
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div className={modalClasses}>
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className={modalInnerClasses}>
+        {/* 모달 아이콘 */}
+        {config.icon && (
+          <div className={modalIconClasses}>
+            <Icon
+              type={config.icon}
+              className={`${config.iconColor}`}
+              size={config.iconSize}
+            />
+          </div>
+        )}
+        {/* 닫기 버튼 */}
+        <button onClick={onClose} className="absolute top-3 right-3">
+          <Icon type="x" />
+        </button>
+
+        {/* 텍스트 */}
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">{finalTitle}</h2>
+          <p
+            className="text-base font-medium mt-2"
+            dangerouslySetInnerHTML={{ __html: finalDescription }}
+          />
+
+          {finalWarning && (
+            <p className="text-sm font-semibold mt-5 text-red-500">
+              {finalWarning}
+            </p>
+          )}
+
+          {config.info && (
+            <p className={`text-sm font-medium mt-5`}>{config.info}</p>
+          )}
+        </div>
+
+        {/* 버튼 */}
+        {(config.buttonCancelText || config.buttonConfirmText) && (
+          <div className="flex gap-3 justify-center mt-6">
+            {config.buttonCancelText && (
+              <Button variant="basic" size="base" onClick={onClose}>
+                {config.buttonCancelText}
+              </Button>
+            )}
+            {config.buttonConfirmText && (
+              <Button
+                variant={config.confirmVariant}
+                size="base"
+                onClick={onConfirm}
+                textColor="white"
+                disabled={buttonDisabled ?? config.buttonDisabled}
+              >
+                {config.buttonConfirmText}
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
