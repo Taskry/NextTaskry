@@ -1,45 +1,27 @@
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id') || 'all';
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+  const id = searchParams.get("id") || "all";
 
-  // 쿼리 실행 [칸반보드 조회]
-  const result = { 
-    message: `칸반보드[${id}] 정보 조회`,
+  const result = {
+    message: `캔반보드[${id}] 정보 조회`,
     params: {
-      boardId: id || '파라미터 없음',
+      boardId: id || "파라미터 없음",
     },
-    timestamp: new Date().toISOString()
-  }
+    timestamp: new Date().toISOString(),
+  };
 
-  // 결과 반환
   return Response.json(result);
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
 
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-
-  // 쿼리 실행 [칸반보드 정보 생성]
   const result = {
-    message: `칸반보드 정보 생성`,
+    message: `캔반보드 정보 생성`,
     receivedData: body,
-    timestamp: new Date().toISOString()
-  }
+    timestamp: new Date().toISOString(),
+  };
 
-  // 결과 반환
   return Response.json(result);
 }
 
@@ -47,47 +29,28 @@ export async function PUT(request: Request) {
   const { searchParams } = new URL(request.url);
   const body = await request.json();
 
-  const id = searchParams.get('id');  
-  const { data } = body;
+  const id = searchParams.get("id");
 
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-  
-  // 쿼리 실행 [칸반보드 정보 업데이트]
   const result = {
-    message: `칸반보드[${id}] 정보 업데이트`,
+    message: `캔반보드[${id}] 정보 업데이트`,
     receivedData: body,
-    timestamp: new Date().toISOString()
-  }
+    timestamp: new Date().toISOString(),
+  };
 
-  // 결과 반환
   return Response.json(result);
 }
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');  
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-  
-  // 쿼리 실행 [칸반보드 정보 삭제]
-  const result = {
-    message: `칸반보드[${id}] 정보 삭제`,
-    params: {
-      boardId: id || '파라미터 없음',
-    },
-    timestamp: new Date().toISOString()
-  }
+  const id = searchParams.get("id");
 
-  // 결과 반환
+  const result = {
+    message: `캔반보드[${id}] 정보 삭제`,
+    params: {
+      boardId: id || "파라미터 없음",
+    },
+    timestamp: new Date().toISOString(),
+  };
+
   return Response.json(result);
 }

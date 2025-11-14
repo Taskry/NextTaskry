@@ -44,7 +44,14 @@ import {
 } from "react-icons/tb";
 
 // etc
-import { TbX, TbPlus, TbBrandGoogleFilled, TbBellFilled } from "react-icons/tb";
+import {
+  TbX,
+  TbPlus,
+  TbBrandGoogleFilled,
+  TbChevronRight,
+  TbChevronLeft,
+  TbBellFilled,
+} from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { PiImageSquare } from "react-icons/pi";
@@ -107,6 +114,8 @@ const ICON_MAP: Record<string, IconType> = {
   plus: TbPlus,
   google: TbBrandGoogleFilled,
   arrowDown: IoIosArrowDown,
+  arrowLeft: TbChevronLeft,
+  chevronRight: TbChevronRight,
   eye: IoEye,
   imageSquare: PiImageSquare,
   speakerPhone: HiOutlineSpeakerphone,
@@ -127,15 +136,9 @@ interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-const Icon = ({
-  type, // type의 기본값으로 'x' 설정
-  size = 24,
-  color, // color의 기본값으로 'gray' 설정
-  className = "",
-  ...props
-}: IconProps) => {
+const Icon = ({ type, size = 24, color, className = "" }: IconProps) => {
   const iconType = type ? type : "x";
-  const IconComponent = ICON_MAP[iconType]; // type에 맞는 아이콘이 없으면 TbX를 기본으로 사용
+  const IconComponent = ICON_MAP[iconType];
 
   return <IconComponent size={size} color={color} className={className} />;
 };
