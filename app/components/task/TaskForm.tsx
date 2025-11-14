@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Task, TaskStatus, TaskPriority } from "../types";
+import { Task, TaskStatus, TaskPriority } from "@/app/types/kanban";
+import { Icon } from "../Icon/Icon";
 
 interface TaskFormProps {
   boardId: string;
@@ -21,6 +22,7 @@ const TaskForm = ({ boardId, onSubmit, onCancel }: TaskFormProps) => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showTeamMemberDropdown, setShowTeamMemberDropdown] = useState(false);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -144,13 +146,68 @@ const TaskForm = ({ boardId, onSubmit, onCancel }: TaskFormProps) => {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           담당자
         </label>
-        <input
-          type="text"
-          value={formData.assigned_to}
-          onChange={(e) => handleChange("assigned_to", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
-          placeholder="담당자 ID를 입력하세요"
-        />
+        <div className="relative">
+          <Icon
+            type="search"
+            size={18}
+            color="#9CA3AF"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none"
+          />
+          <input
+            type="text"
+            value={formData.assigned_to}
+            onChange={(e) => {
+              handleChange("assigned_to", e.target.value);
+              setShowTeamMemberDropdown(e.target.value.length > 0);
+            }}
+            onFocus={() =>
+              setShowTeamMemberDropdown(formData.assigned_to.length > 0)
+            }
+            onBlur={() =>
+              setTimeout(() => setShowTeamMemberDropdown(false), 200)
+            }
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
+            placeholder="팀원 이름 검색..."
+          />
+          {/* 팀원 목록 드롭다운 */}
+          {showTeamMemberDropdown && formData.assigned_to && (
+            <div className="absolute z-10 w-full mt-1 border border-gray-200 rounded-lg bg-white shadow-lg max-h-48 overflow-y-auto">
+              {[
+                "김철수",
+                "이영희",
+                "박민수",
+                "최지원",
+                "정수현",
+                "강민지",
+                "윤대현",
+                "송하늘",
+                "임서연",
+              ]
+                .filter((name) =>
+                  name
+                    .toLowerCase()
+                    .includes(formData.assigned_to.toLowerCase())
+                )
+                .map((name) => (
+                  <div
+                    key={name}
+                    onClick={() => {
+                      handleChange("assigned_to", name);
+                      setShowTeamMemberDropdown(false);
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-main-200 flex items-center justify-center">
+                      <span className="text-sm font-medium text-main-600">
+                        {name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-700">{name}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* 날짜 */}
