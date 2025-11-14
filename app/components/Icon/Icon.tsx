@@ -29,6 +29,7 @@ import {
   TbDetails,
   TbLayoutKanbanFilled,
   TbProgressAlert,
+  TbFolder,
 } from "react-icons/tb";
 
 // check
@@ -49,6 +50,7 @@ import {
   TbBrandGoogleFilled,
   TbChevronRight,
   TbChevronLeft,
+  TbBellFilled,
 } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
@@ -96,6 +98,7 @@ const ICON_MAP: Record<string, IconType> = {
   details: TbDetails,
   kanban: TbLayoutKanbanFilled,
   squareCheck: TbSquareCheck,
+  folder: TbFolder,
 
   //circle
   circleCheck: TbCircleCheck,
@@ -118,6 +121,7 @@ const ICON_MAP: Record<string, IconType> = {
   speakerPhone: HiOutlineSpeakerphone,
   dot: TbDots,
   description: GrTextAlignFull,
+  bellFilled: TbBellFilled,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
