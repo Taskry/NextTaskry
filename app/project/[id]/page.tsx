@@ -69,7 +69,7 @@ export default function ProjectPage() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50">
       {/* 메인 영역 */}
       <div className="flex-1 flex overflow-hidden gap-6 min-h-0 p-6">
         {/* 왼쪽: 칸반보드 */}
@@ -91,6 +91,14 @@ export default function ProjectPage() {
             {currentView === "calendar" && (
               <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
                 <p className="text-gray-400 text-lg">📅 캘린더 (준비 중)</p>
+              </div>
+            )}
+
+            {currentView === "project" && (
+              <div className="h-full flex items-center justify-center bg-white rounded-xl shadow-sm">
+                <p className="text-gray-400 text-lg">
+                  📋 프로젝트 세부 (준비중)
+                </p>
               </div>
             )}
           </div>
