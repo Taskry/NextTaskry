@@ -12,6 +12,7 @@ import TaskForm from "./components/task/TaskForm";
 import ProjectCard from "./components/project/ProjectCard";
 import { Task } from "./types/kanban";
 import { mockTasks } from "./data/mockTasks";
+import { showToast } from "@/lib/toast";
 
 type ViewType = "calendar" | "kanban" | "memo" | "project";
 
@@ -39,8 +40,10 @@ const Home = () => {
 
   const handleSelectProject = (projectId: string) => {
     console.log("프로젝트 선택됨:", projectId);
+    console.log("현재 tasks:", tasks);
     setSelectedProjectId(projectId);
     setCurrentView("kanban");
+    console.log("뷰 변경 완료: kanban");
   };
 
   const handleBackToProjects = () => {
@@ -61,6 +64,7 @@ const Home = () => {
 
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setIsModalOpen(false);
+    showToast("새 작업이 생성되었습니다.", "success");
   };
 
   const handleUpdateTask = (updatedTask: Task) => {
@@ -76,6 +80,10 @@ const Home = () => {
   const projectTasks = selectedProjectId
     ? tasks.filter((task) => task.kanban_board_id === selectedProjectId)
     : [];
+
+  console.log("렌더링 - currentView:", currentView);
+  console.log("렌더링 - selectedProjectId:", selectedProjectId);
+  console.log("렌더링 - projectTasks:", projectTasks);
 
   return (
     <div className="h-full flex flex-col bg-gray-50">

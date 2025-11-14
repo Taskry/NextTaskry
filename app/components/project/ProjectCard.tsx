@@ -13,6 +13,7 @@ import {
 import { getProject } from "@/lib/projectAPI";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { showApiError } from "@/lib/toast";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -24,15 +25,15 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const result = await getProject(); // getProject()는 여기에 정의되어 있거나 import 되어야 합니다.
+        const result = await getProject();
         const data = result.data;
 
         if (data) {
           setProjectList(data);
         }
       } catch (err) {
-        console.log(err);
-      } finally {
+        console.error(err);
+        showApiError("프로젝트 목록을 불러올 수 없습니다.");
       }
     };
     fetchProject();

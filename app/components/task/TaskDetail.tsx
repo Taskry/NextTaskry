@@ -7,6 +7,7 @@ import PriorityBadge from "./PriorityBadge";
 import SubtaskList from "./SubtaskList";
 import Button from "../Button/Button";
 import { Icon } from "../Icon/Icon";
+import { showToast } from "@/lib/toast";
 
 interface TaskDetailProps {
   task: Task;
@@ -35,6 +36,7 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
 
     onUpdate?.(updatedTask);
     setEditingField(null);
+    showToast("작업이 저장되었습니다.", "success");
   };
 
   const handleClose = () => {
@@ -56,8 +58,8 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
   const handleDelete = () => {
     if (!confirm("정말 이 작업을 삭제하시겠습니까?")) return;
 
-    // Mock: API 호출 없이 바로 삭제
     onDelete?.(task.id);
+    showToast("작업이 삭제되었습니다.", "deleted");
   };
 
   return (
