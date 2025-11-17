@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/project/Card";
-import { getProject } from "@/lib/projectAPI";
+import { deleteProject, getProject, getProjectMember } from "@/lib/projectAPI";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { showApiError } from "@/lib/toast";
@@ -21,27 +21,58 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   const [projectList, setProjectList] = useState<any[]>([]);
+  const [projectMember, setProjectMember] = useState<any>({});
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const result = await getProject();
-        const data = result.data;
+  const fetchProject = async () => {
+    try {
+      const result = await getProject();
+      const data = result.data;
 
-        if (data) {
-          setProjectList(data);
-        }
-      } catch (err) {
-        console.error(err);
-        showApiError("프로젝트 목록을 불러올 수 없습니다.");
+      if (data) {
+        setProjectList(data)
       }
-    };
+    } catch (err) {
+      console.error(err);
+      showApiError("프로젝트 목록을 불러올 수 없습니다.");
+    }
+  };
+
+  const fetchProjectMember = async (id:string) => {
+    try {
+      const result = await getProjectMember(id);
+      const data = result.data;
+
+      setProjectMember((prev:any) => ({
+        ...prev,
+        [id]: data?.length
+      }));
+      return 
+    } catch (err) {
+      console.error(err);
+      showApiError("프로젝트 목록을 불러올 수 없습니다.");
+    }
+  };
+  
+  useEffect(() => {
     fetchProject();
   }, []);
 
   useEffect(() => {
-    console.log(projectList);
+    for (let index in projectList) {
+      const id = projectList[index].id;
+      fetchProjectMember(id);
+    }
+
   }, [projectList]);
+
+  useEffect(() => {
+    console.log(projectMember);
+  }, [projectMember]);
+
+  function handleDeleteProject (id:string) {
+    deleteProject(id);
+    fetchProject();
+  }
 
   if (projectList.length === 0) {
     return (
@@ -112,7 +143,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               }}
             >
               <CardHeader className="flex w-full">
-                <CardTitle>{project.projectName}</CardTitle>
+                <CardTitle>{project.name}</CardTitle>
               </CardHeader>
               <CardDescription className="flex">
                 <div className="flex gap-2">{project.description}</div>
@@ -120,7 +151,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               <CardContent className="flex justify-end">
                 <div className="flex gap-2 font-bold text-main-400">
                   <Icon type="users" size={20} className="text-main-400" />
-                  <div className="text-sm">4팀원</div>
+                  <div className="text-sm">{projectMember ? projectMember[project.name] : 0}팀원</div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
@@ -143,7 +174,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                     variant="lightRed40"
                     textColor="lightRed100"
                     className="hover:cursor-pointer"
-                    onClick={() => alert("프로젝트 삭제 모달")}
+                    onClick={() => handleDeleteProject(project.id)}
                   ></Button>
                 </div>
               </CardFooter>
