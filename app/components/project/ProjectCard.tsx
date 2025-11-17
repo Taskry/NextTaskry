@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/project/Card";
-import { getProject } from "@/lib/projectAPI";
+import { deleteProject, getProject, getProjectMember } from "@/lib/projectAPI";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { showApiError } from "@/lib/toast";
@@ -21,40 +21,72 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   const [projectList, setProjectList] = useState<any[]>([]);
+  const [projectMember, setProjectMember] = useState<any>({});
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const result = await getProject();
-        const data = result.data;
+  const fetchProject = async () => {
+    try {
+      const result = await getProject();
+      const data = result.data;
 
-        if (data) {
-          setProjectList(data);
-        }
-      } catch (err) {
-        console.error(err);
-        showApiError("프로젝트 목록을 불러올 수 없습니다.");
+      if (data) {
+        setProjectList(data)
       }
-    };
+    } catch (err) {
+      console.error(err);
+      showApiError("프로젝트 목록을 불러올 수 없습니다.");
+    }
+  };
+
+  const fetchProjectMember = async (id:string) => {
+    try {
+      const result = await getProjectMember(id);
+      const data = result.data;
+
+      setProjectMember((prev:any) => ({
+        ...prev,
+        [id]: data?.length
+      }));
+      return 
+    } catch (err) {
+      console.error(err);
+      showApiError("프로젝트 목록을 불러올 수 없습니다.");
+    }
+  };
+  
+  useEffect(() => {
     fetchProject();
   }, []);
 
   useEffect(() => {
-    console.log(projectList);
+    for (let index in projectList) {
+      const id = projectList[index].id;
+      fetchProjectMember(id);
+    }
+
   }, [projectList]);
+
+  useEffect(() => {
+    console.log(projectMember);
+  }, [projectMember]);
+
+  function handleDeleteProject (id:string) {
+    deleteProject(id);
+    fetchProject();
+  }
 
   if (projectList.length === 0) {
     return (
       <div className="mx-20 my-10">
         <div className="items-center justify-center">
           <div className="flex items-center justify-center pt-50">
-            <Button
+            {/* <Button
               icon="board"
               radius="full"
               size="full"
               variant="lightMain40"
               textColor="txtMain600"
-            ></Button>
+            ></Button> */}
+            <Button btnType="icon" icon="board" size={18}></Button>
           </div>
           <div className="flex items-center justify-center font-bold text-lg py-1">
             프로젝트 없음
@@ -76,15 +108,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
         </div>
         <div className="p-1 content-center">
           <Link href={"/project/create"}>
-            <Button
-              radius="xl"
-              icon="plus"
-              variant="bgMain500"
-              textColor="white"
-              iconSize="sm"
-              size="base"
-              className="hover:cursor-pointer"
-            >
+            <Button btnType="form" icon="plus">
               새 프로젝트
             </Button>
           </Link>
@@ -112,7 +136,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               }}
             >
               <CardHeader className="flex w-full">
-                <CardTitle>{project.projectName}</CardTitle>
+                <CardTitle>{project.name}</CardTitle>
               </CardHeader>
               <CardDescription className="flex">
                 <div className="flex gap-2">{project.description}</div>
@@ -120,31 +144,32 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               <CardContent className="flex justify-end">
                 <div className="flex gap-2 font-bold text-main-400">
                   <Icon type="users" size={20} className="text-main-400" />
-                  <div className="text-sm">4팀원</div>
+                  <div className="text-sm">{projectMember ? projectMember[project.name] : 0}팀원</div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
                 <div onClick={(e) => e.stopPropagation()}>
                   <Link href={`/project/update/${project.id}`}>
                     <Button
+                      btnType="icon"
                       icon="edit"
-                      radius="full"
-                      size="full"
-                      variant="lightMain40"
-                      className="hover:cursor-pointer"
-                    ></Button>
+                      size={16}
+                      variant="white"
+                      color="primary"
+                      className="hover:bg-main-100/40 hover:border-main-100/40 text-main-400"
+                    />
                   </Link>
                 </div>
                 <div onClick={(e) => e.stopPropagation()}>
                   <Button
+                    btnType="icon"
                     icon="trash"
-                    radius="full"
-                    size="full"
-                    variant="lightRed40"
-                    textColor="lightRed100"
-                    className="hover:cursor-pointer"
-                    onClick={() => alert("프로젝트 삭제 모달")}
-                  ></Button>
+                    size={16}
+                    variant="white"
+                    color="red"
+                    className="hover:bg-red-100/40 hover:border-red-100/40"
+                    onClick={() => handleDeleteProject(project.id)}
+                  />
                 </div>
               </CardFooter>
             </Card>
