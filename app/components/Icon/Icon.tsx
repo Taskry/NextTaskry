@@ -56,7 +56,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { PiImageSquare } from "react-icons/pi";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
-import { TbDots } from "react-icons/tb";
+import { TbDots, TbDotsVertical } from "react-icons/tb";
 import { GrTextAlignFull } from "react-icons/gr";
 import { IconType } from "react-icons";
 
@@ -120,6 +120,7 @@ const ICON_MAP: Record<string, IconType> = {
   imageSquare: PiImageSquare,
   speakerPhone: HiOutlineSpeakerphone,
   dot: TbDots,
+  dotsVertical: TbDotsVertical,
   description: GrTextAlignFull,
   bellFilled: TbBellFilled,
 };

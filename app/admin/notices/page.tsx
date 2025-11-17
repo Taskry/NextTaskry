@@ -1,6 +1,6 @@
 import Button from "@/app/components/Button/Button";
 import AdminPageWrapper from "@/app/components/UI/Admin/AdminPageWrapper";
-import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
+import { primaryBorderColor } from "@/app/sample/color/page";
 import Link from "next/link";
 
 export default function AdminNoticesPage() {
@@ -9,14 +9,7 @@ export default function AdminNoticesPage() {
       title="공지사항 관리"
       titleIcon="bellFilled"
       action={
-        <Button
-          icon="plus"
-          iconSize="sm"
-          variant="bgMain300"
-          size="sm"
-          radius="sm"
-          textColor="white"
-        >
+        <Button icon="plus" variant="primary" btnType="form" size={16}>
           새 공지사항
         </Button>
       }
@@ -33,19 +26,8 @@ export default function AdminNoticesPage() {
             </ul>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button
-              icon="edit"
-              radius="full"
-              size="full"
-              variant="lightMain40"
-            />
-            <Button
-              icon="trash"
-              radius="full"
-              size="full"
-              variant="lightRed40"
-              textColor="lightRed100"
-            />
+            <Button btnType="icon" icon="edit" size={16} variant="basic" />
+            <Button btnType="icon" icon="trash" size={16} variant="warning" />
           </div>
         </div>
       </Link>

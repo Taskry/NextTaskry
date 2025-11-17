@@ -4,10 +4,10 @@
 import { useState } from "react";
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/app/types";
-import KanbanColumn from "./KanbanColumn";
-import Modal from "../Modal/Modal";
-import TaskDetail from "../task/TaskDetail";
-import TaskAdd from "../task/TaskAdd";
+import KanbanColumn from "../column/KanbanColumn";
+import Modal from "../../Modal/Modal";
+import TaskDetail from "../../task/TaskDetail";
+import TaskAdd from "../../task/TaskAdd";
 import Button from "@/app/components/Button/Button";
 
 interface KanbanBoardProps {
@@ -97,7 +97,7 @@ const KanbanBoard = ({
           </Modal>
         )}
 
-        {/* ✅ Task 추가 모달 */}
+        {/* Task 추가 모달 */}
         <Modal
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}

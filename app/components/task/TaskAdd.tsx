@@ -6,7 +6,8 @@ import { Task, TaskStatus, TaskPriority, Subtask } from "../../types/kanban";
 import { Icon } from "../Icon/Icon";
 import SubtaskList from "./SubtaskList";
 import Badge, { badgeConfigs } from "../Badge/Badge";
-
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 import Button from "../Button/Button";
 
 interface TaskAddProps {
@@ -48,7 +49,6 @@ function BadgeSelector<T extends string>({
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      {/* 현재 선택된 뱃지 */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -65,7 +65,6 @@ function BadgeSelector<T extends string>({
         {currentOption && <Badge type={currentOption.badgeType} />}
       </button>
 
-      {/* 펼쳐진 뱃지들 */}
       {isOpen && (
         <div className="flex items-center gap-1.5 animate-fadeIn">
           {options
@@ -111,6 +110,12 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // ✅ 캘린더 상태 관리
+  const [showStartCalendar, setShowStartCalendar] = useState(false);
+  const [showEndCalendar, setShowEndCalendar] = useState(false);
+  const startCalendarRef = useRef<HTMLDivElement>(null);
+  const endCalendarRef = useRef<HTMLDivElement>(null);
+
   // 상태 옵션
   const statusOptions = [
     { value: "todo" as TaskStatus, badgeType: "todo" as const },
@@ -124,6 +129,27 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
     { value: "normal" as TaskPriority, badgeType: "normal" as const },
     { value: "high" as TaskPriority, badgeType: "high" as const },
   ];
+
+  // ✅ 캘린더 외부 클릭 감지
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        startCalendarRef.current &&
+        !startCalendarRef.current.contains(event.target as Node)
+      ) {
+        setShowStartCalendar(false);
+      }
+      if (
+        endCalendarRef.current &&
+        !endCalendarRef.current.contains(event.target as Node)
+      ) {
+        setShowEndCalendar(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -170,6 +196,35 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
     }
   };
 
+  // ✅ 시작일 캘린더 날짜 선택
+  const handleStartDateChange = (date: Date | Date[] | null) => {
+    if (date instanceof Date) {
+      const formattedDate = date.toISOString().split("T")[0];
+      handleChange("started_at", formattedDate);
+      setShowStartCalendar(false);
+    }
+  };
+
+  // ✅ 종료일 캘린더 날짜 선택
+  const handleEndDateChange = (date: Date | Date[] | null) => {
+    if (date instanceof Date) {
+      const formattedDate = date.toISOString().split("T")[0];
+      handleChange("ended_at", formattedDate);
+      setShowEndCalendar(false);
+    }
+  };
+
+  // ✅ 날짜 포맷팅 함수
+  const formatDisplayDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* 헤더 */}
@@ -184,7 +239,7 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
           className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-            errors.ended_at
+            errors.title
               ? "border-red-500 focus:ring-red-300"
               : "border-gray-300 focus:ring-main-300"
           }`}
@@ -228,6 +283,7 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
           />
         </div>
       </div>
+
       {/* 설명 */}
       <div>
         <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
@@ -263,43 +319,101 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
             placeholder="담당자 이름을 입력하세요"
           />
         </div>
-        {/* 팀원 목록 */}
       </div>
 
-      {/* 날짜 정보 */}
+      {/* ✅ 날짜 정보 - 캘린더 추가 */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        {/* 시작일 */}
+        <div className="relative" ref={startCalendarRef}>
           <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
             <Icon type="calendarPlus" size={16} color="#6B7280" />
             시작일
           </h3>
-          <input
-            type="date"
-            value={formData.started_at}
-            onChange={(e) => handleChange("started_at", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
-          />
+          <div
+            onClick={() => {
+              setShowStartCalendar(!showStartCalendar);
+              setShowEndCalendar(false);
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors flex items-center justify-between"
+          >
+            <span
+              className={
+                formData.started_at ? "text-gray-700" : "text-gray-400"
+              }
+            >
+              {formData.started_at
+                ? formatDisplayDate(formData.started_at)
+                : "날짜를 선택하세요"}
+            </span>
+            <Icon type="calendar" size={16} color="#9CA3AF" />
+          </div>
+
+          {/* 시작일 캘린더 */}
+          {showStartCalendar && (
+            <div className="absolute top-full left-0 mt-2 z-30 shadow-xl rounded-lg overflow-hidden border border-gray-200">
+              <Calendar
+                onChange={handleStartDateChange}
+                value={
+                  formData.started_at
+                    ? new Date(formData.started_at)
+                    : new Date()
+                }
+                locale="ko-KR"
+                className="react-calendar-custom"
+              />
+            </div>
+          )}
         </div>
 
-        <div>
+        {/* 종료일 */}
+        <div className="relative" ref={endCalendarRef}>
           <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
             <Icon type="calendarCheck" size={16} color="#6B7280" />
             마감일
           </h3>
-          <input
-            type="date"
-            value={formData.ended_at}
-            onChange={(e) => handleChange("ended_at", e.target.value)}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+          <div
+            onClick={() => {
+              setShowEndCalendar(!showEndCalendar);
+              setShowStartCalendar(false);
+            }}
+            className={`w-full px-3 py-2 border rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
               errors.ended_at
-                ? "border-red-500 focus:ring-red-300"
-                : "border-gray-300 focus:ring-main-300"
+                ? "border-red-500 hover:border-red-600"
+                : "border-gray-300 hover:border-gray-400"
             }`}
-          />
+          >
+            <span
+              className={formData.ended_at ? "text-gray-700" : "text-gray-400"}
+            >
+              {formData.ended_at
+                ? formatDisplayDate(formData.ended_at)
+                : "날짜를 선택하세요"}
+            </span>
+            <Icon type="calendar" size={16} color="#9CA3AF" />
+          </div>
           {errors.ended_at && (
             <p className="text-red-500 text-xs mt-1 text-left pl-3">
               * {errors.ended_at}
             </p>
+          )}
+
+          {/* 종료일 캘린더 */}
+          {showEndCalendar && (
+            <div className="absolute top-full left-0 mt-2 z-30 shadow-xl rounded-lg overflow-hidden border border-gray-200">
+              <Calendar
+                onChange={handleEndDateChange}
+                value={
+                  formData.ended_at ? new Date(formData.ended_at) : new Date()
+                }
+                minDate={
+                  formData.started_at
+                    ? new Date(formData.started_at)
+                    : undefined
+                }
+                locale="ko-KR"
+                className="react-calendar-custom"
+              />
+            </div>
           )}
         </div>
       </div>

@@ -4,6 +4,16 @@ interface BadgeType {
 }
 
 export const badgeConfigs = {
+  dueSoon: {
+    title: "계획 진행중",
+    className: `${bgColorOpacity.colorOpacity2[3]}`,
+    category: "status",
+  },
+  overDue: {
+    title: "계획에서 벗어남",
+    className: `${bgColorOpacity.colorOpacity2[0]}`,
+    category: "status",
+  },
   todo: {
     title: "TODO",
     className: "bg-[#9CA3AF]",
