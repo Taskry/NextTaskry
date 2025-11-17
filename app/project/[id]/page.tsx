@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import KanbanBoard from "@/app/components/kanban/KanbanBoard";
-import MemoPanel from "@/app/components/kanban/MemoPanel";
+import KanbanBoard from "@/app/components/kanban/board/KanbanBoard";
+import MemoPanel from "@/app/components/kanban/board/MemoPanel";
 import BottomNavigation from "@/app/components/BottomNavigation";
-import Modal from "@/app/components/Modal/Modal";
-import TaskAdd from "@/app/components/task/TaskAdd";
 import { Task } from "@/app/types/kanban";
 import { mockTasks } from "@/app/data/mockTasks";
 import { showToast } from "@/lib/toast";
