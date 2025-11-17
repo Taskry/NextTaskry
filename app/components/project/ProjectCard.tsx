@@ -79,13 +79,14 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       <div className="mx-20 my-10">
         <div className="items-center justify-center">
           <div className="flex items-center justify-center pt-50">
-            <Button
+            {/* <Button
               icon="board"
               radius="full"
               size="full"
               variant="lightMain40"
               textColor="txtMain600"
-            ></Button>
+            ></Button> */}
+            <Button btnType="icon" icon="board" size={18}></Button>
           </div>
           <div className="flex items-center justify-center font-bold text-lg py-1">
             프로젝트 없음
@@ -107,15 +108,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
         </div>
         <div className="p-1 content-center">
           <Link href={"/project/create"}>
-            <Button
-              radius="xl"
-              icon="plus"
-              variant="bgMain500"
-              textColor="white"
-              iconSize="sm"
-              size="base"
-              className="hover:cursor-pointer"
-            >
+            <Button btnType="form" icon="plus">
               새 프로젝트
             </Button>
           </Link>
@@ -158,24 +151,25 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                 <div onClick={(e) => e.stopPropagation()}>
                   <Link href={`/project/update/${project.id}`}>
                     <Button
+                      btnType="icon"
                       icon="edit"
-                      radius="full"
-                      size="full"
-                      variant="lightMain40"
-                      className="hover:cursor-pointer"
-                    ></Button>
+                      size={16}
+                      variant="white"
+                      color="black"
+                      className="hover:bg-main-100/40 hover:border-main-100/40"
+                    />
                   </Link>
                 </div>
                 <div onClick={(e) => e.stopPropagation()}>
                   <Button
+                    btnType="icon"
                     icon="trash"
-                    radius="full"
-                    size="full"
-                    variant="lightRed40"
-                    textColor="lightRed100"
-                    className="hover:cursor-pointer"
+                    size={16}
+                    variant="white"
+                    color="red"
+                    className="hover:bg-red-100/40 hover:border-red-100/40"
                     onClick={() => handleDeleteProject(project.id)}
-                  ></Button>
+                  />
                 </div>
               </CardFooter>
             </Card>

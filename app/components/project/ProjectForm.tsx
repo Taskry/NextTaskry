@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
 import Button from "@/app/components/Button/Button";
 import { Icon } from "@/app/components/Icon/Icon";
 import { Calendar22 } from "@/app/components/project/Calendar";
 import { StatusSelect } from "@/app/components/project/StatusSelect";
 import { TypeSelect } from "@/app/components/project/TypeSelect";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { addProjectMember, createProject, deleteProjectMember, getProject, getProjectMember, updateProject } from "@/lib/projectAPI";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
- interface ProjectProps {
-    name: string;
-    type: string;
-    status: string;
-    startedAt: Date | undefined;
-    endedAt: Date | undefined;
-    techStack: string;
-    description: string;
+interface ProjectProps {
+  name: string;
+  type: string;
+  status: string;
+  startedAt: Date | undefined;
+  endedAt: Date | undefined;
+  techStack: string;
+  description: string;
 }
 
 interface ProjectMemberProps {
@@ -150,65 +150,82 @@ export default function ProjectForm({id}:{id?:string}) {
                 />
             </div>
 
-            <div className="flex py-2 grid grid-cols-2 gap-4">
-                <div>
-                    <Label className="pb-2 font-bold text-base">프로젝트 분류</Label>
-                    <TypeSelect value={projectData.type} onValueChange={(value) => {
-                        handleSelectChange('type', value)
-                    }}/>
-                </div>
-                <div>
-                    <Label className="pb-2 font-bold text-base">프로젝트 상태</Label>
-                    <StatusSelect value={projectData.status} onValueChange={(value) => {
-                        handleSelectChange('status', value)
-                    }}/>
-                </div>
-            </div>
+        <div className="py-2">
+          <Label className="pb-2 font-bold text-base">프로젝트 명</Label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="프로젝트 명을 입력해주세요"
+            value={projectData.name}
+            onChange={handleChange}
+          />
+        </div>
 
-            <div className="flex py-2 grid grid-cols-2 gap-4">
-                <div>
-                    <Label className="pb-2 font-bold text-base">프로젝트 시작일</Label>
-                    <Calendar22
-                        value={projectData.startedAt} 
-                        onValueChange={(value) => {
-                            handleDateChange("startedAt", value)
-                        }}
-                    />
-                </div>
-                <div>
-                    <Label className="pb-2 font-bold text-base">프로젝트 종료일</Label>
-                    <Calendar22
-                        value={projectData.endedAt} 
-                        onValueChange={(value) => {
-                            handleDateChange("endedAt", value)
-                        }}
-                    />
+        <div className="flex py-2 grid grid-cols-2 gap-4">
+          <div>
+            <Label className="pb-2 font-bold text-base">프로젝트 분류</Label>
+            <TypeSelect
+              value={projectData.type}
+              onValueChange={(value) => {
+                handleSelectChange("type", value);
+              }}
+            />
+          </div>
+          <div>
+            <Label className="pb-2 font-bold text-base">프로젝트 상태</Label>
+            <StatusSelect
+              value={projectData.status}
+              onValueChange={(value) => {
+                handleSelectChange("status", value);
+              }}
+            />
+          </div>
+        </div>
 
-                </div>
-            </div>
+        <div className="flex py-2 grid grid-cols-2 gap-4">
+          <div>
+            <Label className="pb-2 font-bold text-base">프로젝트 시작일</Label>
+            <Calendar22
+              value={projectData.startedAt}
+              onValueChange={(value) => {
+                handleDateChange("startedAt", value);
+              }}
+            />
+          </div>
+          <div>
+            <Label className="pb-2 font-bold text-base">프로젝트 종료일</Label>
+            <Calendar22
+              value={projectData.endedAt}
+              onValueChange={(value) => {
+                handleDateChange("endedAt", value);
+              }}
+            />
+          </div>
+        </div>
 
-            <div className="py-2">
-                <Label className="pb-2 font-bold text-base">프로젝트 기술 스택</Label>
-                <Input 
-                    id="techStack"
-                    name="techStack"
-                    type="text" 
-                    placeholder="쉼표(,)를 구분해 입력해주세요 예) React, TypeScript" 
-                    value={projectData.techStack}
-                    onChange={handleChange}
-                    />
-            </div>
+        <div className="py-2">
+          <Label className="pb-2 font-bold text-base">프로젝트 기술 스택</Label>
+          <Input
+            id="techStack"
+            name="techStack"
+            type="text"
+            placeholder="쉼표(,)를 구분해 입력해주세요 예) React, TypeScript"
+            value={projectData.techStack}
+            onChange={handleChange}
+          />
+        </div>
 
-            <div className="py-2">
-                <Label className="pb-2 font-bold text-base">프로젝트 설명</Label>
-                <Textarea 
-                    id="description"
-                    name="description"
-                    placeholder="프로젝트 설명을 입력해주세요. (최대 300자)" 
-                    value={projectData.description}
-                    onChange={handleChange}
-                />
-            </div>
+        <div className="py-2">
+          <Label className="pb-2 font-bold text-base">프로젝트 설명</Label>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="프로젝트 설명을 입력해주세요. (최대 300자)"
+            value={projectData.description}
+            onChange={handleChange}
+          />
+        </div>
 
             <div className="flex items-center py-2">
                 <Label className="pb-2 font-bold text-base">프로젝트 구성원</Label>
@@ -237,15 +254,15 @@ export default function ProjectForm({id}:{id?:string}) {
                                 
                             </div>
                             <div className="flex items-center" >
-                                <Button 
-                                    icon="trash"
-                                    radius="full"
-                                    size="full"
-                                    variant="lightRed40"
-                                    textColor="lightRed100"
-                                    className="hover:cursor-pointer"
-                                    onClick={() => handleDeleteProjectMember(member.user)}
-                                ></Button>
+                               <Button
+                                  btnType="icon"
+                                  icon="trash"
+                                  size={16}
+                                  color="red"
+                                  variant="white"
+                                  className="hover:bg-red-100/40 hover:border-red-100/40"
+                                  onClick={() => handleDeleteProjectMember(member.user)}
+                                />
                             </div>
                         </div>
                     )
@@ -268,6 +285,21 @@ export default function ProjectForm({id}:{id?:string}) {
                 </Button>
             </div>
         </div>
+        <div className="py-2 justify-self-center">
+          <Link href={"/project/dashboard"}>
+            <Button
+              radius="xl"
+              variant="bgMain500"
+              textColor="white"
+              iconSize="sm"
+              size="base"
+              className="hover:cursor-pointer"
+            >
+              홈으로
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
-    );
+  );
 }
