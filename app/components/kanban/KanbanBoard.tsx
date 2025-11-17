@@ -7,7 +7,7 @@ import { Task, TaskStatus } from "@/app/types";
 import KanbanColumn from "./KanbanColumn";
 import Modal from "../Modal/Modal";
 import TaskDetail from "../task/TaskDetail";
-import TaskAdd from "../task/TaskAdd"; // ✅ 추가
+import TaskAdd from "../task/TaskAdd";
 import Button from "@/app/components/Button/Button";
 
 interface KanbanBoardProps {
@@ -28,7 +28,7 @@ const KanbanBoard = ({
   onDeleteTask,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // ✅ 추가
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // 상태별로 작업 그룹화
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
@@ -56,13 +56,11 @@ const KanbanBoard = ({
           </h2>
           <div className="p-1 content-center">
             <Button
-              onClick={() => setIsAddModalOpen(true)} // ✅ 모달 열기
-              radius="xl"
+              onClick={() => setIsAddModalOpen(true)}
               icon="plus"
-              variant="bgMain500"
-              textColor="white"
-              iconSize="sm"
-              size="base"
+              variant="primary"
+              btnType="form"
+              size={16}
               className="hover:cursor-pointer"
             >
               새 작업

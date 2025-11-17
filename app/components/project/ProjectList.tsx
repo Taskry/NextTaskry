@@ -20,7 +20,7 @@ const ProjectList = ({ projects, onSelectProject }: ProjectListProps) => {
           <p className="text-gray-500">
             나만의 첫 프로젝트를 만들어 시작하세요
           </p>
-          <Button variant="bgMain300" size="base" textColor="white" icon="plus">
+          <Button variant="primary" btnType="form" icon="plus" size={16}>
             새 프로젝트 만들기
           </Button>
         </div>

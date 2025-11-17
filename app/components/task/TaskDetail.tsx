@@ -169,12 +169,7 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
           </span>
         </div>
         <div className="flex">
-          <Button
-            variant="lightRed100"
-            size="sm"
-            textColor="white"
-            onClick={handleDelete}
-          >
+          <Button variant="warning" btnType="form_s" onClick={handleDelete}>
             삭제
           </Button>
         </div>
@@ -483,17 +478,12 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
         <div className="flex gap-3 pt-4 border-t">
           <Button
             variant="basic"
-            size="base"
+            btnType="basic"
             onClick={() => setEditedTask(task)}
           >
             취소
           </Button>
-          <Button
-            variant="bgMain300"
-            size="base"
-            textColor="white"
-            onClick={handleSave}
-          >
+          <Button variant="primary" btnType="form" onClick={handleSave}>
             저장
           </Button>
         </div>

@@ -2,11 +2,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Task, TaskStatus, TaskPriority } from "@/app/types/kanban";
+import { Task, TaskStatus, TaskPriority, Subtask } from "../../types/kanban";
 import { Icon } from "../Icon/Icon";
 import SubtaskList from "./SubtaskList";
-import { Subtask } from "@/app/types/kanban";
 import Badge, { badgeConfigs } from "../Badge/Badge";
+
 import Button from "../Button/Button";
 
 interface TaskAddProps {
@@ -334,16 +334,11 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
       </div>
 
       {/* 버튼 */}
-      <div className="flex gap-3 pt-4 border-t">
-        <Button variant="basic" size="base" onClick={onCancel}>
+      <div className="flex justify-end gap-3 pt-4 border-t">
+        <Button btnType="basic" variant="basic" onClick={onCancel}>
           취소
         </Button>
-        <Button
-          variant="bgMain300"
-          size="base"
-          textColor="white"
-          onClick={handleSubmit}
-        >
+        <Button btnType="form" variant="primary" onClick={handleSubmit}>
           작업 추가
         </Button>
       </div>

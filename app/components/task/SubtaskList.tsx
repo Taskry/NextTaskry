@@ -242,7 +242,6 @@ const SubtaskList = ({
       ) : (
         <Button
           variant="basic"
-          size="sm"
           icon="plus"
           onClick={() => setShowAddInput(true)}
           className="mt-3 w-full"
