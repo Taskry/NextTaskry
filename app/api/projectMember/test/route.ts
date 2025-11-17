@@ -76,21 +76,17 @@ export async function PUT(request: Request) {
   const body = await request.json();
 
   const id = searchParams.get('id');  
-  const {name, description, type, status, startedAt, endedAt, techStack } = body;
+  const {user, email, role} = body;
 
   // find 메서드를 사용하여 해당 id를 가진 프로젝트를 찾습니다.
-  // const targetProject = projectList.find(project => project.id === id);
+  const targetProject = projectMemberList.find(projectMember => projectMember.id === id);
 
   // // 프로젝트를 찾았으면 값을 변경합니다.
-  // if (targetProject) {
-  //     targetProject.name = name;
-  //     targetProject.type = type;
-  //     targetProject.status = status;
-  //     targetProject.startedAt = startedAt;
-  //     targetProject.endedAt = endedAt;
-  //     targetProject.techStack = techStack;
-  //     targetProject.description = description;
-  // }
+  if (targetProject) {
+      targetProject.user = user;
+      targetProject.email = email;
+      targetProject.role = role;
+  }
   
   // 쿼리 실행 [프로젝트 정보 업데이트]
   const result = {

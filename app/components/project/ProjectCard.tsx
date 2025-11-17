@@ -155,8 +155,8 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                       icon="edit"
                       size={16}
                       variant="white"
-                      color="black"
-                      className="hover:bg-main-100/40 hover:border-main-100/40"
+                      color="primary"
+                      className="hover:bg-main-100/40 hover:border-main-100/40 text-main-400"
                     />
                   </Link>
                 </div>
