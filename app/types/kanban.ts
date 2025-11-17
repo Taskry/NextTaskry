@@ -53,7 +53,6 @@ export interface Task {
 export interface KanbanBoard {
   id: string;
   project_id: string;
-  description?: string; // 칸반보드 설명
   columns: string; // "todo,inprogress,done" (쉼표로 구분)
   created_at: string;
   updated_at: string;
