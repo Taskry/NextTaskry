@@ -4,19 +4,19 @@ interface BadgeType {
 }
 
 export const badgeConfigs = {
-  dueSoon: {
-    title: "계획 진행중",
-    className: `${bgColorOpacity.colorOpacity2[3]}`,
-    category: "status",
-  },
-  overDue: {
-    title: "계획에서 벗어남",
-    className: `${bgColorOpacity.colorOpacity2[0]}`,
-    category: "status",
-  },
-  complete: {
-    title: "완료",
+  todo: {
+    title: "TODO",
     className: "bg-[#9CA3AF]",
+    category: "status",
+  },
+  inProgress: {
+    title: "진행중",
+    className: `${bgColorOpacity.colorOpacity2[4]}`,
+    category: "status",
+  },
+  done: {
+    title: "완료",
+    className: `${bgColorOpacity.colorOpacity3[1]}`,
     category: "status",
   },
   high: {
@@ -26,7 +26,7 @@ export const badgeConfigs = {
     dotColor: `${bgColorOpacity.colorOpacity2[0]}`,
   },
   normal: {
-    title: "중간",
+    title: "보통",
     className: `${bgColorOpacity.colorOpacity[5]}`,
     category: "priority",
     dotColor: `${bgColorOpacity.colorOpacity[3]}`,

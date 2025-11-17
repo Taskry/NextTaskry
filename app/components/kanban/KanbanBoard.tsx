@@ -7,11 +7,15 @@ import { Task, TaskStatus } from "@/app/types";
 import KanbanColumn from "./KanbanColumn";
 import Modal from "../Modal/Modal";
 import TaskDetail from "../task/TaskDetail";
+import TaskAdd from "../task/TaskAdd"; // ✅ 추가
 import Button from "@/app/components/Button/Button";
 
 interface KanbanBoardProps {
   projectName: string;
   tasks: Task[];
+  onCreateTask: (
+    taskData: Omit<Task, "id" | "created_at" | "updated_at">
+  ) => void;
   onUpdateTask: (updatedTask: Task) => void;
   onDeleteTask: (taskId: string) => void;
 }
@@ -19,10 +23,12 @@ interface KanbanBoardProps {
 const KanbanBoard = ({
   projectName,
   tasks,
+  onCreateTask,
   onUpdateTask,
   onDeleteTask,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false); // ✅ 추가
 
   // 상태별로 작업 그룹화
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
@@ -32,7 +38,7 @@ const KanbanBoard = ({
 
   const handleUpdateTask = (updatedTask: Task) => {
     onUpdateTask(updatedTask);
-    setSelectedTask(updatedTask); // 모달 유지하며 데이터 업데이트
+    setSelectedTask(updatedTask);
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -44,13 +50,13 @@ const KanbanBoard = ({
     <div className="mx-20 my-10">
       <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden w-full">
         {/* 헤더 */}
-
         <div className="flex justify-between px-6 py-4 border-b border-gray-200 bg-main-200/80">
           <h2 className="text-2xl content-center font-bold p-1 text-gray-800">
             {projectName}
           </h2>
           <div className="p-1 content-center">
             <Button
+              onClick={() => setIsAddModalOpen(true)} // ✅ 모달 열기
               radius="xl"
               icon="plus"
               variant="bgMain500"
@@ -92,6 +98,22 @@ const KanbanBoard = ({
             </div>
           </Modal>
         )}
+
+        {/* ✅ Task 추가 모달 */}
+        <Modal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          title="새 태스크 추가"
+        >
+          <TaskAdd
+            boardId={projectName}
+            onSubmit={(taskData) => {
+              onCreateTask(taskData);
+              setIsAddModalOpen(false);
+            }}
+            onCancel={() => setIsAddModalOpen(false)}
+          />
+        </Modal>
       </div>
     </div>
   );

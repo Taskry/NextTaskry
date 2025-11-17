@@ -6,7 +6,7 @@ import KanbanBoard from "@/app/components/kanban/KanbanBoard";
 import MemoPanel from "@/app/components/kanban/MemoPanel";
 import BottomNavigation from "@/app/components/BottomNavigation";
 import Modal from "@/app/components/Modal/Modal";
-import TaskForm from "@/app/components/task/TaskForm";
+import TaskAdd from "@/app/components/task/TaskAdd";
 import { Task } from "@/app/types/kanban";
 import { mockTasks } from "@/app/data/mockTasks";
 import { showToast } from "@/lib/toast";
@@ -18,7 +18,6 @@ export default function ProjectPage() {
 
   const [currentView, setCurrentView] = useState<NavItem>("kanban");
   const [showMemoPanel, setShowMemoPanel] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
 
   const handleViewChange = (view: NavItem) => {
@@ -33,7 +32,7 @@ export default function ProjectPage() {
     }
   };
 
-  const handleAddTask = (
+  const handleCreateTask = (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
     const newTask: Task = {
@@ -44,7 +43,6 @@ export default function ProjectPage() {
       updated_at: new Date().toISOString(),
     };
     setTasks([...tasks, newTask]);
-    setIsModalOpen(false);
     showToast("태스크가 추가되었습니다.", "success");
   };
 
@@ -83,6 +81,7 @@ export default function ProjectPage() {
               <KanbanBoard
                 projectName={`프로젝트 ${projectId}`}
                 tasks={filteredTasks}
+                onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
               />
@@ -121,19 +120,6 @@ export default function ProjectPage() {
           onViewChange={handleViewChange}
         />
       </div>
-
-      {/* 태스크 추가 모달 */}
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="새 태스크 추가"
-      >
-        <TaskForm
-          boardId={projectId}
-          onSubmit={handleAddTask}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      </Modal>
     </div>
   );
 }

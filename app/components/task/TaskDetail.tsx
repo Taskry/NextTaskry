@@ -1,9 +1,10 @@
 // app/components/task/TaskDetail.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Task, TaskPriority, TaskStatus } from "@/app/types/kanban";
 import PriorityBadge from "./PriorityBadge";
+import Badge, { badgeConfigs } from "../Badge/Badge";
 import SubtaskList from "./SubtaskList";
 import Button from "../Button/Button";
 import { Icon } from "../Icon/Icon";
@@ -16,9 +17,104 @@ interface TaskDetailProps {
   onClose?: () => void;
 }
 
+// 뱃지 선택기 컴포넌트
+interface BadgeSelectorProps<T extends string> {
+  value: T;
+  options: { value: T; badgeType: keyof typeof badgeConfigs }[];
+  onChange: (value: T) => void;
+}
+
+function BadgeSelector<T extends string>({
+  value,
+  options,
+  onChange,
+}: BadgeSelectorProps<T>) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const currentOption = options.find((opt) => opt.value === value);
+
+  return (
+    <div ref={containerRef} className="flex items-center gap-2">
+      {/* 현재 선택된 뱃지 */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`
+          relative
+          hover:scale-105 
+          active:scale-95
+          transition-all 
+          duration-200
+          cursor-pointer
+          ${isOpen ? "ring-2 ring-main-300 ring-offset-1 rounded-sm" : ""}
+        `}
+      >
+        {currentOption && <Badge type={currentOption.badgeType} />}
+      </button>
+
+      {/* 펼쳐진 뱃지들 */}
+      {isOpen && (
+        <div className="flex items-center gap-1.5 animate-fadeIn">
+          {options
+            .filter((option) => option.value !== value)
+            .map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className="
+                  hover:scale-105 
+                  active:scale-95
+                  transition-all 
+                  duration-200
+                  opacity-70
+                  hover:opacity-100
+                "
+              >
+                <Badge type={option.badgeType} />
+              </button>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editedTask, setEditedTask] = useState<Task>(task);
+
+  // 상태 옵션
+  const statusOptions = [
+    { value: "todo" as TaskStatus, badgeType: "todo" as const },
+    { value: "inprogress" as TaskStatus, badgeType: "inProgress" as const },
+    { value: "done" as TaskStatus, badgeType: "done" as const },
+  ];
+
+  // 우선순위 옵션
+  const priorityOptions = [
+    { value: "low" as TaskPriority, badgeType: "low" as const },
+    { value: "normal" as TaskPriority, badgeType: "normal" as const },
+    { value: "high" as TaskPriority, badgeType: "high" as const },
+  ];
 
   const hasChanges = () => {
     return JSON.stringify(editedTask) !== JSON.stringify(task);
@@ -113,87 +209,33 @@ const TaskDetail = ({ task, onUpdate, onDelete, onClose }: TaskDetailProps) => {
       </div>
 
       {/* 상태 & 우선순위 */}
-      <div className="grid grid-cols-2 gap-4">
-        <div
-          onClick={() => editingField !== "status" && setEditingField("status")}
-        >
-          <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+      <div className="flex gap-6 flex-wrap">
+        <div className="flex items-center gap-2">
+          <h3 className="flex items-center gap-1 text-sm font-semibold text-gray-600">
             <Icon type="progressAlert" size={16} color="#6B7280" />
             상태
           </h3>
-          {editingField === "status" ? (
-            <select
-              value={editedTask.status}
-              onChange={(e) => {
-                setEditedTask({
-                  ...editedTask,
-                  status: e.target.value as TaskStatus,
-                });
-              }}
-              onBlur={() => setEditingField(null)}
-              autoFocus
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
-            >
-              <option value="todo">할 일</option>
-              <option value="inprogress">진행 중</option>
-              <option value="done">완료</option>
-            </select>
-          ) : (
-            <div className="flex">
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-                  task.status === "todo"
-                    ? "bg-gray-100 text-gray-700"
-                    : task.status === "inprogress"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {task.status === "todo"
-                  ? "할 일"
-                  : task.status === "inprogress"
-                  ? "진행 중"
-                  : "완료"}
-              </span>
-            </div>
-          )}
+          <BadgeSelector
+            value={editedTask.status}
+            options={statusOptions}
+            onChange={(value) =>
+              setEditedTask({ ...editedTask, status: value })
+            }
+          />
         </div>
 
-        <div
-          onClick={() =>
-            editingField !== "priority" && setEditingField("priority")
-          }
-        >
-          <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <h3 className="flex items-center gap-1 text-sm font-semibold text-gray-600">
             <Icon type="alertTriangle" size={16} color="#6B7280" />
             우선순위
           </h3>
-          {editingField === "priority" ? (
-            <select
-              value={editedTask.priority || "normal"}
-              onChange={(e) => {
-                setEditedTask({
-                  ...editedTask,
-                  priority: e.target.value as TaskPriority,
-                });
-              }}
-              onBlur={() => setEditingField(null)}
-              autoFocus
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
-            >
-              <option value="low">낮음</option>
-              <option value="normal">보통</option>
-              <option value="high">높음</option>
-            </select>
-          ) : (
-            <div className="cursor-pointer hover:opacity-80 transition-opacity">
-              {task.priority ? (
-                <PriorityBadge priority={task.priority} />
-              ) : (
-                <span className="text-gray-400 text-sm">미설정</span>
-              )}
-            </div>
-          )}
+          <BadgeSelector
+            value={editedTask.priority || "normal"}
+            options={priorityOptions}
+            onChange={(value) =>
+              setEditedTask({ ...editedTask, priority: value })
+            }
+          />
         </div>
       </div>
 
