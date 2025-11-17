@@ -131,6 +131,27 @@ export async function addProjectMember(projectMemberData: ProjectMemberProps): P
   }
 }
 
+
+export async function updateProjectMember(id:string, projectMemberData: ProjectMemberProps): Promise<ProjectProps> {
+  try {
+    const url = `${projectMemberBaseURL}?id=${id}`
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(projectMemberData),
+    });
+    const data = await res.json();
+    console.log(data);
+
+    return data
+  } catch (err){
+    console.log(err);
+    throw err;  
+  }
+}
+
 export async function deleteProjectMember(id:string): Promise<ProjectProps> {
   try {
     const url = `${projectMemberBaseURL}?id=${id}`

@@ -128,9 +128,15 @@ export default function ProjectForm({id}:{id?:string}) {
             updateProject(projectData.name, projectData);
         } else {
             createProject(projectData);
+            projectMember.map((member) => {
+                const data = {
+                    ...member,
+                    id:projectData.name
+                }
+                addProjectMember(data);
+            })
         }
         router.push('/project/dashboard');
-        
     };
 
     return (
@@ -138,102 +144,91 @@ export default function ProjectForm({id}:{id?:string}) {
         <div>
             <div className="text-2xl font-bold pb-5">프로젝트 생성</div>
 
-            <div className="py-2">
-                <Label className="pb-2 font-bold text-base">프로젝트 명</Label>
-                <Input 
-                    id="name"
-                    name="name"
-                    type="text" 
-                    placeholder="프로젝트 명을 입력해주세요" 
-                    value={projectData.name}
-                    onChange={handleChange}
-                />
+        `    <div className="py-2">
+            <Label className="pb-2 font-bold text-base">프로젝트 명</Label>
+            <Input
+                id="name"
+                name="name"
+                type="text"
+                placeholder="프로젝트 명을 입력해주세요"
+                value={projectData.name}
+                onChange={handleChange}
+            />
             </div>
 
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 명</Label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            placeholder="프로젝트 명을 입력해주세요"
-            value={projectData.name}
-            onChange={handleChange}
-          />
-        </div>
+            <div className="flex py-2 grid grid-cols-2 gap-4">
+            <div>
+                <Label className="pb-2 font-bold text-base">프로젝트 분류</Label>
+                <TypeSelect
+                value={projectData.type}
+                onValueChange={(value) => {
+                    handleSelectChange("type", value);
+                }}
+                />
+            </div>
+            <div>
+                <Label className="pb-2 font-bold text-base">프로젝트 상태</Label>
+                <StatusSelect
+                value={projectData.status}
+                onValueChange={(value) => {
+                    handleSelectChange("status", value);
+                }}
+                />
+            </div>
+            </div>
 
-        <div className="flex py-2 grid grid-cols-2 gap-4">
-          <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 분류</Label>
-            <TypeSelect
-              value={projectData.type}
-              onValueChange={(value) => {
-                handleSelectChange("type", value);
-              }}
-            />
-          </div>
-          <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 상태</Label>
-            <StatusSelect
-              value={projectData.status}
-              onValueChange={(value) => {
-                handleSelectChange("status", value);
-              }}
-            />
-          </div>
-        </div>
+            <div className="flex py-2 grid grid-cols-2 gap-4">
+            <div>
+                <Label className="pb-2 font-bold text-base">프로젝트 시작일</Label>
+                <Calendar22
+                value={projectData.startedAt}
+                onValueChange={(value) => {
+                    handleDateChange("startedAt", value);
+                }}
+                />
+            </div>
+            <div>
+                <Label className="pb-2 font-bold text-base">프로젝트 종료일</Label>
+                <Calendar22
+                value={projectData.endedAt}
+                onValueChange={(value) => {
+                    handleDateChange("endedAt", value);
+                }}
+                />
+            </div>
+            </div>
 
-        <div className="flex py-2 grid grid-cols-2 gap-4">
-          <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 시작일</Label>
-            <Calendar22
-              value={projectData.startedAt}
-              onValueChange={(value) => {
-                handleDateChange("startedAt", value);
-              }}
+            <div className="py-2">
+            <Label className="pb-2 font-bold text-base">프로젝트 기술 스택</Label>
+            <Input
+                id="techStack"
+                name="techStack"
+                type="text"
+                placeholder="쉼표(,)를 구분해 입력해주세요 예) React, TypeScript"
+                value={projectData.techStack}
+                onChange={handleChange}
             />
-          </div>
-          <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 종료일</Label>
-            <Calendar22
-              value={projectData.endedAt}
-              onValueChange={(value) => {
-                handleDateChange("endedAt", value);
-              }}
+            </div>
+
+            <div className="py-2">
+            <Label className="pb-2 font-bold text-base">프로젝트 설명</Label>
+            <Textarea
+                id="description"
+                name="description"
+                placeholder="프로젝트 설명을 입력해주세요. (최대 300자)"
+                value={projectData.description}
+                onChange={handleChange}
             />
-          </div>
-        </div>
-
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 기술 스택</Label>
-          <Input
-            id="techStack"
-            name="techStack"
-            type="text"
-            placeholder="쉼표(,)를 구분해 입력해주세요 예) React, TypeScript"
-            value={projectData.techStack}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 설명</Label>
-          <Textarea
-            id="description"
-            name="description"
-            placeholder="프로젝트 설명을 입력해주세요. (최대 300자)"
-            value={projectData.description}
-            onChange={handleChange}
-          />
-        </div>
+            </div>`
 
             <div className="flex items-center py-2">
                 <Label className="pb-2 font-bold text-base">프로젝트 구성원</Label>
                  <Button 
+                    btnType="icon"
                     icon="plus"
-                    size="sm"
-                    variant="bgMain500"
-                    textColor="white"
+                    size={16}
+                    variant="primary"
+                    color="white"
                     className="hover:cursor-pointer mx-2"
                     onClick={handleAddProjectMember}
                 ></Button>
@@ -272,34 +267,16 @@ export default function ProjectForm({id}:{id?:string}) {
             
             <div className="py-2 justify-self-center absolute bottom-5 left-1/2 transform -translate-x-1/2">
                 <Button 
-                    radius="xl"
                     icon="edit"
-                    variant="bgMain500"
-                    textColor="white"
-                    iconSize="sm"
-                    size="base"
-                    className="hover:cursor-pointer mr-2"
+                    variant="primary"
+                    size={16}
+                    className="hover:cursor-pointer mr-2 text-white"
                     onClick={handleSubmit}
                 >
                     {id ? "수정 완료" : "프로젝트 생성"}
                 </Button>
             </div>
         </div>
-        <div className="py-2 justify-self-center">
-          <Link href={"/project/dashboard"}>
-            <Button
-              radius="xl"
-              variant="bgMain500"
-              textColor="white"
-              iconSize="sm"
-              size="base"
-              className="hover:cursor-pointer"
-            >
-              홈으로
-            </Button>
-          </Link>
-        </div>
       </div>
-    </div>
   );
 }
