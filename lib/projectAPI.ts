@@ -1,13 +1,21 @@
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 interface ProjectProps {
-  userName?: string;
-  email?: string;
-  password?: string;
-  profileImage?: string;
-  globalRole?: string;
-  authProvider?: string;
-  isActive?: boolean;  
+  id?: string;
+  name: string;
+  type: string;
+  status: string;
+  startedAt: Date | undefined;
+  endedAt: Date | undefined;
+  techStack: string;
+  description: string;
+}
+
+interface ProjectMemberProps {
+  id?: string;
+  user: string;
+  email: string;
+  role: string;
 }
 
 interface ResultProps {
@@ -16,11 +24,13 @@ interface ResultProps {
     data?: any[];
     timestamp: Timestamp;
 }
-const baseURL = 'http://localhost:3000/api/project/test'
+const projectBaseURL = 'http://localhost:3000/api/project/test'
+const projectMemberBaseURL = 'http://localhost:3000/api/projectMember/test'
 
+// Project Info API
 export async function getProject(id?:string): Promise<ResultProps> {
   try {
-    const url = `${baseURL}`
+    const url = `${projectBaseURL}?id=${id}`
     const res = await fetch(url);
     const data = await res.json();
 
@@ -33,7 +43,7 @@ export async function getProject(id?:string): Promise<ResultProps> {
 
 export async function createProject(projectData: ProjectProps): Promise<ProjectProps> {
   try {
-    const url = `${baseURL}`
+    const url = `${projectBaseURL}`
     const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -44,7 +54,7 @@ export async function createProject(projectData: ProjectProps): Promise<ProjectP
     const data = await res.json();
     console.log(data);
 
-    return {}
+    return data
   } catch (err){
     console.log(err);
     throw err;  
@@ -53,7 +63,7 @@ export async function createProject(projectData: ProjectProps): Promise<ProjectP
 
 export async function updateProject(id:string, projectData: ProjectProps): Promise<ProjectProps> {
   try {
-    const url = `${baseURL}/${id}`
+    const url = `${projectBaseURL}?id=${id}`
     const res = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -64,7 +74,7 @@ export async function updateProject(id:string, projectData: ProjectProps): Promi
     const data = await res.json();
     console.log(data);
 
-    return {}
+    return data
   } catch (err){
     console.log(err);
     throw err;  
@@ -73,14 +83,63 @@ export async function updateProject(id:string, projectData: ProjectProps): Promi
 
 export async function deleteProject(id:string): Promise<ProjectProps> {
   try {
-    const url = `${baseURL}/${id}`
+    const url = `${projectBaseURL}?id=${id}`
     const res = await fetch(url, {
-      method: 'DELETE',
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    
+    return data;
+
+  } catch (err){
+    console.log(err);
+    throw err;  
+  }
+}
+
+// Project Member API
+export async function getProjectMember(id?:string): Promise<ResultProps> {
+  try {
+    const url = `${projectMemberBaseURL}?id=${id}`
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return data;
+  } catch (err){
+    console.log(err);
+    throw err;  
+  }
+}
+
+export async function addProjectMember(projectMemberData: ProjectMemberProps): Promise<ProjectProps> {
+  try {
+    const url = `${projectMemberBaseURL}`
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(projectMemberData),
     });
     const data = await res.json();
     console.log(data);
 
-    return {}
+    return data
+  } catch (err){
+    console.log(err);
+    throw err;  
+  }
+}
+
+export async function deleteProjectMember(id:string): Promise<ProjectProps> {
+  try {
+    const url = `${projectMemberBaseURL}?id=${id}`
+    const res = await fetch(url, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    
+    return data;
 
   } catch (err){
     console.log(err);
