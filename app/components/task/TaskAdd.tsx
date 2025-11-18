@@ -197,18 +197,18 @@ const TaskAdd = ({ boardId, onSubmit, onCancel }: TaskAddProps) => {
   };
 
   // ✅ 시작일 캘린더 날짜 선택
-  const handleStartDateChange = (date: Date | Date[] | null) => {
-    if (date instanceof Date) {
-      const formattedDate = date.toISOString().split("T")[0];
+  const handleStartDateChange = (value: any) => {
+    if (value instanceof Date) {
+      const formattedDate = value.toISOString().split("T")[0];
       handleChange("started_at", formattedDate);
       setShowStartCalendar(false);
     }
   };
 
   // ✅ 종료일 캘린더 날짜 선택
-  const handleEndDateChange = (date: Date | Date[] | null) => {
-    if (date instanceof Date) {
-      const formattedDate = date.toISOString().split("T")[0];
+  const handleEndDateChange = (value: any) => {
+    if (value instanceof Date) {
+      const formattedDate = value.toISOString().split("T")[0];
       handleChange("ended_at", formattedDate);
       setShowEndCalendar(false);
     }
