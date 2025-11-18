@@ -49,7 +49,7 @@ export const badgeConfigs = {
   },
 };
 
-const PriorityDot = ({ color }) => {
+const PriorityDot = ({ color }: { color: string }) => {
   return (
     <span
       className={`w-2 h-2 inline-block mr-1 rounded-full ${color}`}
@@ -67,8 +67,9 @@ export default function Badge({ type }: BadgeType) {
       data-type={type}
       className={`py-1.5 px-2 rounded-sm text-xs font-medium ${badgeConfig.className}`}
     >
-      {(badgeConfig.category === "priority" || badgeConfig.dotColor) && (
-        <PriorityDot color={badgeConfig.dotColor} />
+      {(badgeConfig.category === "priority" ||
+        (badgeConfig as any).dotColor) && (
+        <PriorityDot color={(badgeConfig as any).dotColor} />
       )}
       {badgeConfig.title}
     </span>

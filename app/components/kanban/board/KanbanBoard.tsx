@@ -8,27 +8,24 @@ import KanbanColumn from "../column/KanbanColumn";
 import Modal from "../../Modal/Modal";
 import TaskDetail from "../../task/TaskDetail";
 import TaskAdd from "../../task/TaskAdd";
-import Button from "@/app/components/Button/Button";
 
 interface KanbanBoardProps {
   projectName: string;
   tasks: Task[];
-  onCreateTask: (
-    taskData: Omit<Task, "id" | "created_at" | "updated_at">
-  ) => void;
   onUpdateTask: (updatedTask: Task) => void;
   onDeleteTask: (taskId: string) => void;
+  onCreateTask: (task: Omit<Task, "id" | "created_at" | "updated_at">) => void;
 }
 
 const KanbanBoard = ({
   projectName,
   tasks,
-  onCreateTask,
   onUpdateTask,
   onDeleteTask,
+  onCreateTask,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showTaskAddModal, setShowTaskAddModal] = useState(false);
 
   // 상태별로 작업 그룹화
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
@@ -36,14 +33,11 @@ const KanbanBoard = ({
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
-  const handleUpdateTask = (updatedTask: Task) => {
-    onUpdateTask(updatedTask);
-    setSelectedTask(updatedTask);
-  };
-
-  const handleDeleteTask = (taskId: string) => {
-    onDeleteTask(taskId);
-    setSelectedTask(null);
+  const handleCreateTask = (
+    taskData: Omit<Task, "id" | "created_at" | "updated_at">
+  ) => {
+    onCreateTask(taskData);
+    setShowTaskAddModal(false);
   };
 
   return (
@@ -54,18 +48,12 @@ const KanbanBoard = ({
           <h2 className="text-2xl content-center font-bold p-1 text-gray-800">
             {projectName}
           </h2>
-          <div className="p-1 content-center">
-            <Button
-              onClick={() => setIsAddModalOpen(true)}
-              icon="plus"
-              variant="primary"
-              btnType="form"
-              size={16}
-              className="hover:cursor-pointer"
-            >
-              새 작업
-            </Button>
-          </div>
+          <button
+            onClick={() => setShowTaskAddModal(true)}
+            className="px-4 py-2 bg-main-500 text-white rounded-lg hover:bg-main-600 transition-colors"
+          >
+            새 작업 추가
+          </button>
         </div>
 
         {/* 캔반 그리드 */}
@@ -90,28 +78,24 @@ const KanbanBoard = ({
             <div className="p-6">
               <TaskDetail
                 task={selectedTask}
-                onUpdate={handleUpdateTask}
-                onDelete={handleDeleteTask}
+                onClose={() => setSelectedTask(null)}
               />
             </div>
           </Modal>
         )}
 
         {/* Task 추가 모달 */}
-        <Modal
-          isOpen={isAddModalOpen}
-          onClose={() => setIsAddModalOpen(false)}
-          title="새 태스크 추가"
-        >
-          <TaskAdd
-            boardId={projectName}
-            onSubmit={(taskData) => {
-              onCreateTask(taskData);
-              setIsAddModalOpen(false);
-            }}
-            onCancel={() => setIsAddModalOpen(false)}
-          />
-        </Modal>
+        {showTaskAddModal && (
+          <Modal isOpen={true} onClose={() => setShowTaskAddModal(false)}>
+            <div className="p-6">
+              <TaskAdd
+                boardId="board-001"
+                onSubmit={handleCreateTask}
+                onCancel={() => setShowTaskAddModal(false)}
+              />
+            </div>
+          </Modal>
+        )}
       </div>
     </div>
   );
