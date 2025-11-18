@@ -20,7 +20,7 @@ export interface Subtask {
 
 export interface Task {
   id: string; //UUID
-  kanban_board_id: string; // 어느 칸반보드에 속하는지
+  project_id: string; // 어느 프로젝트에 속하는지
 
   //Task 내용
   title: string;
@@ -32,7 +32,7 @@ export interface Task {
 
   // 담당자 & 하위 작업
   assigned_to?: string; // 담당자의 user_id (선택)
-  subtasks?: Subtask[]; // 하위 작업 배열 (선택)
+  subtasks?: any; // 하위 작업 배열 (선택) - DB에서는 JSON으로 저장
 
   // 추가 정보
   memo?: string; // 메모

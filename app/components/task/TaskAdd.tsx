@@ -64,7 +64,7 @@ function BadgeSelector<T extends string>({
   const current = options.find((opt) => opt.value === value);
 
   return (
-    <div ref={ref} className="flex items-center gap-2">
+    <div ref={ref} className="flex items-center gap-2 flex-nowrap">
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -78,7 +78,7 @@ function BadgeSelector<T extends string>({
       </button>
 
       {isOpen && (
-        <div className="flex items-center gap-1.5 animate-fadeIn">
+        <div className="flex items-center gap-1.5 animate-fadeIn flex-nowrap">
           {options
             .filter((opt) => opt.value !== value)
             .map((opt) => (
@@ -252,13 +252,19 @@ export default function TaskAdd({
         </div>
 
         <div className="flex items-center gap-2">
-          <Icon type="alertTriangle" size={16} color="#6B7280" />
-          <h3 className="text-sm font-semibold text-gray-600">우선순위</h3>
-          <BadgeSelector
-            value={formData.priority}
-            options={priorityOptions}
-            onChange={(v) => handleChange("priority", v)}
-          />
+          <div className="flex items-center gap-1 shrink-0">
+            <Icon type="alertTriangle" size={16} color="#6B7280" />
+            <h3 className="text-sm font-semibold text-gray-600 whitespace-nowrap">
+              우선순위
+            </h3>
+          </div>
+          <div className="shrink-0">
+            <BadgeSelector
+              value={formData.priority}
+              options={priorityOptions}
+              onChange={(v) => handleChange("priority", v)}
+            />
+          </div>
         </div>
       </div>
 
