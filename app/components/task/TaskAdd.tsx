@@ -178,6 +178,7 @@ export default function TaskAdd({
     try {
       const taskData: Omit<Task, "id" | "created_at" | "updated_at"> = {
         kanban_board_id: boardId,
+        project_id: boardId, // 임시로 동일하게 설정
         title: formData.title.trim(),
         description: clean(formData.description),
         status: formData.status,

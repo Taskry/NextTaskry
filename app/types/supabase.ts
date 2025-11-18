@@ -51,6 +51,7 @@ export type Database = {
           description: string | null
           ended_at: string | null
           id: string
+          kanban_board_id: string
           memo: string | null
           priority: string
           project_id: string
@@ -66,6 +67,7 @@ export type Database = {
           description?: string | null
           ended_at?: string | null
           id?: string
+          kanban_board_id: string
           memo?: string | null
           priority?: string
           project_id: string
@@ -81,6 +83,7 @@ export type Database = {
           description?: string | null
           ended_at?: string | null
           id?: string
+          kanban_board_id?: string
           memo?: string | null
           priority?: string
           project_id?: string

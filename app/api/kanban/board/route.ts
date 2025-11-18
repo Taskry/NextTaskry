@@ -67,24 +67,39 @@ export async function POST(request: NextRequest) {
     }
 
     // 작업 생성
+    type Task = {
+      projectId?: string;
+      title: string;
+      description?: string;
+      status?: string;
+      priority?: string;
+      assigned_to?: string;
+      started_at?: string;
+      ended_at?: string;
+      memo?: string;
+      subtasks?: string;
+      created_at: string;
+      updated_at: string;
+    };
+
+    const newTask: Task = {
+      projectId: body.projectId,
+      title: body.title,
+      description: body.description,
+      status: body.status || "todo",
+      priority: body.priority || "normal",
+      assigned_to: body.assigned_to,
+      started_at: body.started_at,
+      ended_at: body.ended_at,
+      memo: body.memo,
+      subtasks: body.subtasks,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
     const { data, error } = await supabase
-      .from("tasks")
-      .insert([
-        {
-          kanban_board_id: body.kanban_board_id,
-          title: body.title,
-          description: body.description,
-          status: body.status || "todo",
-          priority: body.priority || "normal",
-          assigned_to: body.assigned_to,
-          started_at: body.started_at,
-          ended_at: body.ended_at,
-          memo: body.memo,
-          subtasks: body.subtasks,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
+      .insert([newTask as Task])
+
       .select()
       .single();
 

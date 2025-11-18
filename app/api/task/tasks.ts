@@ -29,7 +29,7 @@ export async function getTasksByBoardId(boardId: string) {
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
-      .eq("project_id", boardId)
+      .eq("kanban_board_id", boardId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
