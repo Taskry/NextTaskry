@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { KanbanBoard } from "@/app/types/kanban";
+import { Task, TaskStatus, KanbanBoardType } from "@/app/types";
 import Button from "../Button/Button";
 import { Icon } from "../Icon/Icon";
 import Modal from "../Modal/Modal";
@@ -17,10 +17,12 @@ interface KanbanBoardFormData {
 }
 
 export default function KanbanBoardList({ projectId }: KanbanBoardListProps) {
-  const [boards, setBoards] = useState<KanbanBoard[]>([]);
+  const [boards, setBoards] = useState<KanbanBoardType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [editingBoard, setEditingBoard] = useState<KanbanBoard | null>(null);
+  const [editingBoard, setEditingBoard] = useState<KanbanBoardType | null>(
+    null
+  );
   const [formData, setFormData] = useState<KanbanBoardFormData>({
     name: "",
     description: "",
@@ -57,7 +59,7 @@ export default function KanbanBoardList({ projectId }: KanbanBoardListProps) {
     setIsCreateModalOpen(true);
   };
 
-  const openEditModal = (board: KanbanBoard) => {
+  const openEditModal = (board: KanbanBoardType) => {
     setFormData({
       name: board.name,
       description: board.description || "",

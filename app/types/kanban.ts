@@ -51,7 +51,7 @@ export interface Task {
 // KanbanBoard 인터페이스 - DB의 kanban_boards 테이블
 // ============================================
 
-export interface KanbanBoard {
+export interface KanbanBoardType {
   id: string;
   name: string;
   description?: string;

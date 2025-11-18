@@ -1,6 +1,10 @@
-// app/api/task/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getTasksByBoardId, createTask, updateTask, deleteTask } from "./tasks";
+import {
+  getTasksByBoardId,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "../../task/tasks";
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ data: data || [] });
   } catch (error) {
-    console.error("GET /api/task error:", error);
+    console.error("GET /api/kanban/tasks error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -38,7 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // ✅ 중요! id, created_at, updated_at 제거
+    // id, created_at, updated_at 제거 (Supabase가 자동 생성)
     const { id, created_at, updated_at, ...taskData } = body;
 
     const { data, error } = await createTask(taskData);
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data }, { status: 201 });
   } catch (error) {
-    console.error("POST /api/task error:", error);
+    console.error("POST /api/kanban/tasks error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -64,7 +68,7 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, created_at, updated_at, ...updates } = body;
+    const { id, ...updates } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -85,7 +89,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error("PUT /api/task error:", error);
+    console.error("PUT /api/kanban/tasks error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -117,7 +121,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("DELETE /api/task error:", error);
+    console.error("DELETE /api/kanban/tasks error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

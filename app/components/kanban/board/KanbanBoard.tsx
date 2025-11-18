@@ -19,6 +19,12 @@ interface KanbanBoardProps {
   ) => void;
 }
 
+const COLUMNS = [
+  { id: "todo" as TaskStatus, title: "할 일", color: "bg-gray-100" },
+  { id: "inprogress" as TaskStatus, title: "진행 중", color: "bg-blue-100" },
+  { id: "done" as TaskStatus, title: "완료", color: "bg-green-100" },
+];
+
 const KanbanBoard = ({
   projectName,
   boardId,
@@ -96,7 +102,6 @@ const KanbanBoard = ({
                 key={column.id}
                 id={column.id}
                 title={column.title}
-                color={column.color}
                 tasks={groupedTasks[column.id] || []}
                 onTaskClick={(task) => setSelectedTask(task)}
               />

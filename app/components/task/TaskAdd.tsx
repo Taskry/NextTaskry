@@ -171,6 +171,7 @@ export default function TaskAdd({
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     if (!validateForm()) return;
 
     setIsSubmitting(true);

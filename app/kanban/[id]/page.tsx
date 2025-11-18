@@ -1,191 +1,154 @@
-// app/kanban/[id]/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
-import { Task, KanbanBoard } from "@/app/types/kanban";
-import KanbanBoardComponent from "../../components/kanban/board/KanbanBoard";
-import Button from "../../components/Button/Button";
-import { Icon } from "../../components/Icon/Icon";
-import Modal from "../../components/Modal/Modal";
-import TaskAdd from "../../components/task/TaskAdd";
-import { showToast } from "@/lib/toast";
+import { useState, useEffect } from "react";
+import { KanbanBoardType, Task } from "@/app/types";
+import {
+  createTask,
+  getTasksByBoardId,
+  updateTask,
+  deleteTask,
+} from "@/app/api/task/tasks";
+import { ta } from "date-fns/locale";
+import KanbanBoard from "@/app/components/kanban/board/KanbanBoard";
 
-export default function KanbanBoardPage() {
-  const params = useParams();
-  const boardId = params.id as string;
+interface PageProps {
+  params: {
+    id: string; // 동적 라우트로 받아오는 boardId
+  };
+}
 
-  const [board, setBoard] = useState<KanbanBoard | null>(null);
+export default function KanbanBoardPage({ params }: PageProps) {
+  const [board, setBoard] = useState<KanbanBoardType | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 칸반보드 정보 조회
-  const fetchBoard = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/kanban/boards?id=${boardId}`);
-      if (response.ok) {
-        const boardData = await response.json();
-        setBoard(boardData);
-      } else {
-        showToast("칸반보드를 찾을 수 없습니다.", "error");
-      }
-    } catch (error) {
-      console.error("칸반보드 조회 실패:", error);
-      showToast("칸반보드 조회 중 오류가 발생했습니다.", "error");
-    }
-  }, [boardId]);
-
-  // 작업 목록 조회
-  const fetchTasks = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/kanban/board?kanbanBoardId=${boardId}`);
-      if (response.ok) {
-        const tasksData = await response.json();
-        setTasks(tasksData);
-      }
-    } catch (error) {
-      console.error("작업 목록 조회 실패:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [boardId]);
+  const boardId = params.id; // ✅ URL에서 동적으로 받아옴!
 
   useEffect(() => {
-    if (boardId) {
-      fetchBoard();
-      fetchTasks();
-    }
-  }, [boardId, fetchBoard, fetchTasks]);
+    const fetchTasks = async () => {
+      try {
+        const [boardResponse, tasksResponse] = await Promise.all([
+          fetch(`/api/kanban-board?id=${boardId}`),
+          getTasksByBoardId(boardId),
+        ]);
 
-  // 작업 생성
+        if (boardResponse.ok) {
+          const boardData = await boardResponse.json();
+          setBoard(boardData.data);
+        }
+
+        const { data, error } = tasksResponse;
+        if (error) {
+          console.error("작업 조회 실패:", error);
+          return;
+        }
+        setTasks(data || []);
+      } catch (error) {
+        console.error("작업 조회 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, [boardId]); // boardId가 바뀔 때마다 다시 조회
+
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
     try {
-      const response = await fetch("/api/kanban/board", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(taskData),
+      console.log("🔴 [Page] handleCreateTask 시작");
+      console.log("🔴 [Page] 받은 데이터:", taskData);
+
+      const { data, error } = await createTask({
+        ...taskData,
+        kanban_board_id: boardId,
       });
 
-      if (response.ok) {
-        const newTask = await response.json();
-        setTasks((prev) => [...prev, newTask]);
-        showToast("작업이 생성되었습니다.", "success");
-      } else {
-        const error = await response.json();
-        showToast(error.error || "작업 생성 실패", "error");
+      if (error) {
+        console.error("❌ [Page] Task 생성 실패:", error);
+        return;
+      }
+
+      if (data) {
+        console.log("✅ [Page] Task 생성 성공, state 업데이트");
+        setTasks((prev) => {
+          console.log("📊 [Page] 이전 tasks 개수:", prev.length);
+          const newTasks = [data, ...prev];
+          console.log("📊 [Page] 새로운 tasks 개수:", newTasks.length);
+          return newTasks;
+        });
       }
     } catch (error) {
       console.error("작업 생성 실패:", error);
-      showToast("작업 생성 중 오류가 발생했습니다.", "error");
     }
   };
 
-  // 작업 수정
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
-      const response = await fetch(`/api/kanban/board?id=${updatedTask.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedTask),
-      });
+      const { id, created_at, updated_at, ...updates } = updatedTask;
 
-      if (response.ok) {
+      const { data, error } = await updateTask(id, updates);
+
+      if (error) {
+        console.error("Task 수정 실패:", error);
+        return;
+      }
+
+      if (data) {
         setTasks((prev) =>
-          prev.map((task) =>
-            task.id === updatedTask.id ? updatedTask : task
-          )
+          prev.map((task) => (task.id === data.id ? data : task))
         );
-        showToast("작업이 수정되었습니다.", "success");
-      } else {
-        const error = await response.json();
-        showToast(error.error || "작업 수정 실패", "error");
       }
     } catch (error) {
-      console.error("작업 수정 실패:", error);
-      showToast("작업 수정 중 오류가 발생했습니다.", "error");
+      console.error("수정 실패:", error);
     }
   };
 
-  // 작업 삭제
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const response = await fetch(`/api/kanban/board?id=${taskId}`, {
-        method: "DELETE",
-      });
+      const { error } = await deleteTask(taskId);
 
-      if (response.ok) {
-        setTasks((prev) => prev.filter((task) => task.id !== taskId));
-        showToast("작업이 삭제되었습니다.", "success");
-      } else {
-        const error = await response.json();
-        showToast(error.error || "작업 삭제 실패", "error");
+      if (error) {
+        console.error("Task 삭제 실패:", error);
+        return;
       }
+
+      setTasks((prev) => prev.filter((task) => task.id !== taskId));
     } catch (error) {
-      console.error("작업 삭제 실패:", error);
-      showToast("작업 삭제 중 오류가 발생했습니다.", "error");
+      console.error("삭제 실패:", error);
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-gray-500">로딩 중...</div>
+        로딩 중...
       </div>
     );
   }
-
   if (!board) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <Icon type="alertTriangle" size={48} color="#EF4444" className="mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            칸반보드를 찾을 수 없습니다
-          </h2>
-          <p className="text-gray-600 mb-6">
-            요청하신 칸반보드가 존재하지 않거나 삭제되었을 수 있습니다.
-          </p>
-          <Button variant="primary" onClick={() => window.history.back()}>
-            뒤로 가기
-          </Button>
-        </div>
+        칸반보드를 찾을 수 없습니다.
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* 헤더 */}
-      <div className="px-6 pt-6 pb-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{board.name}</h1>
-            {board.description && (
-              <p className="text-gray-600 mt-1">{board.description}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <Button
-              variant="basic"
-              onClick={() => window.history.back()}
-            >
-              <Icon type="arrowLeft" size={16} className="mr-2" />
-              목록으로
-            </Button>
-            <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-              <Icon type="plus" size={16} className="mr-2" />
-              새 작업
-            </Button>
-          </div>
-        </div>
+    <div className="h-screen flex flex-col">
+      {/* ✅ 헤더에 칸반보드 정보 표시 */}
+      <div className="px-6 py-4 border-b bg-white">
+        <h1 className="text-2xl font-bold text-gray-900">{board.name}</h1>
+        {board.description && (
+          <p className="text-gray-600 mt-1">{board.description}</p>
+        )}
       </div>
 
-      {/* 칸반보드 */}
+      {/* ✅ 칸반보드 컴포넌트 */}
       <div className="flex-1 overflow-hidden">
-        <KanbanBoardComponent
+        <KanbanBoard
+          boardId={boardId}
           projectName={board.name}
           tasks={tasks}
           onCreateTask={handleCreateTask}
@@ -193,15 +156,6 @@ export default function KanbanBoardPage() {
           onDeleteTask={handleDeleteTask}
         />
       </div>
-
-      {/* 작업 생성 모달 */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <TaskAdd
-          boardId={boardId}
-          onSubmit={handleCreateTask}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      </Modal>
     </div>
   );
 }
