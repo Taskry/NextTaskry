@@ -1,7 +1,7 @@
 // components/kanban/KanbanColumn.tsx
 
 import { Task, TaskStatus } from "@/app/types";
-import TaskCard from "../task/TaskCard";
+import TaskCard from "../../task/TaskCard";
 
 interface KanbanColumnProps {
   id: TaskStatus;

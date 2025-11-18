@@ -14,9 +14,19 @@ export const badgeConfigs = {
     className: `${bgColorOpacity.colorOpacity2[0]}`,
     category: "status",
   },
-  complete: {
-    title: "완료",
+  todo: {
+    title: "TODO",
     className: "bg-[#9CA3AF]",
+    category: "status",
+  },
+  inProgress: {
+    title: "진행중",
+    className: `${bgColorOpacity.colorOpacity2[4]}`,
+    category: "status",
+  },
+  done: {
+    title: "완료",
+    className: `${bgColorOpacity.colorOpacity3[1]}`,
     category: "status",
   },
   high: {
@@ -26,7 +36,7 @@ export const badgeConfigs = {
     dotColor: `${bgColorOpacity.colorOpacity2[0]}`,
   },
   normal: {
-    title: "중간",
+    title: "보통",
     className: `${bgColorOpacity.colorOpacity[5]}`,
     category: "priority",
     dotColor: `${bgColorOpacity.colorOpacity[3]}`,
@@ -39,7 +49,7 @@ export const badgeConfigs = {
   },
 };
 
-const PriorityDot = ({ color }) => {
+const PriorityDot = ({ color }: { color: string }) => {
   return (
     <span
       className={`w-2 h-2 inline-block mr-1 rounded-full ${color}`}
@@ -57,8 +67,9 @@ export default function Badge({ type }: BadgeType) {
       data-type={type}
       className={`py-1.5 px-2 rounded-sm text-xs font-medium ${badgeConfig.className}`}
     >
-      {(badgeConfig.category === "priority" || badgeConfig.dotColor) && (
-        <PriorityDot color={badgeConfig.dotColor} />
+      {(badgeConfig.category === "priority" ||
+        (badgeConfig as any).dotColor) && (
+        <PriorityDot color={(badgeConfig as any).dotColor} />
       )}
       {badgeConfig.title}
     </span>

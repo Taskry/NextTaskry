@@ -127,11 +127,11 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       >
         {projectList.map((project, index) => {
           return (
+            // 프로젝트 선택 시 칸반보드 이동
             <Card
               key={index}
               className="rounded-md hover:border-main-200 cursor-pointer"
               onClick={() => {
-                console.log("카드 클릭됨:", project);
                 onSelectProject?.(project.id);
               }}
             >
