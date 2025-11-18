@@ -41,7 +41,7 @@ export default function Checkbox({
           <Icon type="squareCheck" size={size} />
         )}
 
-        {label && <span className="text-sm text-gray-700">{label}</span>}
+        {label && <span className="text-sm">{label}</span>}
       </label>
     </div>
   );
