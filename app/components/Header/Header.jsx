@@ -63,11 +63,13 @@ export function Header() {
         </button>
       </div>
     </header>
-    <ProfileModal
-      isOpen={open}
-      onClose={() => setOpen(false)}
-      user={session?.user ?? null}
-    />
+  
+          {open ? (
+        <ProfileModal 
+          onClose={() => setOpen(false)} 
+          user={session?.user ?? null}
+        />
+      ) : null}
     </>
   );
 }

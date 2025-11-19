@@ -13,11 +13,8 @@ export interface ProfileModalProps {
 }
 
 
-export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProps){
+export default function ProfileModal({ onClose, user }: ProfileModalProps){
   
-  if(!isOpen) return null;
-  
-
  return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       {/* 배경 */}
