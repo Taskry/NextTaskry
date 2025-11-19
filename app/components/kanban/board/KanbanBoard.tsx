@@ -16,6 +16,7 @@ import KanbanColumn from "../column/KanbanColumn";
 import Modal from "../../Modal/Modal";
 import TaskDetail from "../../task/TaskDetail";
 import TaskAdd from "../../task/TaskAdd";
+import Container from "../../UI/Container";
 
 interface KanbanBoardProps {
   projectName: string;
@@ -129,7 +130,7 @@ const KanbanBoard = ({
   };
 
   return (
-    <div className="mx-20 my-10">
+    <Container>
       <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden w-full">
         {/* 헤더 */}
         <Header
@@ -187,7 +188,7 @@ const KanbanBoard = ({
           </Modal>
         )}
       </div>
-    </div>
+    </Container>
   );
 };
 

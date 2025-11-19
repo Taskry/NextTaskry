@@ -34,6 +34,13 @@ export default function ProjectPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // projectId가 유효하지 않으면 로딩 종료
+        if (!projectId || projectId === "undefined" || projectId === "null") {
+          console.warn("⚠️ Invalid projectId:", projectId);
+          setLoading(false);
+          return;
+        }
+
         // 1. 프로젝트 정보 가져오기
         const { data: projectData, error: projectError } = await (
           supabase as any
