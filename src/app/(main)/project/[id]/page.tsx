@@ -9,7 +9,6 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 
 import { Task } from "@/types/kanban";
 import { showToast } from "@/lib/utils/toast";
-import { supabase } from "@/lib/supabase/supabase";
 
 import {
   getTasksByBoardId,
@@ -34,62 +33,55 @@ export default function ProjectPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // projectId가 유효하지 않으면 로딩 종료
         if (!projectId || projectId === "undefined" || projectId === "null") {
           console.warn("⚠️ Invalid projectId:", projectId);
           setLoading(false);
           return;
         }
 
-        // 1. 프로젝트 정보 가져오기
-        const { data: projectData, error: projectError } = await (
-          supabase as any
-        )
-          .from("projects")
-          .select("*")
-          .eq("project_id", projectId)
-          .single();
-
-        if (projectError) {
-          console.error("프로젝트 조회 실패:", projectError);
-          setProjectName("알 수 없는 프로젝트");
-        } else if (projectData) {
+        // 1. 프로젝트 정보 가져오기 - API Route 사용
+        const projectRes = await fetch(`/api/projects/${projectId}`);
+        if (projectRes.ok) {
+          const projectData = await projectRes.json();
           setProjectName(projectData.project_name || "이름 없는 프로젝트");
+        } else {
+          setProjectName("알 수 없는 프로젝트");
         }
 
-        // 2. 칸반보드 ID 가져오기 (또는 생성)
-        const { data: kanbanData, error: kanbanError } = await (supabase as any)
-          .from("kanban_boards")
-          .select("id")
-          .eq("project_id", projectId)
-          .single();
+        // 2. 칸반보드 ID 가져오기 (또는 생성) - API Route 사용
+        let boardId = null;
 
-        let boardId = null; // 👈 재할당될 변수
+        // GET으로 칸반보드 조회
+        const kanbanRes = await fetch(
+          `/api/kanban/boards?projectId=${projectId}`
+        );
 
-        // 칸반보드가 없으면 생성
-        if (kanbanError && kanbanError.code === "PGRST116") {
-          console.log("⚠️ 칸반보드가 없어서 새로 생성합니다.");
+        if (kanbanRes.ok) {
+          const kanbanData = await kanbanRes.json();
 
-          const { data: newKanban, error: createError } = await (
-            supabase as any
-          )
-            .from("kanban_boards")
-            .insert({
-              project_id: projectId,
-              columns: "todo,inprogress,done",
-            })
-            .select("id")
-            .single();
+          if (kanbanData && kanbanData.length > 0) {
+            // 이미 칸반보드가 있는 경우
+            boardId = kanbanData[0].id;
+          } else {
+            // 칸반보드가 없으면 생성
+            console.log("⚠️ 칸반보드가 없어서 새로 생성합니다.");
 
-          if (createError) {
-            console.error("칸반보드 생성 실패:", createError);
-          } else if (newKanban) {
-            boardId = newKanban.id; // 👈 생성된 ID 저장
+            const createRes = await fetch("/api/kanban/boards", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                project_id: projectId,
+                columns: "todo,inprogress,done",
+              }),
+            });
+
+            if (createRes.ok) {
+              const newKanban = await createRes.json();
+              boardId = newKanban.id;
+            } else {
+              console.error("칸반보드 생성 실패");
+            }
           }
-        } else if (kanbanError) {
-          console.error("칸반보드 조회 실패:", kanbanError);
-        } else if (kanbanData) {
-          boardId = kanbanData.id; // 👈 조회된 ID 저장
         }
 
         if (boardId) {
