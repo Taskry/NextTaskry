@@ -2,6 +2,7 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider  from "next-auth/providers/google";
+import { supabase } from "@/lib/supabase";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,14 +19,14 @@ export const authOptions: NextAuthOptions = {
   callbacks: 
   {
       async signIn({ user }) {
-        const supabase = supabaseServer;
+        // const supabase = supabaseServer;
         const email = user.email;
 
         if (!email) return false;
 
         // 1️⃣ 기존 유저 조회
         const { data: existingUser } = await supabase
-          .from("User_TB")
+          .from("users")
           .select("*")
           .eq("email", email)
           .single();
@@ -35,7 +36,7 @@ export const authOptions: NextAuthOptions = {
           console.log("관리자입니다. ")
 
           await supabase
-            .from("User_TB")
+            .from("users")
             .update({
               user_name: user.name,
               profile_image: user.image,
@@ -52,12 +53,12 @@ export const authOptions: NextAuthOptions = {
         if (!existingUser) {
           console.log("신규유저입니다. ")
           await supabase
-            .from("User_TB")
+            .from("users")
             .insert({
               email: user.email,
               user_name: user.name,
               profile_image: user.image,
-              password: null,              // 소셜 로그인 → 사용 X
+              // password: null,              // 소셜 로그인 → 사용 X
               global_role: "user",         // 일반 유저
               auth_provider: "google",
               is_active: true,
@@ -70,7 +71,7 @@ export const authOptions: NextAuthOptions = {
         
         // 4️⃣ 기존 일반 유저라면 UPDATE
         await supabase
-        .from("User_TB")
+        .from("users")
         .update({
           user_name: user.name,
           profile_image: user.image,
@@ -89,9 +90,9 @@ export const authOptions: NextAuthOptions = {
         // 그 뒤 토큰 검증할때마다 실행될때는 user가 없기때문에 하위 코드는 실행되지않는다.
         if (user) { 
           // DB에서 유저 조회
-          const supabase = supabaseServer;
+          // const supabase = supabaseServer;
           const { data: existingUser } = await supabase
-            .from("User_TB")
+            .from("users")
             .select("user_id, global_role, user_name, email, profile_image")
             .eq("email", user.email)
             .single();
