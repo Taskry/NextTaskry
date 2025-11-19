@@ -7,6 +7,7 @@ import { useState } from "react";
 import ProfileModal from "@/app/login/components/ProfileModal";
 import { useSession } from "next-auth/react";
 import { showToast } from "@/lib/toast";
+import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
@@ -68,6 +69,16 @@ export function Header() {
                 className="text-gray-600 dark:text-gray-300"
               />
             )}
+          </button>
+
+          <button className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:border-main-500 transition">
+            <Link href="/notice">
+              <Icon
+                type="speakerphone"
+                size={20}
+                className="text-gray-600 dark:text-gray-300"
+              />
+            </Link>
           </button>
         </div>
       </header>
