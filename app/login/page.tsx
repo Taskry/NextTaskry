@@ -27,10 +27,13 @@ export default function LoginPage() {
 
       <div className="mt-8">
         <Button
+          // textColor="white"
+          className="text-white"
+          btnType="basic"
           icon="google"
           variant="primary"
-          btnType="form"
-          size={16}
+          size={18}
+          radius="lg"
           onClick={() => signIn("google", { callbackUrl: "/" })}
         >
           Google로 시작하기
