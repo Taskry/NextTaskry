@@ -10,10 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/project/Card";
-import { deleteProject, getProject, getProjectMember } from "@/lib/projectAPI";
+import { deleteProject, getProject, getProjectMember, updateProject } from "@/lib/projectAPI";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { showApiError } from "@/lib/toast";
+import { showApiError, showToast } from "@/lib/toast";
+import LoadingSpinner from "../loading/LoadingSpinner";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -22,15 +23,22 @@ interface ProjectCardProps {
 export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   const [projectList, setProjectList] = useState<any[]>([]);
   const [projectMember, setProjectMember] = useState<any>({});
+  const [loading, setLoading] = useState<boolean>(false);
 
   const fetchProject = async () => {
     try {
       const result = await getProject();
       const data = result.data;
-
+      
       if (data) {
-        setProjectList(data)
-      }
+        const updatedProjects = data.map((project) => ({
+          ...project,
+          projectId: project.project_id,
+          projectName: project.project_name
+        }));
+        console.log(updatedProjects)
+        setProjectList(updatedProjects);
+      }      
     } catch (err) {
       console.error(err);
       showApiError("프로젝트 목록을 불러올 수 없습니다.");
@@ -54,6 +62,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   };
   
   useEffect(() => {
+    // setLoading(true);
     fetchProject();
   }, []);
 
@@ -65,27 +74,24 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 
   }, [projectList]);
 
-  useEffect(() => {
-    console.log(projectMember);
-  }, [projectMember]);
+  // useEffect(() => {
+  //   console.log(projectMember);
+  // }, [projectMember]);
 
-  function handleDeleteProject (id:string) {
-    deleteProject(id);
-    fetchProject();
+  async function handleDeleteProject (id:string) {
+    await deleteProject(id);
+    await fetchProject();
+    showToast("삭제되었습니다.", 'deleted');
   }
 
+  if (loading) {
+    return <LoadingSpinner />
+  }
   if (projectList.length === 0) {
     return (
       <div className="mx-20 my-10">
         <div className="items-center justify-center">
           <div className="flex items-center justify-center pt-50">
-            {/* <Button
-              icon="board"
-              radius="full"
-              size="full"
-              variant="lightMain40"
-              textColor="txtMain600"
-            ></Button> */}
             <Button btnType="icon" icon="board" size={18}></Button>
           </div>
           <div className="flex items-center justify-center font-bold text-lg py-1">
@@ -101,19 +107,6 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 
   return (
     <div className="mx-20 my-10">
-      <div className="flex justify-between">
-        <div>
-          <div className="text-2xl font-bold p-1">내 프로젝트 목록</div>
-          <div className="p-1">Taskry에서 프로젝트를 생성하고 관리합니다</div>
-        </div>
-        <div className="p-1 content-center">
-          <Link href={"/project/create"}>
-            <Button btnType="form" icon="plus">
-              새 프로젝트
-            </Button>
-          </Link>
-        </div>
-      </div>
       <div
         className="
                 grid
@@ -136,7 +129,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               }}
             >
               <CardHeader className="flex w-full">
-                <CardTitle>{project.name}</CardTitle>
+                <CardTitle>{project.projectName}</CardTitle>
               </CardHeader>
               <CardDescription className="flex">
                 <div className="flex gap-2">{project.description}</div>
@@ -144,12 +137,12 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               <CardContent className="flex justify-end">
                 <div className="flex gap-2 font-bold text-main-400">
                   <Icon type="users" size={20} className="text-main-400" />
-                  <div className="text-sm">{projectMember ? projectMember[project.name] : 0}팀원</div>
+                  <div className="text-sm">{projectMember ? projectMember[project.name] : 1}팀원</div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
                 <div onClick={(e) => e.stopPropagation()}>
-                  <Link href={`/project/update/${project.id}`}>
+                  <Link href={`/project/update/${project.projectId}`}>
                     <Button
                       btnType="icon"
                       icon="edit"
@@ -168,7 +161,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                     variant="white"
                     color="red"
                     className="hover:bg-red-100/40 hover:border-red-100/40"
-                    onClick={() => handleDeleteProject(project.id)}
+                    onClick={() => handleDeleteProject(project.projectId)}
                   />
                 </div>
               </CardFooter>
@@ -179,3 +172,4 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
     </div>
   );
 }
+

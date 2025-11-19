@@ -1,29 +1,29 @@
 let projectMemberList = [
-       {
-            id: "project01",
-            user: "user01",
-            email: "user01@domain.com",
-            role: "leader"
-        },
-        {
-            id: "project01",
-            user: "user02",
-            email: "user02@domain.com",
-            role: "member"
-        },
-        {
-            id: "project01",
-            user: "user03",
-            email: "user03@domain.com",
-            role: "member"
-        },
-        {
-            id: "project02",
-            user: "user01",
-            email: "user01@domain.com",
-            role: "leader"
-        },
-    ]
+  {
+    id: "project01",
+    user: "user01",
+    email: "user01@domain.com",
+    role: "leader"
+  },
+  {
+    id: "project01",
+    user: "user02",
+    email: "user02@domain.com",
+    role: "member"
+  },
+  {
+    id: "project01",
+    user: "user03",
+    email: "user03@domain.com",
+    role: "member"
+  },
+  {
+    id: "project02",
+    user: "user01",
+    email: "user01@domain.com",
+    role: "leader"
+  },
+]
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

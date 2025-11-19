@@ -21,9 +21,9 @@ export function StatusSelect({ value, onValueChange }: StatusSelectProps) {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="계획중">계획중</SelectItem>
-          <SelectItem value="진행중">진행중</SelectItem>
-          <SelectItem value="완료">완료</SelectItem>
+          <SelectItem value="active">active</SelectItem>
+          <SelectItem value="completed">completed</SelectItem>
+          <SelectItem value="archived">archived</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

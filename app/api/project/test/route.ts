@@ -1,35 +1,35 @@
 let projectList = [
-       {
-            id: "project01",
-            name: "project01",
-            type: "개발",
-            status: "진행중",
-            startedAt:  undefined,
-            endedAt:  undefined,
-            techStack: "React, Typescript",
-            description: "Project01 description"
-        },
-        {
-            id: "project02",
-            name: "project02",
-            type: "개발",
-            status: "진행중",
-            startedAt:  undefined,
-            endedAt:  undefined,
-            techStack: "React, Typescript",
-            description: "Project02 description"
-        },
-        {
-            id: "project03",
-            name: "project03",
-            type: "개발",
-            status: "진행중",
-            startedAt:  undefined,
-            endedAt:  undefined,
-            techStack: "React, Typescript",
-            description: "Project03 description"
-        }
-    ]
+  {
+    id: "project01",
+    name: "project01",
+    type: "개발",
+    status: "진행중",
+    startedAt:  undefined,
+    endedAt:  undefined,
+    techStack: "React, Typescript",
+    description: "Project01 description"
+  },
+  {
+    id: "project02",
+    name: "project02",
+    type: "개발",
+    status: "진행중",
+    startedAt:  undefined,
+    endedAt:  undefined,
+    techStack: "React, Typescript",
+    description: "Project02 description"
+  },
+  {
+    id: "project03",
+    name: "project03",
+    type: "개발",
+    status: "진행중",
+    startedAt:  undefined,
+    endedAt:  undefined,
+    techStack: "React, Typescript",
+    description: "Project03 description"
+  }
+]
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
