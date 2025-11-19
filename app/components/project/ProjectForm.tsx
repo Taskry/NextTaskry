@@ -105,7 +105,7 @@ export default function ProjectForm({id}:{id?:string}) {
     };
     useEffect(() => {
         fetchProject();
-        fetchUserList();
+        // fetchUserList();
         // fetchProjectMember();
     },[])
 
