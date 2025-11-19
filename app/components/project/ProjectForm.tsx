@@ -5,7 +5,7 @@ import { Icon } from "@/app/components/Icon/Icon";
 import { Calendar22 } from "@/app/components/project/Calendar";
 import { StatusSelect } from "@/app/components/project/StatusSelect";
 import { TypeSelect } from "@/app/components/project/TypeSelect";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/UI/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { addProjectMember, createProject, deleteProjectMember, getProjectById, getProjectMember, updateProject } from "@/lib/projectAPI";
@@ -90,10 +90,10 @@ export default function ProjectForm({id}:{id?:string}) {
         }
     }
 
-    const fetchProjectMember = async () => {
-        try {
-            const result = await getProjectMember(id);
-            const data = result.data;
+  const fetchProjectMember = async () => {
+    try {
+      const result = await getProjectMember(id);
+      const data = result.data;
 
             console.log(data)
             if (data) {
@@ -114,30 +114,22 @@ export default function ProjectForm({id}:{id?:string}) {
     //     console.log(projectData)
     // },[projectData])
 
-    // 일반 Input과 Textarea를 위한 handleChange
-    const handleChange = (event:any) => {
-        const { name, value } = event.target;
-        setProjectData((prevProjectData) => ({
-        ...prevProjectData,
-        [name]: value,
-        }));
-    };
+  // 일반 Input과 Textarea를 위한 handleChange
+  const handleChange = (event: any) => {
+    const { name, value } = event.target;
+    setProjectData((prevProjectData) => ({
+      ...prevProjectData,
+      [name]: value,
+    }));
+  };
 
-    // Select 컴포넌트를 위한 handleChange (onValueChange 프롭 사용)
-    const handleSelectChange = (name:string, value:string) => {
-        setProjectData((prevProjectData) => ({
-        ...prevProjectData,
-        [name]: value,
-        }));
-    };
-
-     // Calendar를 위한 핸들러 (특정 필드에 날짜를 저장)
-    const handleDateChange = (name:string, date:Date | undefined) => {
-        setProjectData((prevProjectData) => ({
-        ...prevProjectData,
-        [name]: date,
-        }));
-    };    
+  // Select 컴포넌트를 위한 handleChange (onValueChange 프롭 사용)
+  const handleSelectChange = (name: string, value: string) => {
+    setProjectData((prevProjectData) => ({
+      ...prevProjectData,
+      [name]: value,
+    }));
+  };
 
     const handleAddProjectMember = async () => {
         // const newData = {
@@ -164,10 +156,9 @@ export default function ProjectForm({id}:{id?:string}) {
         
     };
 
-    const handleDeleteProjectMember = (id:string) => {
-        deleteProjectMember(id);
-        fetchProjectMember();
-    };
+    addProjectMember(newData);
+    setProjectMember((prev) => [...prev, newData]);
+  };
 
     const handleSubmit = async (event:any) => {
         event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
@@ -325,7 +316,20 @@ export default function ProjectForm({id}:{id?:string}) {
                     {id ? "수정 완료" : "프로젝트 생성"}
                 </Button>
             </div>
+          );
+        })}
+        <div className="py-2 justify-self-center absolute bottom-5 left-1/2 transform -translate-x-1/2">
+          <Button
+            icon="edit"
+            variant="primary"
+            size={16}
+            className="hover:cursor-pointer mr-2 text-white"
+            onClick={handleSubmit}
+          >
+            {id ? "수정 완료" : "프로젝트 생성"}
+          </Button>
         </div>
       </div>
+    </div>
   );
 }

@@ -1,14 +1,14 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/client";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
     const kanbanBoardId = searchParams.get("kanbanBoardId");
+    const id = searchParams.get("id");
 
-    // 특정 카드 조회
-    if (id && id !== "all") {
+    // 특정 작업 조회
+    if (id) {
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
       return Response.json(data);
     }
 
-    // 칸반보드별 카드 목록 조회
+    // 칸반보드별 작업 목록 조회
     if (kanbanBoardId) {
       const { data, error } = await supabase
         .from("tasks")
         .select("*")
         .eq("kanban_board_id", kanbanBoardId)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (error) {
         return Response.json({ error: error.message }, { status: 500 });
@@ -37,11 +37,11 @@ export async function GET(request: NextRequest) {
       return Response.json(data);
     }
 
-    // 전체 카드 조회 (개발용)
+    // 전체 작업 조회 (관리자용)
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: false });
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
 
     return Response.json(data);
   } catch (error) {
+    console.error("Task fetch error:", error);
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -58,32 +59,47 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // 필수 필드 검증
-    if (!body.title || !body.kanban_board_id) {
+    if (!body.kanban_board_id || !body.title) {
       return Response.json(
-        { error: "title과 kanban_board_id는 필수입니다." },
+        { error: "kanban_board_id와 title은 필수입니다." },
         { status: 400 }
       );
     }
 
-    // Task 생성
+    // 작업 생성
+    type Task = {
+      projectId?: string;
+      title: string;
+      description?: string;
+      status?: string;
+      priority?: string;
+      assigned_to?: string;
+      started_at?: string;
+      ended_at?: string;
+      memo?: string;
+      subtasks?: string;
+      created_at: string;
+      updated_at: string;
+    };
+
+    const newTask: Task = {
+      projectId: body.projectId,
+      title: body.title,
+      description: body.description,
+      status: body.status || "todo",
+      priority: body.priority || "normal",
+      assigned_to: body.assigned_to,
+      started_at: body.started_at,
+      ended_at: body.ended_at,
+      memo: body.memo,
+      subtasks: body.subtasks,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
     const { data, error } = await supabase
-      .from("tasks")
-      .insert([
-        {
-          kanban_board_id: body.kanban_board_id,
-          title: body.title,
-          description: body.description,
-          status: body.status || "todo",
-          priority: body.priority,
-          assigned_to: body.assigned_to,
-          subtasks: body.subtasks,
-          memo: body.memo,
-          started_at: body.started_at,
-          ended_at: body.ended_at,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        },
-      ])
+      .insert([newTask as Task])
+
       .select()
       .single();
 
@@ -112,7 +128,7 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
 
-    // Task 업데이트
+    // 작업 업데이트
     const { data, error } = await supabase
       .from("tasks")
       .update({
@@ -121,10 +137,10 @@ export async function PUT(request: NextRequest) {
         status: body.status,
         priority: body.priority,
         assigned_to: body.assigned_to,
-        subtasks: body.subtasks,
-        memo: body.memo,
         started_at: body.started_at,
         ended_at: body.ended_at,
+        memo: body.memo,
+        subtasks: body.subtasks,
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
@@ -154,7 +170,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Task 삭제
+    // 작업 삭제
     const { error } = await supabase.from("tasks").delete().eq("id", id);
 
     if (error) {

@@ -1,93 +1,237 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_KEY!
+);
+
+// ------------------------------------------------------
+// 공지사항 조회
+// ------------------------------------------------------
+
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id') || 'all';
-  
   // 사용자 인증
   // const session = await getServerSession(authOptions);
-  
+
   // if (!session?.user) {
   //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
   // }
 
-  // 쿼리 실행 [공지사항 조회]
-  const result = { 
-    message: `공지사항[${id}] 정보 조회`,
-    params: {
-      announcementId: id || '파라미터 없음',
-    },
-    timestamp: new Date().toISOString()
-  }
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-  // 결과 반환
-  return Response.json(result);
+    if (id && id !== "all") {
+      const { data, error } = await supabase
+        .from("notices")
+        .select("*")
+        .eq("announcement_id", id)
+        .single();
+
+      if (error) {
+        console.error("공지사항 조회 오류: ", error);
+        return NextResponse.json(
+          { error: "공지사항을 찾을 수 없습니다" },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ data });
+    }
+
+    const { data, error } = await supabase
+      .from("notices")
+      .select("*")
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("공지사항 목록 조회 오류: ", error);
+      return NextResponse.json(
+        { error: "공지사항 목록을 불러올 수 없습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ data: data || [] });
+  } catch (error) {
+    console.error("GET 요청 오류: ", error);
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
 }
+
+// ------------------------------------------------------
+// 공지사항 생성
+// ------------------------------------------------------
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  try {
+    const body = await request.json();
 
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+    // 유효성 검사
+    if (!body.title?.trim()) {
+      return NextResponse.json(
+        { error: "제목을 입력해주세요" },
+        { status: 400 }
+      );
+    }
 
-  // 쿼리 실행 [공지사항 생성]
-  const result = {
-    message: `공지사항 생성`,
-    receivedData: body,
-    timestamp: new Date().toISOString()
+    if (body.title.length > 255) {
+      return NextResponse.json(
+        { error: "제목은 255자를 초과할 수 없습니다." },
+        { status: 400 }
+      );
+    }
+
+    if (!body.content?.trim()) {
+      return NextResponse.json(
+        { error: "내용을 입력해주세요" },
+        { status: 400 }
+      );
+    }
+
+    //
+    const { data, error } = await supabase
+      .from("notices")
+      .insert([
+        {
+          // user_id: body.user_id || null,
+          user_id: "00000000-0000-0000-0000-000000000001",
+          title: body.title.trim(),
+          content: body.content.trim(),
+          is_pinned: body.is_pinned || false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("공지사항 등록 오류: ", error);
+      return NextResponse.json(
+        { error: "공지사항 등록에 실패했습니다" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (error) {
+    console.error("POST 요청 오류: ", error);
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다" },
+      { status: 500 }
+    );
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
+
+// ------------------------------------------------------
+// 공지사항 수정
+// ------------------------------------------------------
 
 export async function PUT(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const body = await request.json();
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-  const id = searchParams.get('id');  
-  const { data } = body;
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
+    if (!id) {
+      return NextResponse.json(
+        { error: "공지사항 ID가 필요합니다." },
+        { status: 400 }
+      );
+    }
 
-  // 쿼리 실행 [공지사항 업데이트]
-  const result = {
-    message: `공지사항[${id}] 정보 업데이트`,
-    receivedData: body,
-    timestamp: new Date().toISOString()
+    const body = await request.json();
+
+    // 유효성 검사
+    if (body.title !== undefined) {
+      if (!body.title.trim()) {
+        return NextResponse.json(
+          { error: "제목을 입력해주세요." },
+          { status: 400 }
+        );
+      }
+      if (body.title.length > 255) {
+        return NextResponse.json(
+          { error: "제목은 255자를 초과할 수 없습니다." },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 업데이트할 필드만 추출
+    const updates: any = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (body.title !== undefined) updates.title = body.title.trim();
+    if (body.content !== undefined) updates.content = body.content.trim();
+    if (body.is_pinned !== undefined) updates.is_pinned = body.is_pinned;
+
+    // 공지사항 수정
+    const { data, error } = await supabase
+      .from("notices")
+      .update(updates)
+      .eq("announcement_id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("공지사항 수정 오류:", error);
+      return NextResponse.json(
+        { error: "공지사항 수정에 실패했습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    console.error("PUT 요청 오류:", error);
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
 
-export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');  
-  
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-  
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-  
-  // 쿼리 실행 [공지사항 삭제]
-  const result = {
-    message: `공지사항[${id}] 삭제`,
-    params: {
-      announcementId: id || '파라미터 없음',
-    },
-    timestamp: new Date().toISOString()
-  }
+// ------------------------------------------------------
+// 공지사항 삭제
+// ------------------------------------------------------
 
-  // 결과 반환
-  return Response.json(result);
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "공지사항 ID가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    // 공지사항 삭제
+    const { error } = await supabase
+      .from("notices")
+      .delete()
+      .eq("announcement_id", id);
+
+    if (error) {
+      console.error("공지사항 삭제 오류:", error);
+      return NextResponse.json(
+        { error: "공지사항 삭제에 실패했습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ message: "삭제되었습니다." });
+  } catch (error) {
+    console.error("DELETE 요청 오류:", error);
+    return NextResponse.json(
+      { error: "서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
 }

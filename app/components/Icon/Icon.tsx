@@ -40,6 +40,7 @@ import {
   TbCirclePlus,
   TbCirclePlusFilled,
   TbSquareCheck,
+  TbSquareCheckFilled,
   TbAlertCircleFilled,
 } from "react-icons/tb";
 
@@ -51,12 +52,13 @@ import {
   TbChevronRight,
   TbChevronLeft,
   TbBellFilled,
+  TbSpeakerphone,
 } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
 import { PiImageSquare } from "react-icons/pi";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
-import { TbDots } from "react-icons/tb";
+import { TbDots, TbDotsVertical } from "react-icons/tb";
 import { GrTextAlignFull } from "react-icons/gr";
 import { IconType } from "react-icons";
 
@@ -98,6 +100,7 @@ const ICON_MAP: Record<string, IconType> = {
   details: TbDetails,
   kanban: TbLayoutKanbanFilled,
   squareCheck: TbSquareCheck,
+  squareCheckFilled: TbSquareCheckFilled,
   folder: TbFolder,
 
   //circle
@@ -120,8 +123,10 @@ const ICON_MAP: Record<string, IconType> = {
   imageSquare: PiImageSquare,
   speakerPhone: HiOutlineSpeakerphone,
   dot: TbDots,
+  dotsVertical: TbDotsVertical,
   description: GrTextAlignFull,
   bellFilled: TbBellFilled,
+  speakerphone: TbSpeakerphone,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
