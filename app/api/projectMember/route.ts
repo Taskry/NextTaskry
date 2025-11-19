@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase";
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id') || 'all';
@@ -23,24 +25,42 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
+ const body = await request.json();
+  const {projectId, userId, role} = body;
   
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-
-  // 쿼리 실행 [프로젝트 멤버 정보 생성]
-  const result = {
-    message: `프로젝트 멤버 정보 생성`,
-    receivedData: body,
-    timestamp: new Date().toISOString()
-  }
-
-  // 결과 반환
-  return Response.json(result);
+    // 사용자 인증
+    // const session = await getServerSession(authOptions);
+    
+    // if (!session?.user) {
+    //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
+    // }
+  
+    const insertProjectMemberData = {
+      project_id: projectId, 
+      user_id: userId, 
+      role: role
+    }
+  
+    // 쿼리 실행 [프로젝트 정보 생성]
+    const { data: newProjectMember, error: postError } = await supabase
+      .from('project_members')
+      .insert([ insertProjectMemberData ]);
+    
+  
+    if (postError) {
+      console.error('Error adding projectMember:', postError);
+      return Response.json({ error: postError.message }, { status: 500 });
+    }
+  
+    const result = { 
+      message: `프로젝트 멤버 생성`,
+      params: body,
+      timestamp: new Date().toISOString()
+    }
+  
+    // 결과 반환
+    return Response.json(result);
+  
 }
 
 export async function PUT(request: Request) {
@@ -63,9 +83,6 @@ const { searchParams } = new URL(request.url);
     receivedData: body,
     timestamp: new Date().toISOString()
   }
-
-  // 결과 반환
-  return Response.json(result);
 }
 
 export async function DELETE(request: Request) {

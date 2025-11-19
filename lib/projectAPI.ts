@@ -1,8 +1,8 @@
 import { Timestamp } from "next/dist/server/lib/cache-handlers/types";
 
 interface ProjectProps {
-  id?: string;
-  name: string;
+  projectId?: string;
+  projectName: string;
   type: string;
   status: string;
   startedAt: Date | undefined;
@@ -12,8 +12,8 @@ interface ProjectProps {
 }
 
 interface ProjectMemberProps {
-  id?: string;
-  user: string;
+  projectId: string | undefined;
+  userId: string;
   email: string;
   role: string;
 }
@@ -22,15 +22,17 @@ interface ResultProps {
     message: string;
     params: object;
     data?: any[];
+    totalCount?: number;
     timestamp: Timestamp;
 }
-const projectBaseURL = 'http://localhost:3000/api/project/test'
-const projectMemberBaseURL = 'http://localhost:3000/api/projectMember/test'
+
+const PROJECT_BASE_URL = 'http://localhost:3000/api/project'
+const PROJECT_MEMBER_BASE_URL = 'http://localhost:3000/api/projectMember/test'
 
 // Project Info API
-export async function getProject(id?:string): Promise<ResultProps> {
+export async function getProject(): Promise<ResultProps> {
   try {
-    const url = `${projectBaseURL}?id=${id}`
+    const url = `${PROJECT_BASE_URL}`
     const res = await fetch(url);
     const data = await res.json();
 
@@ -41,9 +43,22 @@ export async function getProject(id?:string): Promise<ResultProps> {
   }
 }
 
-export async function createProject(projectData: ProjectProps): Promise<ProjectProps> {
+export async function getProjectById(id:string): Promise<ResultProps> {
   try {
-    const url = `${projectBaseURL}`
+    const url = `${PROJECT_BASE_URL}?id=${id}`
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return data;
+  } catch (err){
+    console.log(err);
+    throw err;  
+  }
+}
+
+export async function createProject(projectData: ProjectProps): Promise<ResultProps> {
+  try {
+    const url = `${PROJECT_BASE_URL}`
     const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -52,7 +67,6 @@ export async function createProject(projectData: ProjectProps): Promise<ProjectP
         body: JSON.stringify(projectData),
     });
     const data = await res.json();
-    console.log(data);
 
     return data
   } catch (err){
@@ -61,9 +75,9 @@ export async function createProject(projectData: ProjectProps): Promise<ProjectP
   }
 }
 
-export async function updateProject(id:string, projectData: ProjectProps): Promise<ProjectProps> {
+export async function updateProject(id:string, projectData: ProjectProps): Promise<ResultProps> {
   try {
-    const url = `${projectBaseURL}?id=${id}`
+    const url = `${PROJECT_BASE_URL}?id=${id}`
     const res = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -81,9 +95,9 @@ export async function updateProject(id:string, projectData: ProjectProps): Promi
   }
 }
 
-export async function deleteProject(id:string): Promise<ProjectProps> {
+export async function deleteProject(id:string): Promise<ResultProps> {
   try {
-    const url = `${projectBaseURL}?id=${id}`
+    const url = `${PROJECT_BASE_URL}?id=${id}`
     const res = await fetch(url, {
       method: 'DELETE'
     });
@@ -100,7 +114,7 @@ export async function deleteProject(id:string): Promise<ProjectProps> {
 // Project Member API
 export async function getProjectMember(id?:string): Promise<ResultProps> {
   try {
-    const url = `${projectMemberBaseURL}?id=${id}`
+    const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}`
     const res = await fetch(url);
     const data = await res.json();
 
@@ -111,9 +125,9 @@ export async function getProjectMember(id?:string): Promise<ResultProps> {
   }
 }
 
-export async function addProjectMember(projectMemberData: ProjectMemberProps): Promise<ProjectProps> {
+export async function addProjectMember(projectMemberData: ProjectMemberProps): Promise<ResultProps> {
   try {
-    const url = `${projectMemberBaseURL}`
+    const url = `${PROJECT_MEMBER_BASE_URL}`
     const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -122,7 +136,6 @@ export async function addProjectMember(projectMemberData: ProjectMemberProps): P
         body: JSON.stringify(projectMemberData),
     });
     const data = await res.json();
-    console.log(data);
 
     return data
   } catch (err){
@@ -132,9 +145,9 @@ export async function addProjectMember(projectMemberData: ProjectMemberProps): P
 }
 
 
-export async function updateProjectMember(id:string, projectMemberData: ProjectMemberProps): Promise<ProjectProps> {
+export async function updateProjectMember(id:string, projectMemberData: ProjectMemberProps): Promise<ResultProps> {
   try {
-    const url = `${projectMemberBaseURL}?id=${id}`
+    const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}`
     const res = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -152,9 +165,9 @@ export async function updateProjectMember(id:string, projectMemberData: ProjectM
   }
 }
 
-export async function deleteProjectMember(id:string): Promise<ProjectProps> {
+export async function deleteProjectMember(id:string): Promise<ResultProps> {
   try {
-    const url = `${projectMemberBaseURL}?id=${id}`
+    const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}`
     const res = await fetch(url, {
       method: 'DELETE'
     });

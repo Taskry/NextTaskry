@@ -21,9 +21,10 @@ export function TypeSelect({ value, onValueChange }: TypeSelectProps) {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value="개발">개발</SelectItem>
-          <SelectItem value="기획">기획</SelectItem>
-          <SelectItem value="디자인">디자인</SelectItem>
+          <SelectItem value="팀 프로젝트">팀 프로젝트</SelectItem>
+          <SelectItem value="상용 프로젝트">상용 프로젝트</SelectItem>
+          <SelectItem value="학습 프로젝트">학습 프로젝트</SelectItem>
+          <SelectItem value="개인 프로젝트">개인 프로젝트</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>
