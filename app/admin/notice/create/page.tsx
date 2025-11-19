@@ -1,16 +1,25 @@
 "use client";
+
+import Button from "@/app/components/Button/Button";
+import RichTextEditor from "@/app/components/Notice/RichTextEditor";
 import { SectionHeader } from "@/app/components/SectionHeader";
 import Checkbox from "@/app/components/UI/Checkbox";
 import Container from "@/app/components/UI/Container";
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
+import { createNotice } from "@/lib/noticeService";
 
-export default function Page() {
-  // 폼 상태 관리
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    isImportant: false,
-  });
+export default function AdminNoticeCreatePage() {
+  const router = useRouter();
+
+  const [title, setTitle] = useState("");
+  const [isImportant, setIsImportant] = useState(false);
+  const [content, setContent] = useState("");
+  const [errors, setErrors] = useState({ title: "", content: "" });
+
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const contentEditorRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     document.body.classList.remove("overflow-hidden");
@@ -22,128 +31,140 @@ export default function Page() {
     };
   }, []);
 
-  // 폼 제출 핸들러
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("제출 데이터:", formData);
-    // TODO: API 호출 로직
+  const validateForm = () => {
+    const newErrors = { title: "", content: "" };
+
+    if (!title.trim()) {
+      newErrors.title = "제목을 입력해주세요.";
+      setErrors(newErrors);
+      titleInputRef.current?.focus();
+      return false;
+    }
+    if (title.length > 255) {
+      newErrors.title = "제목은 255자를 초과할 수 없습니다.";
+      setErrors(newErrors);
+      titleInputRef.current?.focus();
+      return false;
+    }
+    if (!content.trim()) {
+      newErrors.content = "내용을 입력해주세요.";
+      setErrors(newErrors);
+      contentEditorRef.current?.focus();
+      return false;
+    }
+
+    setErrors(errors);
+
+    return true;
   };
 
-  // 취소 핸들러
-  const handleCancel = () => {
-    if (confirm("작성 중인 내용이 있습니다. 정말 취소하시겠습니까?")) {
-      setFormData({
-        title: "",
-        content: "",
-        isImportant: false,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (!validateForm()) {
+        return;
+      }
+
+      await createNotice({
+        title: title.trim(),
+        content: content.trim(),
+        is_pinned: isImportant,
       });
-      // TODO: 이전 페이지로 이동 또는 목록으로 이동
+
+      alert("작성이 완료되었습니다.");
+
+      // 목록 페이지로 이동
+      router.push("/notice");
+    } catch (error) {
+      console.log("오류 발생: ", error);
+      showToast("오류가 발생했습니다. 다시 시도해주세요.", "error");
     }
+  };
+
+  const handleCheckboxChange = (e) => {
+    setIsImportant(e.target.checked);
   };
 
   return (
     <Container>
-      {/* 1. 페이지 제목 및 설명 */}
       <SectionHeader
         title="공지사항 작성"
         description="새로운 공지사항을 작성하고 관리합니다."
         className="mb-10"
       />
-
-      {/* 2. 작성 폼 영역 (시맨틱 구조의 핵심) */}
       <form
         onSubmit={handleSubmit}
-        className="space-y-10 bg-[#FAFAFA] p-7 rounded-xl"
+        className="space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] p-7 rounded-xl"
       >
-        {/* 2-1. 기본 정보 필드셋 */}
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 bg-white shadow-lg">
-          <legend className="text-lg font-bold text-gray-800 px-2 mb-0">
-            기본 정보
-          </legend>
+        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg">
+          <legend className="text-lg font-bold px-2 mb-0">기본 정보</legend>
 
-          {/* 제목 입력 필드 */}
           <div className="flex flex-col space-y-2">
             <label
               htmlFor="notice-title"
-              className="text-sm font-medium text-gray-700 flex items-center"
+              className="text-sm font-medium flex items-center"
             >
               제목
-              <span className="text-red-500 ml-1" aria-hidden="true">
+              <span className="text-red-100" aria-hidden="true">
                 *
               </span>
             </label>
             <input
               id="notice-title"
               type="text"
-              placeholder="공지사항 제목을 입력하세요."
-              required
-              value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 transition duration-150"
+              placeholder="공지사항 제목을 입력해주세요."
+              value={title}
+              ref={titleInputRef}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                setErrors((prev) => ({ ...prev, title: "" }));
+              }}
+              className={`p-3 mb-0 border rounded-lg transition duration-150 w-full ${
+                errors.title ? "border-red-500" : "border-gray-100"
+              }`}
             />
+            <span className="text-red-500 text-sm mt-2">{errors.title}</span>
           </div>
 
-          {/* 중요 공지 체크박스 */}
           <div className="flex items-center">
             <Checkbox
-              checked={formData.isImportant}
-              onChange={(checked) =>
-                setFormData({ ...formData, isImportant: checked })
-              }
-              label="중요 공지로 설정 (상단에 고정됩니다.)"
+              id="isImportant"
+              label="중요 공지로 설정(상단에 고정됩니다.)"
+              checked={isImportant}
+              onChange={handleCheckboxChange}
             />
           </div>
         </fieldset>
 
-        {/* 2-2. 내용 작성 필드셋 */}
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 bg-white shadow-lg">
-          <legend className="text-lg font-bold text-gray-800 px-2 mb-0">
-            내용 작성
-          </legend>
+        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg">
+          <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
           <div className="flex flex-col space-y-2">
-            <label
-              htmlFor="notice-content"
-              className="text-sm font-medium text-gray-700 flex items-center"
-            >
-              내용
-              <span className="text-red-500 ml-1" aria-hidden="true">
-                *
-              </span>
-            </label>
-            {/* 실제로는 여기에 리치 텍스트 에디터 컴포넌트가 들어갑니다. */}
-            <textarea
-              id="notice-content"
-              placeholder="공지사항 내용을 입력하세요."
-              required
+            <RichTextEditor
+              value={content}
+              ref={contentEditorRef}
+              onChange={(e) => {
+                setContent(e.target.value);
+                setErrors((prev) => ({ ...prev, content: "" }));
+              }}
+              placeholder="공지사항 내용을 입력해주세요."
               rows={15}
-              value={formData.content}
-              onChange={(e) =>
-                setFormData({ ...formData, content: e.target.value })
-              }
-              className="p-3 border border-gray-300 rounded-lg focus:ring-2 resize-y transition duration-150"
+              className={errors.content ? "border-red-500" : "border-gray-100"}
             />
-            {/* <div>... 리치 텍스트 에디터 컴포넌트 위치 ...</div> */}
+            <span className="text-red-500 text-sm mt-2 h-4">
+              {errors.content}
+            </span>
           </div>
         </fieldset>
 
-        {/* 3. 액션 버튼 */}
         <div className="flex justify-end pt-4 gap-3">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-150"
-          >
+          <Button type="button" btnType="basic" onClick={() => router.back()}>
             취소
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150"
-          >
-            공지사항 작성
-          </button>
+          </Button>
+          <Button type="submit" btnType="basic" variant="new">
+            등록
+          </Button>
         </div>
       </form>
     </Container>
