@@ -8,12 +8,11 @@ export async function createTask(
   taskData: Omit<Task, "id" | "created_at" | "updated_at">
 ) {
   try {
-    // ✅ undefined 값 제거 및 안전한 데이터만 추출
     const cleanData: any = {};
 
     if (taskData.kanban_board_id)
       cleanData.kanban_board_id = taskData.kanban_board_id;
-    if (taskData.project_id) cleanData.project_id = taskData.project_id;
+    //  if (taskData.project_id) cleanData.project_id = taskData.project_id;
     if (taskData.title) cleanData.title = taskData.title;
     if (taskData.description) cleanData.description = taskData.description;
     if (taskData.status) cleanData.status = taskData.status;
@@ -46,14 +45,20 @@ export async function createTask(
 }
 
 /**
- * 특정 칸반 보드의 모든 Task 조회
+ * 특정 프로젝트의 모든 Task 조회
+ * ✅ JOIN을 사용해 한 번의 쿼리로 처리
  */
-export async function getTasksByBoardId(boardId: string) {
+export async function getTasksByBoardId(projectId: string) {
   try {
     const { data, error } = await supabase
       .from("tasks")
-      .select("*")
-      .eq("kanban_board_id", boardId)
+      .select(
+        `
+        *,
+        kanban_boards!inner(project_id)
+      `
+      )
+      .eq("kanban_boards.project_id", projectId)
       .order("created_at", { ascending: false });
 
     if (error) throw error;

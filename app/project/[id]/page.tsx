@@ -9,6 +9,7 @@ import BottomNavigation from "@/app/components/BottomNavigation";
 
 import { Task } from "@/app/types/kanban";
 import { showToast } from "@/lib/toast";
+import { supabase } from "@/lib/supabase/client";
 
 import {
   getTasksByBoardId,
@@ -23,30 +24,91 @@ export default function ProjectPage() {
   const params = useParams();
   const projectId = params.id as string;
 
+  const [projectName, setProjectName] = useState<string>("");
+  const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [currentView, setCurrentView] = useState<NavItem>("kanban");
   const [showMemoPanel, setShowMemoPanel] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 👇 Supabase에서 Task 불러오기
-    const fetchTasks = async () => {
-      const { data, error } = await getTasksByBoardId(projectId);
-      console.log(data);
+    const fetchData = async () => {
+      try {
+        // 1. 프로젝트 정보 가져오기
+        const { data: projectData, error: projectError } = await (
+          supabase as any
+        )
+          .from("projects")
+          .select("*")
+          .eq("project_id", projectId)
+          .single();
 
-      if (error) {
-        console.error(error);
-        return;
+        if (projectError) {
+          console.error("프로젝트 조회 실패:", projectError);
+          setProjectName("알 수 없는 프로젝트");
+        } else if (projectData) {
+          setProjectName(projectData.project_name || "이름 없는 프로젝트");
+        }
+
+        // 2. 칸반보드 ID 가져오기 (또는 생성)
+        const { data: kanbanData, error: kanbanError } = await (supabase as any)
+          .from("kanban_boards")
+          .select("id")
+          .eq("project_id", projectId)
+          .single();
+
+        let boardId = null; // 👈 재할당될 변수
+
+        // 칸반보드가 없으면 생성
+        if (kanbanError && kanbanError.code === "PGRST116") {
+          console.log("⚠️ 칸반보드가 없어서 새로 생성합니다.");
+
+          const { data: newKanban, error: createError } = await (
+            supabase as any
+          )
+            .from("kanban_boards")
+            .insert({
+              project_id: projectId,
+              columns: "todo,inprogress,done",
+            })
+            .select("id")
+            .single();
+
+          if (createError) {
+            console.error("칸반보드 생성 실패:", createError);
+          } else if (newKanban) {
+            boardId = newKanban.id; // 👈 생성된 ID 저장
+          }
+        } else if (kanbanError) {
+          console.error("칸반보드 조회 실패:", kanbanError);
+        } else if (kanbanData) {
+          boardId = kanbanData.id; // 👈 조회된 ID 저장
+        }
+
+        if (boardId) {
+          setKanbanBoardId(boardId);
+        }
+
+        // 3. Tasks 가져오기
+        const { data: tasksData, error: tasksError } = await getTasksByBoardId(
+          projectId
+        );
+
+        if (tasksError) {
+          console.error("Tasks 조회 실패:", tasksError);
+        } else {
+          setTasks(tasksData || []);
+        }
+      } catch (error) {
+        console.error("데이터 로딩 중 오류:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setTasks(data || []);
-      setLoading(false);
     };
 
-    fetchTasks();
+    fetchData();
   }, [projectId]);
 
-  // 👇 생성
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
@@ -59,26 +121,20 @@ export default function ProjectPage() {
 
     if (data) {
       setTasks((prev) => [...prev, data]);
+      showToast("작업이 생성되었습니다.", "success");
     }
-    showToast("작업이 생성되었습니다.", "success");
   };
 
-  // 👇 수정
-  const handleUpdateTask = async (updated: Task) => {
-    const { data, error } = await updateTask(updated.id, updated);
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
+    const result = await updateTask(taskId, updates);
 
-    if (error) {
-      showToast("작업 수정 실패", "error");
-      return;
+    if (result.data) {
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      );
     }
-
-    if (data) {
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? data : t)));
-    }
-    showToast("작업이 업데이트되었습니다.", "success");
   };
 
-  // 👇 삭제
   const handleDeleteTask = async (taskId: string) => {
     const { error } = await deleteTask(taskId);
 
@@ -112,9 +168,8 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      {/* 메인 */}
       <div className="flex-1 flex overflow-hidden gap-6 min-h-0 p-6">
-        {/* 칸반 */}
+        {/* 칸반보드 */}
         <div
           className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
             showMemoPanel ? "flex-[0.7]" : "flex-1"
@@ -123,8 +178,8 @@ export default function ProjectPage() {
           <div className="flex-1 overflow-hidden min-h-0">
             {currentView === "kanban" && (
               <KanbanBoard
-                projectName={`프로젝트 ${projectId}`}
-                boardId={projectId} // 임시로 projectId를 boardId로 사용
+                projectName={projectName}
+                boardId={kanbanBoardId}
                 tasks={tasks}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
@@ -144,7 +199,7 @@ export default function ProjectPage() {
         </div>
       </div>
 
-      {/* 네비 */}
+      {/* 하단 네비게이션 */}
       <div className="shrink-0">
         <BottomNavigation
           activeView={showMemoPanel ? "memo" : currentView}
