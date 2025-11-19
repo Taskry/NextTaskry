@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Header } from "../app/components/Header/Header"
-import  Provider  from "./providers/providers";
+import { Header } from "../app/components/Header/Header";
+import Provider from "./providers/providers";
 import { Navigation } from "./components/Navigation";
 import Toaster from "./components/Toaster/Toaster";
 import AuthProviders from "./providers/AuthProviders";
@@ -29,22 +29,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body 
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden bg-white dark:bg-black text-gray-900 dark:text-gray-100` }
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden bg-white dark:bg-black text-gray-900 dark:text-gray-100`}
         suppressHydrationWarning={true}
-        >
+      >
+        <Provider>
+          <AuthProviders>
+            <div className="h-full flex flex-col dark:dark:bg-black">
+              <Header />
 
-        <Provider >
-        <AuthProviders>
-        <div className="h-full flex flex-col dark:dark:bg-black">
-          <Header/>
-          <Navigation />
-          <div className="flex-1 overflow-hidden">{children}</div>
+              <div className="flex-1 overflow-hidden">{children}</div>
 
-          <Toaster />
-        </div>
-        </AuthProviders>
-
+              <Toaster />
+            </div>
+          </AuthProviders>
         </Provider>
       </body>
     </html>

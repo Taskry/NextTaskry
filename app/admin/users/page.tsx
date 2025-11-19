@@ -79,11 +79,10 @@ export default function AdminUsersPage() {
                 <td className="p-4 text-gray-700">
                   {" "}
                   <Button
+                    btnType="icon"
                     icon="trash"
-                    radius="full"
-                    size="sm"
-                    variant="lightRed40"
-                    textColor="lightRed100"
+                    size={16}
+                    variant="warning"
                   />
                 </td>
               </tr>

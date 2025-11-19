@@ -13,21 +13,9 @@ import { Task, TaskStatus, TaskPriority } from "@/app/types";
 // ============================================
 
 export const KANBAN_COLUMNS = [
-  {
-    id: "todo" as const, // as const = 값을 변경 불가능하게
-    title: "TODO",
-    color: "bg-gray-500",
-  },
-  {
-    id: "inprogress" as const,
-    title: "진행중",
-    color: "bg-blue-500",
-  },
-  {
-    id: "done" as const,
-    title: "완료",
-    color: "bg-green-500",
-  },
+  { id: "todo" as const, title: "할 일" },
+  { id: "inprogress" as const, title: "진행 중" },
+  { id: "done" as const, title: "완료" },
 ];
 
 // ============================================

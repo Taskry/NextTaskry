@@ -114,16 +114,15 @@ export default function Modal({
         {(config?.buttonCancelText || config?.buttonConfirmText) && (
           <div className="flex gap-3 justify-center mt-6">
             {config?.buttonCancelText && (
-              <Button variant="basic" size="base" onClick={onClose}>
+              <Button btnType="basic" variant="basic" onClick={onClose}>
                 {config.buttonCancelText}
               </Button>
             )}
             {config?.buttonConfirmText && (
               <Button
+                btnType="form"
                 variant="warning"
-                size="base"
                 onClick={onConfirm}
-                textColor="white"
                 disabled={buttonDisabled ?? config.buttonDisabled}
               >
                 {config.buttonConfirmText}
