@@ -21,25 +21,26 @@ export interface Subtask {
 export interface Task {
   id: string; //UUID
   kanban_board_id: string; // 어느 칸반보드에 속하는지
+  project_id: string; // 어느 프로젝트에 속하는지
 
   //Task 내용
   title: string;
-  description?: string; // 설명
+  description?: string | null; // 설명
 
   // 상태 관리
   status: TaskStatus;
   priority?: TaskPriority;
 
   // 담당자 & 하위 작업
-  assigned_to?: string; // 담당자의 user_id (선택)
-  subtasks?: Subtask[]; // 하위 작업 배열 (선택)
+  assigned_to?: string | null; // 담당자의 user_id (선택)
+  subtasks?: any; // 하위 작업 배열 (선택) - DB에서는 JSON으로 저장
 
   // 추가 정보
-  memo?: string; // 메모
+  memo?: string | null; // 메모
 
   // 날짜
-  started_at?: string; // 시작일
-  ended_at?: string; // 마감일
+  started_at?: string | null; // 시작일
+  ended_at?: string | null; // 마감일
 
   // 자동 생성 (생성, 수정 기록)
   created_at: string; // 생성일시
@@ -50,8 +51,10 @@ export interface Task {
 // KanbanBoard 인터페이스 - DB의 kanban_boards 테이블
 // ============================================
 
-export interface KanbanBoard {
+export interface KanbanBoardType {
   id: string;
+  name: string;
+  description?: string;
   project_id: string;
   columns: string; // "todo,inprogress,done" (쉼표로 구분)
   created_at: string;

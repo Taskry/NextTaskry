@@ -7,7 +7,7 @@ export default function Page() {
       <div className="flex gap-1">
         <Badge type="dueSoon" />
         <Badge type="overDue" />
-        <Badge type="complete" />
+        <Badge type="done" />
         <Badge type="high" />
         <Badge type="normal" />
         <Badge type="low" />
