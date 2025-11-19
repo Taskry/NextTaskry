@@ -125,7 +125,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               key={index}
               className="rounded-md hover:border-main-200 cursor-pointer"
               onClick={() => {
-                onSelectProject?.(project.id);
+                onSelectProject?.(project.project_id);
               }}
             >
               <CardHeader className="flex w-full">
