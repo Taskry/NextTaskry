@@ -1,8 +1,8 @@
-import Badge from "@/app/components/Badge/Badge";
-import Button from "@/app/components/Button/Button";
-import { Icon } from "@/app/components/Icon/Icon";
-import AdminPageWrapper from "@/app/components/UI/Admin/AdminPageWrapper";
-import Container from "@/app/components/UI/Container";
+import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
+import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
+import Container from "@/components/shared/Container";
 import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
 
 export default function AdminProjectsPage() {

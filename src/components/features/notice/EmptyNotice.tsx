@@ -1,6 +1,6 @@
 import { bgColorOpacity } from "@/app/sample/color/page";
-import Button from "../Button/Button";
-import Container from "../UI/Container";
+import Button from "@/components/ui/Button";
+import Container from "@/components/shared/Container";
 
 export default function EmptyNotice() {
   return (

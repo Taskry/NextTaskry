@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { SectionHeader } from "../components/SectionHeader";
-import Container from "../components/UI/Container";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import Container from "@/components/shared/Container";
 import AdminProjectsPage from "./projects/page";
 import AdminNoticesPage from "./notice/page";
 import AdminUsersPage from "./users/page";
-import Button from "../components/Button/Button";
+import Button from "@/components/ui/Button";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("projects");

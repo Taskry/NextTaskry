@@ -2,7 +2,7 @@
 
 "use client";
 
-import ProjectCard from "./components/project/ProjectCard";
+import ProjectCard from "@/components/features/project/ProjectCard";
 import { useRouter } from "next/navigation";
 
 const Home = () => {

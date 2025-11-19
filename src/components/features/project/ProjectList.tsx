@@ -2,8 +2,8 @@
 "use client";
 
 import { Project } from "@/app/data/mockProjects";
-import Button from "../Button/Button";
-import { Icon } from "../Icon/Icon";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
 
 interface ProjectListProps {
   projects: Project[];

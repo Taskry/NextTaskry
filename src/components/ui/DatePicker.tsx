@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { Icon } from "../Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 
 interface DatePickerProps {
   value: string;

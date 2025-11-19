@@ -8,7 +8,7 @@
 */
 }
 import { SectionHeader } from "../SectionHeader";
-import Container from "../UI/Container";
+import Container from "@/components/shared/Container";
 
 export default function ProjectListSkeleton() {
   return (

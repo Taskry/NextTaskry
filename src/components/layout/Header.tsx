@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Icon } from "../Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 import { useTheme } from "next-themes";
 import { useState } from "react";
-import ProfileModal from "@/app/login/components/ProfileModal";
+import ProfileModal from "@/app/(auth)/login/components/ProfileModal";
 import { useSession } from "next-auth/react";
-import { showToast } from "@/lib/toast";
-import { Button } from "@/components/ui/button";
+import { showToast } from "@/lib/utils/toast";
+import Button from "@/components/ui/Button";
 
 export function Header() {
   const { theme, setTheme } = useTheme();

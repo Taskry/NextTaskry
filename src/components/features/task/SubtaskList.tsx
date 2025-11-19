@@ -3,8 +3,8 @@
 
 import { useState } from "react";
 import { Subtask } from "@/app/types";
-import { Icon } from "../Icon/Icon";
-import Button from "../Button/Button";
+import { Icon } from "@/components/shared/Icon";
+import Button from "@/components/ui/Button";
 
 interface SubtaskListProps {
   subtasks: Subtask[];
@@ -152,8 +152,8 @@ const SubtaskList = ({
                 <input
                   type="text"
                   value={editingTitle}
-                  onChange={(e) => setEditingTitle(e.target.value)}
-                  onKeyDown={(e) => {
+                  onChange={(e: any) => setEditingTitle(e.target.value)}
+                  onKeyDown={(e: any) => {
                     if (e.key === "Enter") handleSaveEdit(subtask.id);
                     if (e.key === "Escape") handleCancelEdit();
                   }}
@@ -211,8 +211,8 @@ const SubtaskList = ({
           <input
             type="text"
             value={newSubtaskTitle}
-            onChange={(e) => setNewSubtaskTitle(e.target.value)}
-            onKeyDown={(e) => {
+            onChange={(e: any) => setNewSubtaskTitle(e.target.value)}
+            onKeyDown={(e: any) => {
               if (e.key === "Enter") handleAddSubtask();
               if (e.key === "Escape") {
                 setShowAddInput(false);

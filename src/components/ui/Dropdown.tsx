@@ -1,6 +1,6 @@
 "use client";
 
-import { Icon } from "@/app/components/Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 import { primaryBorderColor, primaryBgColor } from "@/app/sample/color/page";
 import { useState } from "react";
 

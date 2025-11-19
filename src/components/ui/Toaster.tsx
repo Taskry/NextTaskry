@@ -1,6 +1,6 @@
 "use client";
 
-import { BASE_TOAST_CLASSNAME } from "@/lib/toast-style";
+import { BASE_TOAST_CLASSNAME } from "@/lib/utils/toast-style";
 import { Toaster as HotToaster } from "react-hot-toast";
 
 export default function Toaster() {

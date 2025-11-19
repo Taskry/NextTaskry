@@ -1,4 +1,4 @@
-import Button from "@/app/components/Button/Button";
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 
 export default function ProjectCardHeader() {

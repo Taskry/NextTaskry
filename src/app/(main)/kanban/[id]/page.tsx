@@ -9,7 +9,7 @@ import {
   deleteTask,
 } from "@/app/api/task/tasks";
 import { ta } from "date-fns/locale";
-import KanbanBoard from "@/app/components/kanban/board/KanbanBoard";
+import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 
 interface PageProps {
   params: {

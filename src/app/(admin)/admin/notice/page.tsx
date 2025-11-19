@@ -1,5 +1,5 @@
-import Button from "@/app/components/Button/Button";
-import AdminPageWrapper from "@/app/components/UI/Admin/AdminPageWrapper";
+import Button from "@/components/ui/Button";
+import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBorderColor } from "@/app/sample/color/page";
 import Link from "next/link";
 

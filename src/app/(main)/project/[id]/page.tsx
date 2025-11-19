@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-import KanbanBoard from "@/app/components/kanban/board/KanbanBoard";
-import MemoPanel from "@/app/components/kanban/board/MemoPanel";
-import BottomNavigation from "@/app/components/BottomNavigation";
+import KanbanBoard from "@/components/features/kanban/KanbanBoard";
+import MemoPanel from "@/components/features/kanban/MemoPanel";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 
 import { Task } from "@/app/types/kanban";
-import { showToast } from "@/lib/toast";
-import { supabase } from "@/lib/supabase/client";
+import { showToast } from "@/lib/utils/toast";
+import { supabase } from "@/lib/supabase/supabase";
 
 import {
   getTasksByBoardId,

@@ -1,4 +1,4 @@
-import { Icon } from "@/app/components/Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 
 // 모든 토스트에 공통으로 적용될 기본 클래스
 export const BASE_TOAST_CLASSNAME = `

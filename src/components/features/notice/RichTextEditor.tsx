@@ -8,17 +8,23 @@ import React, {
   useImperativeHandle,
   useRef as useReactRef,
 } from "react";
-import Button from "../Button/Button";
+import Button from "@/components/ui/Button";
 
-const RichTextEditor = forwardRef(
+interface RichTextEditorProps {
+  value: string;
+  onChange: (e: any) => void;
+  placeholder?: string;
+  rows?: number;
+  className?: string;
+}
+
+const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
   ({ value, onChange, placeholder, rows = 15, className }, ref) => {
-    // 내부 textarea에 대한 ref
+    const textareaId = "editor-textarea";
     const textareaRef = useReactRef<HTMLTextAreaElement>(null);
 
     // 부모에게 textarea ref를 노출
     useImperativeHandle(ref, () => textareaRef.current, []);
-
-    const textareaId = "editor-textarea";
     const [activeFormats, setActiveFormats] = useState({});
     const [showPreview, setShowPreview] = useState(false);
 
@@ -53,7 +59,7 @@ const RichTextEditor = forwardRef(
     }, []);
 
     // 키보드 단축키 처리
-    const handleKeyDown = useCallback((e) => {
+    const handleKeyDown = useCallback((e: any) => {
       // Ctrl/Cmd + B: 굵게
       if ((e.ctrlKey || e.metaKey) && e.key === "b") {
         e.preventDefault();
@@ -72,7 +78,7 @@ const RichTextEditor = forwardRef(
     }, []);
 
     const applyFormat = useCallback(
-      (format) => {
+      (format: any) => {
         const textarea = textareaRef.current;
         if (!textarea) return;
 
@@ -118,7 +124,7 @@ const RichTextEditor = forwardRef(
     );
 
     // 마크다운을 HTML로 변환
-    const renderMarkdown = (text) => {
+    const renderMarkdown = (text: any) => {
       if (!text) return "";
 
       return (
@@ -139,7 +145,7 @@ const RichTextEditor = forwardRef(
       );
     };
 
-    const ToolbarButton = ({ format, children, shortcut }) => (
+    const ToolbarButton = ({ format, children, shortcut }: any) => (
       <Button
         type="button"
         btnType="basic"
@@ -188,7 +194,7 @@ const RichTextEditor = forwardRef(
             ref={textareaRef} // 내부 ref 사용
             id={textareaId}
             value={value}
-            onChange={(e) => {
+            onChange={(e: any) => {
               onChange(e);
               detectActiveFormats();
             }}

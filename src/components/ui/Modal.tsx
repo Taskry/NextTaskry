@@ -1,11 +1,11 @@
 "use client";
 
 import clsx from "clsx";
-import Button from "../Button/Button";
-import { Icon } from "../Icon/Icon";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
 import { useEffect } from "react";
 import { ModalProps } from "@/app/types/modal";
-import { modalConfigs } from "./modalConfigs";
+import { modalConfigs } from "@/config/modalConfigs";
 
 const modalClasses = clsx(
   "fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40",

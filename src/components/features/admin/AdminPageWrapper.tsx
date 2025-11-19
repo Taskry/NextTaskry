@@ -1,4 +1,4 @@
-import { Icon } from "@/app/components/Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 import { ReactNode } from "react";
 
 interface pageWrapperProps {

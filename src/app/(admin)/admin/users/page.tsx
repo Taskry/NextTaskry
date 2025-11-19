@@ -1,7 +1,7 @@
-import Badge from "@/app/components/Badge/Badge";
-import Button from "@/app/components/Button/Button";
-import { Icon } from "@/app/components/Icon/Icon";
-import AdminPageWrapper from "@/app/components/UI/Admin/AdminPageWrapper";
+import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
+import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
 
 export default function AdminUsersPage() {

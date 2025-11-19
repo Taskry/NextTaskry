@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import EmptyNotice from "../components/Notice/EmptyNotice";
-import NoticeList from "../components/Notice/NoticeList";
-import { SectionHeader } from "../components/SectionHeader";
-import Container from "../components/UI/Container";
+import EmptyNotice from "@/components/features/notice/EmptyNotice";
+import NoticeList from "@/components/features/notice/NoticeList";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import Container from "@/components/shared/Container";
 import { mockNotices, Notice, STORAGE_KEY } from "../data/mockNotices";
-import { getNotices } from "@/lib/noticeService";
+import { getNotices } from "@/lib/api/notices";
 
 export default function NoticePage() {
   const [notices, setNotices] = useState<Notice[]>([]);

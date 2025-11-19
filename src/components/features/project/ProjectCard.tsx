@@ -1,7 +1,7 @@
 "use client";
 
-import Button from "@/app/components/Button/Button";
-import { Icon } from "@/app/components/Icon/Icon";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
 import {
   Card,
   CardContent,
@@ -9,12 +9,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/app/components/project/Card";
-import { deleteProject, getProject, getProjectMember, updateProject } from "@/lib/projectAPI";
+} from "@/components/features/project/Card";
+import {
+  deleteProject,
+  getProject,
+  getProjectMember,
+  updateProject,
+} from "@/lib/api/projects";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { showApiError, showToast } from "@/lib/toast";
-import LoadingSpinner from "../loading/LoadingSpinner";
+import { showApiError, showToast } from "@/lib/utils/toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -29,38 +34,38 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
     try {
       const result = await getProject();
       const data = result.data;
-      
+
       if (data) {
         const updatedProjects = data.map((project) => ({
           ...project,
           projectId: project.project_id,
-          projectName: project.project_name
+          projectName: project.project_name,
         }));
-        console.log(updatedProjects)
+        console.log(updatedProjects);
         setProjectList(updatedProjects);
-      }      
+      }
     } catch (err) {
       console.error(err);
       showApiError("프로젝트 목록을 불러올 수 없습니다.");
     }
   };
 
-  const fetchProjectMember = async (id:string) => {
+  const fetchProjectMember = async (id: string) => {
     try {
       const result = await getProjectMember(id);
       const data = result.data;
 
-      setProjectMember((prev:any) => ({
+      setProjectMember((prev: any) => ({
         ...prev,
-        [id]: data?.length
+        [id]: data?.length,
       }));
-      return 
+      return;
     } catch (err) {
       console.error(err);
       showApiError("프로젝트 목록을 불러올 수 없습니다.");
     }
   };
-  
+
   useEffect(() => {
     // setLoading(true);
     fetchProject();
@@ -71,21 +76,20 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       const id = projectList[index].id;
       fetchProjectMember(id);
     }
-
   }, [projectList]);
 
   // useEffect(() => {
   //   console.log(projectMember);
   // }, [projectMember]);
 
-  async function handleDeleteProject (id:string) {
+  async function handleDeleteProject(id: string) {
     await deleteProject(id);
     await fetchProject();
-    showToast("삭제되었습니다.", 'deleted');
+    showToast("삭제되었습니다.", "deleted");
   }
 
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
   if (projectList.length === 0) {
     return (
@@ -137,11 +141,13 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
               <CardContent className="flex justify-end">
                 <div className="flex gap-2 font-bold text-main-400">
                   <Icon type="users" size={20} className="text-main-400" />
-                  <div className="text-sm">{projectMember ? projectMember[project.name] : 1}팀원</div>
+                  <div className="text-sm">
+                    {projectMember ? projectMember[project.name] : 1}팀원
+                  </div>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
-                <div onClick={(e) => e.stopPropagation()}>
+                <div onClick={(e: any) => e.stopPropagation()}>
                   <Link href={`/project/update/${project.projectId}`}>
                     <Button
                       btnType="icon"
@@ -153,7 +159,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                     />
                   </Link>
                 </div>
-                <div onClick={(e) => e.stopPropagation()}>
+                <div onClick={(e: any) => e.stopPropagation()}>
                   <Button
                     btnType="icon"
                     icon="trash"
@@ -172,4 +178,3 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
     </div>
   );
 }
-

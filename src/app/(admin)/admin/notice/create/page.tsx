@@ -1,14 +1,14 @@
 "use client";
 
-import Button from "@/app/components/Button/Button";
-import RichTextEditor from "@/app/components/Notice/RichTextEditor";
-import { SectionHeader } from "@/app/components/SectionHeader";
-import Checkbox from "@/app/components/UI/Checkbox";
-import Container from "@/app/components/UI/Container";
+import Button from "@/components/ui/Button";
+import RichTextEditor from "@/components/features/notice/RichTextEditor";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import Checkbox from "@/components/ui/Checkbox";
+import Container from "@/components/shared/Container";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { showToast } from "@/lib/toast";
-import { createNotice } from "@/lib/noticeService";
+import { showToast } from "@/lib/utils/toast";
+import { createNotice } from "@/lib/api/notices";
 
 export default function AdminNoticeCreatePage() {
   const router = useRouter();
@@ -58,7 +58,7 @@ export default function AdminNoticeCreatePage() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -82,7 +82,7 @@ export default function AdminNoticeCreatePage() {
     }
   };
 
-  const handleCheckboxChange = (e) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsImportant(e.target.checked);
   };
 
@@ -116,7 +116,7 @@ export default function AdminNoticeCreatePage() {
               placeholder="공지사항 제목을 입력해주세요."
               value={title}
               ref={titleInputRef}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 setTitle(e.target.value);
                 setErrors((prev) => ({ ...prev, title: "" }));
               }}
@@ -144,7 +144,7 @@ export default function AdminNoticeCreatePage() {
             <RichTextEditor
               value={content}
               ref={contentEditorRef}
-              onChange={(e) => {
+              onChange={(e: any) => {
                 setContent(e.target.value);
                 setErrors((prev) => ({ ...prev, content: "" }));
               }}

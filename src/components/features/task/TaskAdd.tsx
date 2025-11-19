@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Task, TaskStatus, TaskPriority, Subtask } from "@/app/types";
-import DatePicker from "../DatePicker/datePicker";
-import { Icon } from "../Icon/Icon";
-import Button from "../Button/Button";
+import DatePicker from "@/components/ui/DatePicker";
+import { Icon } from "@/components/shared/Icon";
+import Button from "@/components/ui/Button";
 import SubtaskList from "./SubtaskList";
 import BadgeSelector from "./BadgeSelector";
 
@@ -230,7 +230,7 @@ function TitleInput({
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
           error
             ? "border-red-500 focus:ring-red-300"
@@ -300,7 +300,7 @@ function DescriptionField({
       </h3>
       <textarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-main-300 min-h-[100px]"
         placeholder="설명을 입력하세요"
         disabled={disabled}
@@ -334,7 +334,7 @@ function AssigneeField({
         <input
           type="text"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-main-300"
           placeholder="담당자 이름을 입력하세요"
           disabled={disabled}
@@ -416,7 +416,7 @@ function MemoField({
       </h3>
       <textarea
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         className="w-full px-3 py-2 border border-yellow-300 bg-yellow-50 rounded-lg focus:ring-yellow-400 min-h-20"
         placeholder="메모를 입력하세요"
         disabled={disabled}

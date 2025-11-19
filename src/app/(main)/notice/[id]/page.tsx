@@ -1,11 +1,11 @@
 "use client";
-import Button from "@/app/components/Button/Button";
-import { Icon } from "@/app/components/Icon/Icon";
-import { SectionHeader } from "@/app/components/SectionHeader";
-import Container from "@/app/components/UI/Container";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import Container from "@/components/shared/Container";
 import { Notice, STORAGE_KEY } from "@/app/data/mockNotices";
-import { getNoticeById } from "@/lib/noticeService";
-import { formatDate } from "@/lib/utils";
+import { getNoticeById } from "@/lib/api/notices";
+import { formatDate } from "@/lib/utils/utils";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";

@@ -1,5 +1,5 @@
-import ProjectCardHeader from "@/app/components/project/ProjectCardHeader";
-import ProjectCard from "@/app/components/project/ProjectCard";
+import ProjectCardHeader from "@/components/features/project/ProjectCardHeader";
+import ProjectCard from "@/components/features/project/ProjectCard";
 
 export default function Dashboard() {
     return (

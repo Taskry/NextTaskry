@@ -1,6 +1,6 @@
 // app/api/task/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { getTasksByBoardId, createTask, updateTask, deleteTask } from "./tasks";
+import { getTasksByBoardId, createTask, updateTask, deleteTask } from "@/app/api/task/tasks";
 
 export async function GET(request: NextRequest) {
   try {

@@ -3,8 +3,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Task, TaskStatus, KanbanBoardType } from "@/app/types";
-import Button from "../Button/Button";
-import { Icon } from "../Icon/Icon";
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
 import Modal from "../Modal/Modal";
 
 interface KanbanBoardListProps {
@@ -240,7 +240,7 @@ export default function KanbanBoardList({ projectId }: KanbanBoardListProps) {
             <input
               type="text"
               value={formData.name}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setFormData({ ...formData, name: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300"
@@ -254,7 +254,7 @@ export default function KanbanBoardList({ projectId }: KanbanBoardListProps) {
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) =>
+              onChange={(e: any) =>
                 setFormData({ ...formData, description: e.target.value })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300 min-h-[100px]"

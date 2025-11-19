@@ -12,11 +12,11 @@ import {
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/app/types";
-import KanbanColumn from "../column/KanbanColumn";
-import Modal from "../../Modal/Modal";
-import TaskDetail from "../../task/TaskDetail";
-import TaskAdd from "../../task/TaskAdd";
-import Container from "../../UI/Container";
+import KanbanColumn from "@/components/features/kanban/column/KanbanColumn";
+import Modal from "@/components/ui/Modal";
+import TaskDetail from "@/components/features/task/TaskDetail";
+import TaskAdd from "@/components/features/task/TaskAdd";
+import Container from "@/components/shared/Container";
 
 interface KanbanBoardProps {
   projectName: string;

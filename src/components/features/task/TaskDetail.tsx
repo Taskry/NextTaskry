@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Task, TaskPriority, TaskStatus } from "@/app/types";
-import { Icon } from "../Icon/Icon";
-import Button from "../Button/Button";
+import { Icon } from "@/components/shared/Icon";
+import Button from "@/components/ui/Button";
 import SubtaskList from "./SubtaskList";
 import BadgeSelector from "./BadgeSelector";
-import { showToast } from "@/lib/toast";
+import { showToast } from "@/lib/utils/toast";
 import { TASK_MESSAGES } from "@/lib/constants/messages";
 import { de } from "date-fns/locale";
 
@@ -227,9 +227,9 @@ function TitleField({
       <input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
         onBlur={onBlur}
-        onKeyDown={(e) => {
+        onKeyDown={(e: any) => {
           if (e.key === "Enter") onBlur();
           if (e.key === "Escape") onCancel();
         }}
@@ -312,9 +312,9 @@ function DescriptionField({
       {isEditing ? (
         <textarea
           value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           onBlur={onBlur}
-          onKeyDown={(e) => {
+          onKeyDown={(e: any) => {
             if (e.key === "Escape") onCancel();
           }}
           autoFocus
@@ -370,9 +370,9 @@ function AssigneeField({
             <input
               type="text"
               value={value || ""}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e: any) => onChange(e.target.value)}
               onBlur={onBlur}
-              onKeyDown={(e) => {
+              onKeyDown={(e: any) => {
                 if (e.key === "Enter") onBlur();
                 if (e.key === "Escape") onCancel();
               }}
@@ -457,7 +457,7 @@ function DateFields({
           <input
             type="date"
             value={startDate || ""}
-            onChange={(e) => onStartChange(e.target.value)}
+            onChange={(e: any) => onStartChange(e.target.value)}
             onBlur={onBlur}
             autoFocus
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-300 focus:outline-none"
@@ -483,7 +483,7 @@ function DateFields({
           <input
             type="date"
             value={endDate || ""}
-            onChange={(e) => onEndChange(e.target.value)}
+            onChange={(e: any) => onEndChange(e.target.value)}
             onBlur={onBlur}
             autoFocus
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-300 focus:outline-none"
@@ -545,9 +545,9 @@ function MemoField({
       {isEditing ? (
         <textarea
           value={value || ""}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           onBlur={onBlur}
-          onKeyDown={(e) => {
+          onKeyDown={(e: any) => {
             if (e.key === "Escape") onCancel();
           }}
           autoFocus

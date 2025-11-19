@@ -1,5 +1,5 @@
 // app/api/kanban/route.ts (또는 현재 파일 경로)
-import { supabase } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/supabase";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {

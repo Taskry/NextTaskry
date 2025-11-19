@@ -1,4 +1,4 @@
-import { Icon } from "../Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 import { buttonVariants, ButtonVariants } from "./ButtonVariants";
 
 interface ButtonProps

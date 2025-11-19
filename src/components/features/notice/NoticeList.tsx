@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Icon } from "../Icon/Icon";
+import { Icon } from "@/components/shared/Icon";
 import { Notice } from "@/app/data/mockNotices";
-import { primaryBorderColor } from "../../sample/color/page";
-import { formatDate } from "@/lib/utils";
+import { primaryBorderColor } from "@/app/sample/color/page";
+import { formatDate } from "@/lib/utils/utils";
 
 export default function NoticeList({ notices }: { notices: Notice[] }) {
   const tableHeaders = [

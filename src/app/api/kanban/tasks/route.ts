@@ -4,7 +4,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
-} from "../../task/tasks";
+} from "@/app/api/task/tasks";
 
 export async function GET(request: NextRequest) {
   try {

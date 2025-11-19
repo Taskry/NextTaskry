@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Badge, { badgeConfigs } from "../Badge/Badge";
+import Badge, { badgeConfigs } from "@/components/ui/Badge";
 
 interface BadgeSelectorProps<T extends string> {
   value: T;
