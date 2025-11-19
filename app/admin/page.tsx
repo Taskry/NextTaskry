@@ -4,7 +4,7 @@ import { useState } from "react";
 import { SectionHeader } from "../components/SectionHeader";
 import Container from "../components/UI/Container";
 import AdminProjectsPage from "./projects/page";
-import AdminNoticesPage from "./notices/page";
+import AdminNoticesPage from "./notice/page";
 import AdminUsersPage from "./users/page";
 import Button from "../components/Button/Button";
 
