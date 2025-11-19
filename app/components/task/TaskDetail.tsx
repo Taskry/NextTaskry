@@ -8,6 +8,7 @@ import SubtaskList from "./SubtaskList";
 import BadgeSelector from "./BadgeSelector";
 import { showToast } from "@/lib/toast";
 import { TASK_MESSAGES } from "@/lib/constants/messages";
+import { de } from "date-fns/locale";
 
 // ============================================
 // Types & Constants
@@ -15,7 +16,7 @@ import { TASK_MESSAGES } from "@/lib/constants/messages";
 
 interface TaskDetailProps {
   task: Task;
-  onUpdate?: (updatedTask: Task) => void;
+  onUpdate?: (taskId: string, updates: Partial<Task>) => void;
   onDelete?: (taskId: string) => void;
   onClose?: () => void;
 }
@@ -64,13 +65,23 @@ export default function TaskDetail({
   const handleSave = () => {
     if (!hasChanges()) return;
 
-    const updatedTask = {
-      ...editedTask,
-      updated_at: new Date().toISOString(),
-    };
+    const updates: Partial<Task> = {};
 
-    onUpdate?.(updatedTask);
-    setEditingField(null);
+    Object.keys(editedTask).forEach((key) => {
+      const k = key as keyof Task;
+      if (editedTask[k] !== task[k]) {
+        updates[k] = editedTask[k] as any;
+      }
+    });
+
+    updates.updated_at = new Date().toISOString();
+
+    // 불필요한 필드 제거
+    delete (updates as any).id;
+    delete (updates as any).created_at;
+    delete (updates as any).kanban_boards;
+
+    onUpdate?.(task.id, updates);
     showToast("작업이 저장되었습니다.", "success");
   };
 
