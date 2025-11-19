@@ -1,5 +1,5 @@
 // ButtonVariants.ts (개선 버전)
-import { cva } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 import clsx from "clsx";
 
 export const buttonCommonStyles = clsx(
@@ -110,4 +110,5 @@ export const buttonVariants = cva(buttonCommonStyles, {
   },
 });
 
-export type ButtonVariants = NonNullable<Parameters<typeof buttonVariants>[0]>;
+// export type ButtonVariants = NonNullable<Parameters<typeof buttonVariants>[0]>;
+export type ButtonVariants = VariantProps<typeof buttonVariants>;
