@@ -77,6 +77,7 @@ export async function updateTask(
   updates: Partial<Omit<Task, "id" | "created_at" | "updated_at">>
 ) {
   try {
+    // 상태값 정규화는 일단 시도하지 않음 - DB enum 값이 무엇인지 먼저 확인 필요
     const { data, error } = await supabase
       .from("tasks")
       .update(updates)

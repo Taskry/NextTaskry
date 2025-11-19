@@ -8,7 +8,6 @@ import {
   updateTask,
   deleteTask,
 } from "@/app/api/tasks/tasks";
-import { ta } from "date-fns/locale";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 
 interface PageProps {
@@ -86,7 +85,7 @@ export default function KanbanBoardPage({ params }: PageProps) {
 
   const handleUpdateTask = async (updatedTask: Task) => {
     try {
-      const { id, created_at, updated_at, ...updates } = updatedTask;
+      const { id, ...updates } = updatedTask;
 
       const { data, error } = await updateTask(id, updates);
 

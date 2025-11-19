@@ -1,8 +1,7 @@
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { Icon } from "@/components/shared/Icon";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
-import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
+import { primaryBgColor } from "@/app/sample/color/page";
 
 export default function AdminUsersPage() {
   const data = [

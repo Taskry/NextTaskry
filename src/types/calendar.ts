@@ -7,7 +7,7 @@ export interface CalendarEvent {
   resource?: {
     taskId: string;
     projectId: string;
-    status: "todo" | "in_progress" | "done";
+    status: "todo" | "inprogress" | "done";
     priority: "low" | "normal" | "high";
     assignee?: string;
   };
@@ -20,7 +20,7 @@ export interface TaskForCalendar {
   start_date?: string;
   end_date?: string;
   project_id: string;
-  status: "todo" | "in_progress" | "done";
+  status: "todo" | "inprogress" | "done";
   priority: "low" | "normal" | "high";
   assignee_id?: string;
 }

@@ -1,8 +1,6 @@
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
-import { Icon } from "@/components/shared/Icon";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
-import Container from "@/components/shared/Container";
 import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
 
 export default function AdminProjectsPage() {
@@ -35,20 +33,14 @@ export default function AdminProjectsPage() {
               <li className="font-normal text-sm">멤버: 5명</li>
             </ul>
           </div>
-          <Button
-            icon="trash"
-            radius="full"
-            size="sm"
-            variant="lightRed40"
-            textColor="lightRed100"
-          />
+          <Button icon="trash" size={16} variant="basic" />
         </div>
         {/* 진행률 */}
         <div
           role="progressbar"
           aria-valuenow={progress}
-          aria-valuemin="0"
-          aria-valuemax="100"
+          aria-valuemin={0}
+          aria-valuemax={100}
           className={`w-100% ${primaryBgColor.Color2[0]} rounded-full h-2.5 overflow-hidden mt-5`}
         >
           <div

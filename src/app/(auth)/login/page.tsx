@@ -33,7 +33,6 @@ export default function LoginPage() {
           icon="google"
           variant="primary"
           size={18}
-          radius="lg"
           onClick={() => signIn("google", { callbackUrl: "/" })}
         >
           Google로 시작하기

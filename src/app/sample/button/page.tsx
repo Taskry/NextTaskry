@@ -110,7 +110,7 @@ export default function Page() {
                 </Button>
               );
             })}
-            <Button btnType="form" icon="plus" state="disabled" disabled>
+            <Button btnType="form" icon="plus" disabled>
               프로젝트 생성하기
             </Button>
           </div>

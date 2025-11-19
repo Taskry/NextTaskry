@@ -18,6 +18,8 @@ export default function Page() {
         return <AdminUsersPage />;
       case "notices":
         return <AdminNoticesPage />;
+      default:
+        return null;
     }
   };
 
