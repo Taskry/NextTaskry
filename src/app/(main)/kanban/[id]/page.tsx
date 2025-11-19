@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { KanbanBoardType, Task } from "@/app/types";
+import { KanbanBoardType, Task } from "@/types";
 import {
   createTask,
   getTasksByBoardId,
   updateTask,
   deleteTask,
-} from "@/app/api/task/tasks";
+} from "@/app/api/tasks/tasks";
 import { ta } from "date-fns/locale";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 

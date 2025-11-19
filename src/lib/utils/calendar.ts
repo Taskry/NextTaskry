@@ -1,4 +1,4 @@
-import { CalendarEvent, TaskForCalendar } from "./../app/types/calendar";
+import { CalendarEvent, TaskForCalendar } from "@/types/calendar";
 
 /**
  * Task를 Calendar Event로 변환

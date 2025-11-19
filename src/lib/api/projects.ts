@@ -27,7 +27,7 @@ interface ResultProps {
 }
 
 const PROJECT_BASE_URL = 'http://localhost:3000/api/project'
-const PROJECT_MEMBER_BASE_URL = 'http://localhost:3000/api/projectMember/test'
+const PROJECT_MEMBER_BASE_URL = 'http://localhost:3000/api/projectMembers/test'
 
 // Project Info API
 export async function getProject(): Promise<ResultProps> {

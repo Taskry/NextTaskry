@@ -11,7 +11,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
-import { Task, TaskStatus } from "@/app/types";
+import { Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/column/KanbanColumn";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/TaskDetail";

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Task, TaskStatus, KanbanBoardType } from "@/app/types";
+import { Task, TaskStatus, KanbanBoardType } from "@/types";
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import Modal from "../Modal/Modal";

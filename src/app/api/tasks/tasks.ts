@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase/client";
-import { Task } from "@/app/types";
+import { supabase } from "@/lib/supabase/supabase";
+import { Task } from "@/types";
 
 /**
  * Task 생성

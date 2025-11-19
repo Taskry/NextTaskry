@@ -3,7 +3,7 @@
 // dnd-kit 사용을 위한 import
 import { useSortable } from "@dnd-kit/sortable";
 
-import { Task } from "@/app/types";
+import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
 import PriorityBadge from "./PriorityBadge";
 import AssigneeInfo from "./AssigneeInfo";

@@ -50,7 +50,7 @@ export async function getNotices(): Promise<Notice[]> {
   } else {
     // ------- api route 사용 ------- //
     try {
-      const response = await fetch("/api/announcement");
+      const response = await fetch("/api/announcements");
 
       if (!response.ok) {
         console.error("API 응답 실패:", response.status);
@@ -114,7 +114,7 @@ export async function createNotice(data: {
   } else {
     // ------- api route 사용 ------- //
     try {
-      const response = await fetch("/api/announcement", {
+      const response = await fetch("/api/announcements", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +157,7 @@ export async function getNoticeById(id: string): Promise<Notice | null> {
   } else {
     // ------- api route 사용 ------- //
     try {
-      const response = await fetch(`/api/announcement?id=${id}`);
+      const response = await fetch(`/api/announcements?id=${id}`);
 
       if (!response.ok) {
         if (response.status === 404) return null;

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Subtask } from "@/app/types";
+import { Subtask } from "@/types";
 import { Icon } from "@/components/shared/Icon";
 import Button from "@/components/ui/Button";
 

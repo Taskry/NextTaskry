@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { useEffect } from "react";
-import { ModalProps } from "@/app/types/modal";
+import { ModalProps } from "@/types/modal";
 import { modalConfigs } from "@/config/modalConfigs";
 
 const modalClasses = clsx(

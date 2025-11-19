@@ -7,7 +7,7 @@ import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 import MemoPanel from "@/components/features/kanban/MemoPanel";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
-import { Task } from "@/app/types/kanban";
+import { Task } from "@/types/kanban";
 import { showToast } from "@/lib/utils/toast";
 import { supabase } from "@/lib/supabase/supabase";
 
@@ -16,7 +16,7 @@ import {
   createTask,
   updateTask,
   deleteTask,
-} from "@/app/api/task/tasks";
+} from "@/app/api/tasks/tasks";
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 

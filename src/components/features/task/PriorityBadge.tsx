@@ -1,6 +1,6 @@
 // components/task/PriorityBadge.tsx
 
-import { TaskPriority } from "@/app/types";
+import { TaskPriority } from "@/types";
 import { PRIORITY_COLORS } from "@/lib/constants";
 
 interface PriorityBadgeProps {

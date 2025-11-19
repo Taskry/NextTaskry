@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { ko } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { CalendarEvent } from "@/app/types/calendar";
+import { CalendarEvent } from "@/types/calendar";
 
 // date-fns를 사용한 localizer 설정
 const locales = {

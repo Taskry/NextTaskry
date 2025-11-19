@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Task, TaskStatus, TaskPriority, Subtask } from "@/app/types";
+import { Task, TaskStatus, TaskPriority, Subtask } from "@/types";
 import DatePicker from "@/components/ui/DatePicker";
 import { Icon } from "@/components/shared/Icon";
 import Button from "@/components/ui/Button";
