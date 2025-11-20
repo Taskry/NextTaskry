@@ -5,9 +5,9 @@ import { Icon } from "@/components/shared/Icon";
 import { Calendar22 } from "@/components/features/project/Calendar";
 import { StatusSelect } from "@/components/features/project/StatusSelect";
 import { TypeSelect } from "@/components/features/project/TypeSelect";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/Textarea";
+import { Input } from "@/components/ui/shedcn/Input";
+import { Label } from "@/components/ui/shedcn/Label";
+import { Textarea } from "@/components/ui/shedcn/Textarea";
 import {
   addProjectMember,
   createProject,
