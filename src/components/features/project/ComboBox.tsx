@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import {Button} from "@/components/ui/shedcn/Button"
+import {Button} from "@/components/ui/shadcn/Button"
 import {
   Command,
   CommandEmpty,
@@ -9,12 +9,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/shedcn/Command"
+} from "@/components/ui/shadcn/Command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/shedcn/Popover"
+} from "@/components/ui/shadcn/Popover"
 
 
 export type Item = {
