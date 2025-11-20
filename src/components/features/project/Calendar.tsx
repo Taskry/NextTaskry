@@ -3,9 +3,9 @@
 import * as React from "react"
 import { ChevronDownIcon } from "lucide-react"
 
-import Button from "@/components/ui/Button"
+import { Button } from "@/components/ui/shedcn/Button"
 import { Calendar } from "@/components/ui/shedcn/Calendar"
-import { Label } from "@/components/ui/shedcn/Label"
+
 import {
   Popover,
   PopoverContent,
