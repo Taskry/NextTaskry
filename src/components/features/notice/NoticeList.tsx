@@ -21,8 +21,8 @@ export default function NoticeList({ notices }: { notices: Notice[] }) {
   ];
 
   // 중요, 일반 공지 분리
-  const pinnedNotices = notices.filter((n) => n.is_pinned);
-  const normalNotices = notices.filter((n) => !n.is_pinned);
+  const pinnedNotices = notices.filter((n) => n.is_important);
+  const normalNotices = notices.filter((n) => !n.is_important);
 
   return (
     <>
@@ -47,10 +47,7 @@ export default function NoticeList({ notices }: { notices: Notice[] }) {
         <tbody className="divide-y text-sm border-b">
           {/* 중요 공지 렌더링 */}
           {pinnedNotices.map((notice) => (
-            <tr
-              key={notice.announcement_id}
-              className=" transition-colors text-center"
-            >
+            <tr key={notice.id} className=" transition-colors text-center">
               <td className="items-center py-6 px-4 text-sm font-semibold">
                 <div>
                   <Icon type="bellFilled" size={18} className="inline mb-0.5" />
@@ -58,10 +55,7 @@ export default function NoticeList({ notices }: { notices: Notice[] }) {
                 </div>
               </td>
               <td className="py-6 px-4 text-sm font-semibold text-left w-full max-w-0 overflow-hidden">
-                <Link
-                  href={`/notice/${notice.announcement_id}`}
-                  className="truncate block"
-                >
+                <Link href={`/notice/${notice.id}`} className="truncate block">
                   {notice.title}
                 </Link>
               </td>
@@ -72,18 +66,12 @@ export default function NoticeList({ notices }: { notices: Notice[] }) {
           ))}
           {/* 일반 공지 렌더링 */}
           {normalNotices.map((notice, index) => (
-            <tr
-              key={notice.announcement_id}
-              className=" transition-colors text-center"
-            >
+            <tr key={notice.id} className=" transition-colors text-center">
               <td className="items-center py-6 px-4 text-sm font-semibold">
                 {normalNotices.length - index}
               </td>
               <td className="py-6 px-4 text-sm font-semibold text-left w-full max-w-0 overflow-hidden">
-                <Link
-                  href={`/notice/${notice.announcement_id}`}
-                  className="truncate block"
-                >
+                <Link href={`/notice/${notice.id}`} className="truncate block">
                   {notice.title}
                 </Link>
               </td>
