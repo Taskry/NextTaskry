@@ -14,8 +14,8 @@ import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
-import TaskDetail from "@/components/features/task/TaskDetail";
-import TaskAdd from "@/components/features/task/TaskAdd";
+import TaskDetail from "@/components/features/task/detail/TaskDetail";
+import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
 
 interface KanbanBoardProps {
@@ -172,7 +172,6 @@ const KanbanBoard = ({
               task={selectedTask}
               onUpdate={handleUpdateTask}
               onDelete={handleDeleteTask}
-              onClose={() => setSelectedTask(null)}
             />
           </Modal>
         )}

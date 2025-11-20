@@ -5,10 +5,10 @@ import { useSortable } from "@dnd-kit/sortable";
 
 import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
-import PriorityBadge from "./PriorityBadge";
-import AssigneeInfo from "./AssigneeInfo";
-import SubtaskList from "./SubtaskList";
-import DateInfo from "./DateInfo";
+import PriorityBadge from "@/components/features/task/fields/PriorityBadge";
+import AssigneeInfo from "@/components/features/task/fields/AssigneeInfo";
+import SubtaskList from "@/components/features/task/fields/SubtaskList";
+import DateInfo from "@/components/features/task/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;

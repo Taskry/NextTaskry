@@ -44,7 +44,7 @@ export default function KanbanLayout({
           <main
             className={`
               h-full flex flex-col transition-all duration-300 min-w-0
-              ${showMemoPanel ? "flex-[0.75]" : "flex-[1]"}
+              ${showMemoPanel ? "flex-[0.75]" : "flex-1"}
             `}
           >
             {children}
@@ -54,9 +54,7 @@ export default function KanbanLayout({
           <aside
             className={`
               h-full transition-all duration-300 overflow-hidden border-l border-gray-200 bg-white
-              ${
-                showMemoPanel ? "flex-[0.25] opacity-100" : "flex-[0] opacity-0"
-              }
+              ${showMemoPanel ? "flex-[0.25] opacity-100" : "flex-0 opacity-0"}
             `}
           >
             {showMemoPanel && <MemoPanel />}
