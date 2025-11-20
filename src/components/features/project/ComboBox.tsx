@@ -47,7 +47,7 @@ export function ComboBox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0" align="start">
-        <StatusList 
+        <ItemList 
           setOpen={setOpen} 
           setValue={setValue} 
           items={items}
@@ -58,17 +58,17 @@ export function ComboBox({
 }
 
 // 내부 컴포넌트 Props 정의
-interface StatusListProps {
+interface ItemListProps {
   setOpen: (open: boolean) => void
   setValue: (item: Item | null) => void
   items: Item[]
 }
 
-function StatusList({
+function ItemList({
   setOpen,
   setValue,
   items,
-}: StatusListProps) {
+}: ItemListProps) {
   return (
     <Command>
       <CommandInput placeholder="Filter status..." />
@@ -77,7 +77,7 @@ function StatusList({
         <CommandGroup>
           {items.map((item) => (
             <CommandItem
-              key={item.value}
+              key={item.id}
               value={item.value}
               onSelect={(value) => {
                 setValue(
