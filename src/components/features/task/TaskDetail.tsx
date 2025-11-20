@@ -6,9 +6,9 @@ import { Icon } from "@/components/shared/Icon";
 import Button from "@/components/ui/Button";
 import SubtaskList from "./SubtaskList";
 import BadgeSelector from "./BadgeSelector";
+import { AssigneeField } from "./AssigneeField";
 import { showToast } from "@/lib/utils/toast";
 import { TASK_MESSAGES } from "@/lib/constants/messages";
-import { de } from "date-fns/locale";
 
 // ============================================
 // Types & Constants
@@ -18,7 +18,6 @@ interface TaskDetailProps {
   task: Task;
   onUpdate?: (taskId: string, updates: Partial<Task>) => void;
   onDelete?: (taskId: string) => void;
-  onClose?: () => void;
 }
 
 const STATUS_OPTIONS = [
@@ -33,18 +32,6 @@ const PRIORITY_OPTIONS = [
   { value: "high" as const, badgeType: "high" as const },
 ];
 
-const MOCK_TEAM_MEMBERS = [
-  "김철수",
-  "이영희",
-  "박민수",
-  "최지원",
-  "정수현",
-  "강민지",
-  "윤대현",
-  "송하늘",
-  "임서연",
-];
-
 // ============================================
 // Main Component
 // ============================================
@@ -53,7 +40,6 @@ export default function TaskDetail({
   task,
   onUpdate,
   onDelete,
-  onClose,
 }: TaskDetailProps) {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editedTask, setEditedTask] = useState<Task>(task);
@@ -83,18 +69,6 @@ export default function TaskDetail({
 
     onUpdate?.(task.id, updates);
     showToast("작업이 저장되었습니다.", "success");
-  };
-
-  const handleClose = () => {
-    if (hasChanges()) {
-      const confirmed = confirm("변경 사항이 있습니다. 저장하시겠습니까?");
-      if (confirmed) {
-        handleSave();
-      } else {
-        setEditedTask(task);
-      }
-    }
-    onClose?.();
   };
 
   const handleDelete = () => {
@@ -142,10 +116,10 @@ export default function TaskDetail({
       />
 
       <AssigneeField
-        value={editedTask.assigned_to}
-        isEditing={editingField === "assigned_to"}
-        onEdit={() => setEditingField("assigned_to")}
-        onChange={(value) => handleChange("assigned_to", value)}
+        value={editedTask.assigned_user_id}
+        isEditing={editingField === "assigned_user_id"}
+        onEdit={() => setEditingField("assigned_user_id")}
+        onChange={(value: string) => handleChange("assigned_user_id", value)}
         onBlur={() => setEditingField(null)}
         onCancel={() => {
           setEditedTask(task);
@@ -327,100 +301,6 @@ function DescriptionField({
           className="text-gray-700 whitespace-pre-wrap cursor-pointer hover:bg-gray-50 p-3 rounded transition-colors min-h-[60px]"
         >
           {value || "클릭하여 설명 추가"}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function AssigneeField({
-  value,
-  isEditing,
-  onEdit,
-  onChange,
-  onBlur,
-  onCancel,
-}: {
-  value: string | null | undefined;
-  isEditing: boolean;
-  onEdit: () => void;
-  onChange: (value: string) => void;
-  onBlur: () => void;
-  onCancel: () => void;
-}) {
-  const filteredMembers = MOCK_TEAM_MEMBERS.filter((name) =>
-    name.toLowerCase().includes(value?.toLowerCase() || "")
-  );
-
-  return (
-    <div>
-      <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-        <Icon type="userCircle" size={16} color="#6B7280" />
-        담당자
-      </h3>
-      {isEditing ? (
-        <div className="space-y-2">
-          <div className="relative">
-            <Icon
-              type="search"
-              size={18}
-              color="#9CA3AF"
-              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-            />
-            <input
-              type="text"
-              value={value || ""}
-              onChange={(e: any) => onChange(e.target.value)}
-              onBlur={onBlur}
-              onKeyDown={(e: any) => {
-                if (e.key === "Enter") onBlur();
-                if (e.key === "Escape") onCancel();
-              }}
-              autoFocus
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-main-300 focus:outline-none"
-              placeholder="담당자 이름을 입력하세요"
-            />
-          </div>
-          {value && filteredMembers.length > 0 && (
-            <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
-              {filteredMembers.map((name) => (
-                <div
-                  key={name}
-                  onClick={() => {
-                    onChange(name);
-                    onBlur();
-                  }}
-                  className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-main-200 flex items-center justify-center">
-                    <span className="text-sm font-medium text-main-600">
-                      {name.charAt(0)}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-700">{name}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : value ? (
-        <div
-          onClick={onEdit}
-          className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
-        >
-          <div className="w-8 h-8 rounded-full bg-main-200 flex items-center justify-center">
-            <span className="text-sm font-medium text-main-600">
-              {value.charAt(0)}
-            </span>
-          </div>
-          <span className="text-gray-700">{value}</span>
-        </div>
-      ) : (
-        <p
-          onClick={onEdit}
-          className="text-gray-400 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors"
-        >
-          클릭하여 담당자 추가
         </p>
       )}
     </div>

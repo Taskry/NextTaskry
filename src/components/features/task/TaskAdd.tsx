@@ -7,6 +7,7 @@ import { Icon } from "@/components/shared/Icon";
 import Button from "@/components/ui/Button";
 import SubtaskList from "./SubtaskList";
 import BadgeSelector from "./BadgeSelector";
+import { AssigneeField } from "./AssigneeField";
 
 // ============================================
 // Types & Constants
@@ -23,7 +24,7 @@ type FormData = {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
-  assigned_to: string;
+  assigned_user_id: string;
   started_at: string;
   ended_at: string;
   memo: string;
@@ -47,7 +48,7 @@ const INITIAL_FORM_DATA: FormData = {
   description: "",
   status: "todo",
   priority: "normal",
-  assigned_to: "",
+  assigned_user_id: "",
   started_at: "",
   ended_at: "",
   memo: "",
@@ -115,7 +116,7 @@ export default function TaskAdd({
         description: cleanValue(formData.description),
         status: formData.status,
         priority: formData.priority,
-        assigned_to: cleanValue(formData.assigned_to),
+        assigned_user_id: cleanValue(formData.assigned_user_id),
         started_at: formData.started_at || undefined,
         ended_at: formData.ended_at || undefined,
         memo: cleanValue(formData.memo),
@@ -160,9 +161,9 @@ export default function TaskAdd({
       />
 
       <AssigneeField
-        value={formData.assigned_to}
+        value={formData.assigned_user_id}
         disabled={isSubmitting}
-        onChange={(value) => handleChange("assigned_to", value)}
+        onChange={(value) => handleChange("assigned_user_id", value)}
       />
 
       <DateFields
@@ -305,41 +306,6 @@ function DescriptionField({
         placeholder="설명을 입력하세요"
         disabled={disabled}
       />
-    </div>
-  );
-}
-
-function AssigneeField({
-  value,
-  disabled,
-  onChange,
-}: {
-  value: string;
-  disabled: boolean;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div>
-      <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-        <Icon type="userCircle" size={16} color="#6B7280" />
-        담당자
-      </h3>
-      <div className="relative">
-        <Icon
-          type="search"
-          size={18}
-          color="#9CA3AF"
-          className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-        />
-        <input
-          type="text"
-          value={value}
-          onChange={(e: any) => onChange(e.target.value)}
-          className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-main-300"
-          placeholder="담당자 이름을 입력하세요"
-          disabled={disabled}
-        />
-      </div>
     </div>
   );
 }

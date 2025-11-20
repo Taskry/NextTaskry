@@ -71,7 +71,9 @@ const TaskCard = ({ task, onClick }: TaskCardProps) => {
       {/* 하단 정보 */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t">
         {/* 담당자 */}
-        {task.assigned_to && <AssigneeInfo assignedTo={task.assigned_to} />}
+        {task.assigned_user_id && (
+          <AssigneeInfo assignedTo={task.assigned_user_id} />
+        )}
 
         {/* 우선순위 */}
         {task.priority && <PriorityBadge priority={task.priority} />}

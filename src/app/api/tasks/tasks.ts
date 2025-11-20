@@ -17,7 +17,8 @@ export async function createTask(
     if (taskData.description) cleanData.description = taskData.description;
     if (taskData.status) cleanData.status = taskData.status;
     if (taskData.priority) cleanData.priority = taskData.priority;
-    if (taskData.assigned_to) cleanData.assigned_to = taskData.assigned_to;
+    if (taskData.assigned_user_id)
+      cleanData.assigned_user_id = taskData.assigned_user_id;
     if (taskData.started_at) cleanData.started_at = taskData.started_at;
     if (taskData.ended_at) cleanData.ended_at = taskData.ended_at;
     if (taskData.memo) cleanData.memo = taskData.memo;
