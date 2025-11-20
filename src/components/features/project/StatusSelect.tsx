@@ -6,7 +6,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/shedcn/Select"
+} from "@/components/ui/shadcn/Select"
 
 interface StatusSelectProps {
   value: string;
