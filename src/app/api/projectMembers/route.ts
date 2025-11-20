@@ -2,7 +2,8 @@ import { supabase } from "@/lib/supabase/supabase";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id") || "all";
+  const id = searchParams.get("id");
+  const role = searchParams.get("role");
 
   // 사용자 인증
   // const session = await getServerSession(authOptions);
@@ -12,11 +13,29 @@ export async function GET(request: Request) {
   // }
 
   // 쿼리 실행 [프로젝트 멤버 조회]
+  let query = supabase.from("project_members").select("*");
+  if (id) {
+    query = query.eq("project_id", id);
+  }
+  if (role) {
+    query = query.eq("role", role);
+  }
+
+  console.log(query)
+  const { data: projectMembers, error: getError } = await query;
+
+  if (getError) {
+    console.error("Error fetching projects:", getError);
+    return Response.json({ error: getError.message }, { status: 500 });
+  }
+
+  
   const result = {
     message: `프로젝트 멤버[${id}] 정보 조회`,
     params: {
       projectMemberId: id || "파라미터 없음",
     },
+    data: projectMembers,
     timestamp: new Date().toISOString(),
   };
 
