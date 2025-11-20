@@ -12,7 +12,7 @@ import {
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/types";
-import KanbanColumn from "@/components/features/kanban/column/KanbanColumn";
+import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/TaskDetail";
 import TaskAdd from "@/components/features/task/TaskAdd";

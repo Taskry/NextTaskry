@@ -4,7 +4,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import TaskCard from "../../task/TaskCard";
+import TaskCard from "@/components/features/task/TaskCard";
 import { Task, TaskStatus } from "@/types";
 
 interface KanbanColumnProps {
