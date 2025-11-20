@@ -4,13 +4,13 @@ import * as React from "react"
 import { ChevronDownIcon } from "lucide-react"
 
 import Button from "@/components/ui/Button"
-import { Calendar } from "@/components/ui/Calendar"
-import { Label } from "@/components/ui/Label"
+import { Calendar } from "@/components/ui/shedcn/Calendar"
+import { Label } from "@/components/ui/shedcn/Label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/Popover"
+} from "@/components/ui/shedcn/Popover"
 import { format } from "date-fns"
 
 interface Calendar22Props {
