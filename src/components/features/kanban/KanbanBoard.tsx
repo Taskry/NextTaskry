@@ -12,11 +12,11 @@ import {
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
 import { Task, TaskStatus } from "@/types";
-import KanbanColumn from "@/components/features/kanban/column/KanbanColumn";
+import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
-import TaskDetail from "@/components/features/task/TaskDetail";
-import TaskAdd from "@/components/features/task/TaskAdd";
-import Container from "@/components/shared/Container";
+import TaskDetail from "@/components/features/task/detail/TaskDetail";
+import TaskAdd from "@/components/features/task/add/TaskAdd";
+import KanbanLayout from "@/components/layout/KanbanLayout";
 
 interface KanbanBoardProps {
   projectName: string;
@@ -130,7 +130,7 @@ const KanbanBoard = ({
   };
 
   return (
-    <Container>
+    <KanbanLayout>
       <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden w-full">
         {/* 헤더 */}
         <Header
@@ -172,7 +172,6 @@ const KanbanBoard = ({
               task={selectedTask}
               onUpdate={handleUpdateTask}
               onDelete={handleDeleteTask}
-              onClose={() => setSelectedTask(null)}
             />
           </Modal>
         )}
@@ -188,7 +187,7 @@ const KanbanBoard = ({
           </Modal>
         )}
       </div>
-    </Container>
+    </KanbanLayout>
   );
 };
 
@@ -222,8 +221,8 @@ function ColumnGrid({
   onTaskClick: (task: Task) => void;
 }) {
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4">
-      <div className="flex gap-4 h-full">
+    <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4 ">
+      <div className="flex gap-4 h-full justify-center">
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumn
             key={column.id}

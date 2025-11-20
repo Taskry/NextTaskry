@@ -5,10 +5,10 @@ import { useSortable } from "@dnd-kit/sortable";
 
 import { Task } from "@/types";
 import { CSS } from "@dnd-kit/utilities";
-import PriorityBadge from "./PriorityBadge";
-import AssigneeInfo from "./AssigneeInfo";
-import SubtaskList from "./SubtaskList";
-import DateInfo from "./DateInfo";
+import PriorityBadge from "@/components/features/task/fields/PriorityBadge";
+import AssigneeInfo from "@/components/features/task/fields/AssigneeInfo";
+import SubtaskList from "@/components/features/task/fields/SubtaskList";
+import DateInfo from "@/components/features/task/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;
@@ -71,7 +71,9 @@ const TaskCard = ({ task, onClick }: TaskCardProps) => {
       {/* 하단 정보 */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t">
         {/* 담당자 */}
-        {task.assigned_to && <AssigneeInfo assignedTo={task.assigned_to} />}
+        {task.assigned_user_id && (
+          <AssigneeInfo assignedTo={task.assigned_user_id} />
+        )}
 
         {/* 우선순위 */}
         {task.priority && <PriorityBadge priority={task.priority} />}

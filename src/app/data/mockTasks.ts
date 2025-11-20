@@ -10,7 +10,7 @@ export const mockTasks: Task[] = [
     description: "메인 페이지 레이아웃 및 반응형 디자인 적용",
     status: "inprogress",
     priority: "high",
-    assigned_to: "김철수",
+    assigned_user_id: "김철수",
     subtasks: [
       { id: "1-1", title: "와이어프레임 작성", completed: true },
       { id: "1-2", title: "컴포넌트 개발", completed: false },
@@ -29,7 +29,7 @@ export const mockTasks: Task[] = [
     description: "번들 사이즈 축소 및 로딩 속도 개선",
     status: "todo",
     priority: "high",
-    assigned_to: "이영희",
+    assigned_user_id: "이영희",
     subtasks: [
       { id: "2-1", title: "번들 분석", completed: false },
       { id: "2-2", title: "코드 스플리팅", completed: false },
@@ -48,7 +48,7 @@ export const mockTasks: Task[] = [
     description: "베타 테스트 피드백 검토 및 수정",
     status: "done",
     priority: "normal",
-    assigned_to: "박민수",
+    assigned_user_id: "박민수",
     subtasks: [
       { id: "3-1", title: "피드백 수집", completed: true },
       { id: "3-2", title: "우선순위 분류", completed: true },
@@ -69,7 +69,7 @@ export const mockTasks: Task[] = [
     description: "초기 프로젝트 구조 및 환경 설정",
     status: "done",
     priority: "high",
-    assigned_to: "최지원",
+    assigned_user_id: "최지원",
     subtasks: [
       { id: "4-1", title: "프로젝트 생성", completed: true },
       { id: "4-2", title: "라이브러리 설치", completed: true },
@@ -88,7 +88,7 @@ export const mockTasks: Task[] = [
     description: "소셜 로그인 및 일반 로그인 구현",
     status: "inprogress",
     priority: "high",
-    assigned_to: "정수현",
+    assigned_user_id: "정수현",
     subtasks: [
       { id: "5-1", title: "UI 디자인", completed: true },
       { id: "5-2", title: "API 연동", completed: false },
@@ -107,7 +107,7 @@ export const mockTasks: Task[] = [
     description: "FCM을 이용한 푸시 알림 구현",
     status: "todo",
     priority: "normal",
-    assigned_to: "강민지",
+    assigned_user_id: "강민지",
     subtasks: [],
     memo: undefined,
     started_at: undefined,
@@ -124,7 +124,7 @@ export const mockTasks: Task[] = [
     description: "Swagger를 이용한 API 문서 자동화",
     status: "inprogress",
     priority: "high",
-    assigned_to: "윤대현",
+    assigned_user_id: "윤대현",
     subtasks: [
       { id: "7-1", title: "Swagger 설정", completed: true },
       { id: "7-2", title: "엔드포인트 문서화", completed: false },
@@ -143,7 +143,7 @@ export const mockTasks: Task[] = [
     description: "느린 쿼리 개선 및 인덱스 추가",
     status: "todo",
     priority: "high",
-    assigned_to: "송하늘",
+    assigned_user_id: "송하늘",
     subtasks: [
       { id: "8-1", title: "슬로우 쿼리 분석", completed: false },
       { id: "8-2", title: "인덱스 설계", completed: false },
@@ -162,7 +162,7 @@ export const mockTasks: Task[] = [
     description: "통일된 에러 응답 형식 및 로깅 시스템 구축",
     status: "todo",
     priority: "normal",
-    assigned_to: "임서연",
+    assigned_user_id: "임서연",
     subtasks: [],
     memo: undefined,
     started_at: undefined,

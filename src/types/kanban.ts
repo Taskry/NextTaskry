@@ -32,7 +32,7 @@ export interface Task {
   priority?: TaskPriority;
 
   // 담당자 & 하위 작업
-  assigned_to?: string | null; // 담당자의 user_id (선택)
+  assigned_user_id?: string | null; // 담당자의 user_id (선택)
   subtasks?: any; // 하위 작업 배열 (선택) - DB에서는 JSON으로 저장
 
   // 추가 정보
