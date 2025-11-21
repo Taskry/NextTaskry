@@ -21,7 +21,6 @@ export async function GET(request: Request) {
     query = query.eq("role", role);
   }
 
-  console.log(query)
   const { data: projectMembers, error: getError } = await query;
 
   if (getError) {
@@ -44,8 +43,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { projectId, userId, role } = body;
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get("id");
+
+  const data = await request.json();
 
   // 사용자 인증
   // const session = await getServerSession(authOptions);
@@ -54,25 +55,42 @@ export async function POST(request: Request) {
   //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
   // }
 
-  const insertProjectMemberData = {
-    project_id: projectId,
-    user_id: userId,
-    role: role,
-  };
+  const projectMember = data.map((member:any) => ({
+    project_id: id,
+    user_id: member.userId,
+    role: member.role
+  }));
+  
 
-  // 쿼리 실행 [프로젝트 정보 생성]
-  const { data: newProjectMember, error: postError } = await supabase
-    .from("project_members")
-    .insert([insertProjectMemberData]);
+  // 쿼리 실행 [프로젝트 멤버 정보 업데이트]
+  const { data: projectMembers, error: postError } = await supabase
+    .from('project_members')
+    .upsert(projectMember, { onConflict: 'project_id, user_id' })
+    .select();
 
-  if (postError) {
-    console.error("Error adding projectMember:", postError);
-    return Response.json({ error: postError.message }, { status: 500 });
-  }
+    if (postError) {
+      console.error("Error fetching projects:", postError);
+      return Response.json({ error: postError.message }, { status: 500 });
+    }
+
+    const currentIds = projectMember.map((member:any) => member.user_id);
+
+    const { error: deleteError } = await supabase
+      .from('project_members')
+      .delete()
+      .eq('project_id', id) 
+      .not('user_id', 'in', `(${currentIds.join(',')})`); 
+
+    if (deleteError) {
+      console.error("Error deleting project:", deleteError);
+      return Response.json({ error: deleteError.message }, { status: 500 });
+    }
 
   const result = {
-    message: `프로젝트 멤버 생성`,
-    params: body,
+    message: `프로젝트 멤버 업데이트`,
+    params: {
+      projectMemberId: id || "파라미터 없음",
+    },
     timestamp: new Date().toISOString(),
   };
 
@@ -114,6 +132,16 @@ export async function DELETE(request: Request) {
   // }
 
   // 쿼리 실행 [프로젝트 멤버 정보 삭제]
+  const { data: deletedProjectMember, error: deleteError } = await supabase
+    .from("project_members")
+    .delete()
+    .eq("project_id", id);
+
+  if (deleteError) {
+    console.error("Error deleting project:", deleteError);
+    return Response.json({ error: deleteError.message }, { status: 500 });
+  }
+
   const result = {
     message: `프로젝트 멤버[${id}] 정보 삭제`,
     params: {

@@ -28,6 +28,7 @@ interface ComboBoxProps {
   items: Item[]
   value: Item | null
   setValue: (item: Item | null) => void
+  onChange?: (item: Item | null) => void 
   placeholder?: string
 }
 
@@ -35,6 +36,7 @@ export function ComboBox({
   items, 
   value, 
   setValue,
+  onChange,
   placeholder = "+ Select Data" 
 }: ComboBoxProps) {
   const [open, setOpen] = useState(false)
@@ -42,14 +44,18 @@ export function ComboBox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-[150px] justify-start">
-          {value ? <>{value.label}</> : <>{placeholder}</>}
+         <Button variant="outline" className="w-full justify-start px-3 text-left font-normal">
+          {/* 버튼 내부 텍스트가 길어질 경우 말줄임표 처리 */}
+          <span className="truncate w-full">
+            {value ? value.label : placeholder}
+          </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <ItemList 
           setOpen={setOpen} 
           setValue={setValue} 
+          onChange={onChange}
           items={items}
         />
       </PopoverContent>
@@ -61,32 +67,38 @@ export function ComboBox({
 interface ItemListProps {
   setOpen: (open: boolean) => void
   setValue: (item: Item | null) => void
+  onChange?: (item: Item | null) => void
   items: Item[]
 }
 
 function ItemList({
   setOpen,
   setValue,
+  onChange,
   items,
 }: ItemListProps) {
   return (
     <Command>
       <CommandInput placeholder="Filter status..." />
-      <CommandList>
+      <CommandList >
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup>
           {items.map((item) => (
             <CommandItem
               key={item.id}
               value={item.value}
-              onSelect={(value) => {
-                setValue(
-                  items.find((priority) => priority.value === value) || null
-                )
+              onSelect={() => {
+                 setValue(item)
+                
+                if (onChange) {
+                  onChange(item)
+                }
                 setOpen(false)
               }}
             >
-              {item.label}
+              <span className="truncate w-full text-left block">
+                {item.label}
+              </span>
             </CommandItem>
           ))}
         </CommandGroup>
