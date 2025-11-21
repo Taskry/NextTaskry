@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/supabase";
 import { showToast } from "@/lib/utils/toast";
 import { InviteMemberModalProps, Invitation } from "@/types/invite";
+import { useSession } from "next-auth/react";
+
 
 export default function InviteMemberModal({ projectId, onClose }: InviteMemberModalProps) {
 
@@ -12,6 +14,10 @@ export default function InviteMemberModal({ projectId, onClose }: InviteMemberMo
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const {data : session} = useSession();
+
+  const userId = session?.user?.user_id;
+
 
   // 이미 보낸 초대 목록 가져오기
   const fetchInvitations = async () => {
@@ -30,6 +36,7 @@ export default function InviteMemberModal({ projectId, onClose }: InviteMemberMo
 
   // 초대하기
   const handleSubmit = async () => {
+    
     setErrorMessage("");
 
     if (!email.includes("@")) {
@@ -39,28 +46,96 @@ export default function InviteMemberModal({ projectId, onClose }: InviteMemberMo
 
     setIsLoading(true);
 
-    const { error } = await supabase.from("project_invitations").insert({
+
+    // 0. 중복 초대 검사
+    const { data: existingInvite } = await supabase
+      .from("project_invitations")
+      .select("status")
+      .eq("project_id", projectId)
+      .eq("invited_email", email)
+      .maybeSingle();
+
+    if (existingInvite) {
+      if (existingInvite.status === "pending") {
+        showToast("이미 초대한 이메일입니다.", "alert");
+        setIsLoading(false);
+        return;
+      }
+
+      if (existingInvite.status === "accepted") {
+        showToast("이미 팀원으로 가입한 사용자입니다.", "alert");
+        setIsLoading(false);
+        return;
+      }
+    }
+
+
+
+
+    // insert 후 data에서 invitationId 확보
+    const { data,error } = await supabase.from("project_invitations").insert({
       project_id: projectId,
       invited_email: email,
-      invited_by: "", // TODO: 로그인한 유저의 user_id 넣기
+      invited_by: userId,
       project_role: role,
       status: "pending",
       created_at: new Date().toISOString(),
-    });
+    })
+    .select("invitation_id") // ✅ 방금 생성된 row에서 invitation_id만 가져오겠다는 뜻
+    .single();               // ✅ 결과가 1줄이라고 기대할 때 사용
 
     setIsLoading(false);
 
-    if (error) {
+    if (error || !data) {
       setErrorMessage("초대 중 오류가 발생했습니다.");
       console.error(error);
       return;
     }
 
-    showToast("초대가 완료되었습니다!", "success");
+    // ✅ 여기서 방금 생성된 invitation_id 확보
+    const invitationId = data.invitation_id;
 
+    // ✅ STEP 3 — 이메일 발송 API 호출
+try {
+  const res = await fetch("/api/send-invite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email: email,
+      invitationId: invitationId,
+    }),
+  });
+
+
+
+
+
+  const result = await res.json();
+
+    
+    if (!res.ok) {
+    console.error("Email sending error:", result);
+    showToast("이메일 전송에 실패했습니다.", "error");
+  } else {
+    showToast("초대 이메일을 전송했습니다!", "success");
+  }
+} catch (err) {
+  console.error("Email API 호출 오류:", err);
+  showToast("이메일 서버 오류가 발생했습니다.", "error");
+}  
+
+
+
+
+
+
+    // showToast("초대가 완료되었습니다!", "success");
     setEmail(""); // 초기화
     await fetchInvitations(); // 목록 갱신
   };
+    // ⬇️ 이 invitationId를 나중에 이메일 API 호출할 때 사용함
+    // 예: /api/send-invite 로 { email, invitationId } 보내기
+
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
