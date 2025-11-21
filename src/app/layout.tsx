@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <Provider>
           <AuthProviders>
-            <div className="h-full flex flex-col dark:dark:bg-black">
+            <div className="h-full flex flex-col dark:bg-black">
               <Header />
 
               <div className="flex-1 overflow-hidden">{children}</div>
