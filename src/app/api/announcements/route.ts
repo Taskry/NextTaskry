@@ -2,24 +2,25 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { createClient } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase/supabase";
 
 // ------------------------------------------------------
-// Supabase 클라이언트 생성
-// local supabase 시작 시 사용할 테스트용 클라이언트
+// supabaseAdmin 클라이언트 생성 (서버 사이드 전용)
 // ------------------------------------------------------
 
-if (
-  !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-  !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-) {
-  throw new Error("Supabase 환경변수가 설정되지 않았습니다.");
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error("관리자 환경 변수가 누락됐습니다.");
 }
 
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-// );
+// RLS를 우회하는 관리자 클라이언트
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+  },
+});
 
 // ------------------------------------------------------
 // 공통 에러 핸들러
@@ -124,7 +125,7 @@ export async function GET(request: Request) {
 
     // URL에 announcement_id 가 있으면 공지사항 상세 페이지 요청이라고 판단
     if (announcement_id) {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from("notices")
         .select("*")
         .eq("announcement_id", announcement_id)
@@ -167,7 +168,7 @@ export async function GET(request: Request) {
     // 중요 공지(is_important)가 항상 위에 오도록 정렬
     // 그 후 최신순 정렬
     // count: "exact" -> 전체 개수를 가져와서 페이지네이션에 사용
-    const { data, error, count } = await supabase
+    const { data, error, count } = await supabaseAdmin
       .from("notices")
       .select("*", { count: "exact" })
       .order("is_important", { ascending: false }) // 중요 공지 우선
@@ -198,7 +199,7 @@ export async function POST(request: Request) {
     // 제목, 내용 없거나 제목 255자 초과 시 -> 에러
     validateNoticeInput(body);
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("notices")
       // insert()는 기본적으로 배열 형태의 rows를 받는다고 한다
       .insert([
@@ -248,7 +249,7 @@ export async function PUT(request: Request) {
     if (body.is_important !== undefined)
       updates.is_important = body.is_important;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("notices")
       .update(updates)
       .eq("announcement_id", announcement_id)
@@ -272,7 +273,7 @@ export async function DELETE(request: Request) {
 
     const announcement_id = getAnnouncementId(request);
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("notices")
       .delete()
       .eq("announcement_id", announcement_id);
