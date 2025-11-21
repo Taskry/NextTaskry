@@ -10,10 +10,8 @@ import { Label } from "@/components/ui/shadcn/Label";
 import { Textarea } from "@/components/ui/shadcn/Textarea";
 import {
   createProject,
-  deleteProjectMember,
   getProjectById,
   getProjectMember,
-  getProjectMemberByRole,
   updateProject,
   updateProjectMember,
 } from "@/lib/api/projects";
@@ -66,9 +64,6 @@ export default function ProjectForm({ id }: { id?: string }) {
           setProjectData(projectData);
         }
       }
-
-      const res = await getProjectMemberByRole(id, "leader");
-      console.log(res);
     } catch (err) {
       console.error(err);
     }
@@ -124,7 +119,9 @@ export default function ProjectForm({ id }: { id?: string }) {
   useEffect(() => {
     fetchProject();
     fetchUserList();
-    fetchProjectMember();
+    if (id) {
+      fetchProjectMember();
+    }
     
   }, []);
 
@@ -157,37 +154,46 @@ export default function ProjectForm({ id }: { id?: string }) {
     }));
   };
 
-  const handleAddProjectMember = () => {
-    if (user) {
-      const newMember = {
-        projectId: id,
-        userId: user.id,
-        userName: user.value,
-        email: user.email,
-        role: "member",
-      };
-      
-      setProjectMember((prev) => [...prev, newMember]);
+  const handleAddProjectMember = (newItem: Item | null) => {
+    if (!newItem) {
+      return;
     }
+    const isDuplicate = projectMember.some((member) => member.userId === newItem.id);
+
+    if (isDuplicate) {
+      alert("이미 추가된 멤버입니다.");
+      return; 
+    }
+
+    const newMember = {
+      projectId: id,
+      userId: newItem.id,
+      userName: newItem.value,
+      email: newItem.email,
+      role: "member",
+    };
+    setProjectMember((prev) => [...prev, newMember]);    
   };
 
   const handleDeleteProjectMember = (id: string) => {
     const filterProjectMember = projectMember.filter(member => member.userId !== id);
     setProjectMember(filterProjectMember);
-    console.log(projectMember)
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
+    let createdId = null;
     if (id) {
       await updateProject(id, projectData);
     } else {
-      await createProject(projectData);
+      const res = await createProject(projectData);
+      createdId = res.data?.[0].project_id
     }
 
-    // await updateProjectMember(id, projectMember);
+    const projectId = createdId? createdId : id;
+    await updateProjectMember(projectId, projectMember);
     showToast("저장되었습니다.", "success");
-    router.push("/project/dashboard");
+    router.push("/");
   };
 
   return (
@@ -266,21 +272,12 @@ export default function ProjectForm({ id }: { id?: string }) {
             onChange={handleChange}
           />
         </div>
-        `
+        
         <div className="flex items-center py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 구성원</Label>
+          <Label className="font-bold text-base">프로젝트 구성원</Label>
         </div>
-        <div className="">
-          <ComboBox items={userList} value={user} setValue={setUser} />
-          <Button
-            btnType="icon"
-            icon="plus"
-            size={16}
-            variant="primary"
-            color="white"
-            className="hover:cursor-pointer mx-2"
-            onClick={handleAddProjectMember}
-          ></Button>
+        <div className="py-2">
+          <ComboBox items={userList} value={user} setValue={setUser} onChange={handleAddProjectMember}/>
         </div>
         {projectMember.map((member, index) => {
           return (

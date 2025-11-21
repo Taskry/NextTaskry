@@ -12,6 +12,7 @@ import {
 } from "@/components/features/project/Card";
 import {
   deleteProject,
+  deleteProjectMember,
   getProject,
   getProjectMember,
   updateProject,
@@ -20,6 +21,8 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { showApiError, showToast } from "@/lib/utils/toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { DeleteDialog } from "./DeleteDialog";
+
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -41,7 +44,6 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
           projectId: project.project_id,
           projectName: project.project_name,
         }));
-        console.log(updatedProjects);
         setProjectList(updatedProjects);
       }
     } catch (err) {
@@ -59,7 +61,6 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
         ...prev,
         [id]: data?.length,
       }));
-      return;
     } catch (err) {
       console.error(err);
       showApiError("프로젝트 목록을 불러올 수 없습니다.");
@@ -73,18 +74,16 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 
   useEffect(() => {
     for (let index in projectList) {
-      const id = projectList[index].id;
+      const id = projectList[index].project_id;
       fetchProjectMember(id);
     }
   }, [projectList]);
 
-  // useEffect(() => {
-  //   console.log(projectMember);
-  // }, [projectMember]);
-
   async function handleDeleteProject(id: string) {
     await deleteProject(id);
+    await deleteProjectMember(id);
     await fetchProject();
+    
     showToast("삭제되었습니다.", "deleted");
   }
 
@@ -142,7 +141,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                 <div className="flex gap-2 font-bold text-main-400">
                   <Icon type="users" size={20} className="text-main-400" />
                   <div className="text-sm">
-                    {projectMember ? projectMember[project.name] : 1}팀원
+                    {projectMember ? projectMember[project.project_id] : 1}팀원
                   </div>
                 </div>
               </CardContent>
@@ -160,7 +159,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                   </Link>
                 </div>
                 <div onClick={(e: any) => e.stopPropagation()}>
-                  <Button
+                  {/* <Button
                     btnType="icon"
                     icon="trash"
                     size={16}
@@ -168,12 +167,14 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
                     color="red"
                     className="hover:bg-red-100/40 hover:border-red-100/40"
                     onClick={() => handleDeleteProject(project.projectId)}
-                  />
+                  /> */}
+                   <DeleteDialog onClick={() => handleDeleteProject(project.projectId)} />
                 </div>
               </CardFooter>
             </Card>
           );
         })}
+        
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ interface ProjectProps {
 }
 
 interface ProjectMemberProps {
-  projectId: string | undefined;
+  projectId: string;
   userId: string;
   userName: string;
   email: string;
@@ -90,7 +90,6 @@ export async function updateProject(
       body: JSON.stringify(projectData),
     });
     const data = await res.json();
-    console.log(data);
 
     return data;
   } catch (err) {
@@ -140,21 +139,17 @@ export async function getProjectMemberByRole(id?: string, role?:string): Promise
   }
 }
 
-export async function updateProjectMember(
-  id: string,
-  projectMemberData: ProjectMemberProps
-): Promise<ResultProps> {
+export async function updateProjectMember(id?: string, projectMemberData?: ProjectMemberProps[]): Promise<ResultProps> {
   try {
     const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}`;
     const res = await fetch(url, {
-      method: "PUT",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(projectMemberData),
     });
     const data = await res.json();
-    console.log(data);
 
     return data;
   } catch (err) {
