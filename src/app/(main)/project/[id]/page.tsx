@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
+import CalendarView from "@/components/features/CalendarView/CalendarView";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 import MemoPanel from "@/components/features/kanban/MemoPanel";
 import BottomNavigation from "@/components/layout/BottomNavigation";
@@ -212,7 +213,7 @@ export default function ProjectPage() {
   return (
     <div className="flex flex-col h-full bg-gray-50">
       <div className="flex-1 flex overflow-hidden gap-6 min-h-0 p-6">
-        {/* 칸반보드 */}
+        {/* 칸반 + 캘린더 영역 */}
         <div
           className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
             showMemoPanel ? "flex-[0.7]" : "flex-1"
@@ -229,6 +230,15 @@ export default function ProjectPage() {
                 onDeleteTask={handleDeleteTask}
                 userRole = {userRole}
                 projectId={projectId}
+              />
+            )}
+
+            {currentView === "calendar" && (
+              <CalendarView
+                tasks={tasks}
+                onSelectTask={(task: Task) => {
+                  console.log("캘린더에서 task 클릭:", task);
+                }}
               />
             )}
           </div>
