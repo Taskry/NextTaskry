@@ -25,6 +25,7 @@ import { ProjectRole } from "@/types";
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
 export default function ProjectPage() {
+
   const params = useParams();
   const projectId = params.id as string;
 

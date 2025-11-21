@@ -2,8 +2,22 @@
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginPage() {
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const inviteId = searchParams.get("invite");
+
+    //초대 링크에서 들어온 경우에만 저장
+    if (inviteId) {
+      localStorage.setItem("invite_id", inviteId);
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start pt-20">
       <div className="flex flex-col items-center gap-3">
