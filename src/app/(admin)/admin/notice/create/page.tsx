@@ -74,7 +74,8 @@ export default function AdminNoticeCreatePage() {
 
       alert("작성이 완료되었습니다.");
 
-      // 목록 페이지로 이동
+      // 데이터 캐시를 새로고침하고 목록 페이지로 이동
+      router.refresh();
       router.push("/notice");
     } catch (error) {
       console.log("오류 발생: ", error);

@@ -72,7 +72,8 @@ export async function POST(request: Request) {
   // 쿼리 실행 [프로젝트 정보 생성]
   const { data: newProject, error: postError } = await supabase
     .from("projects")
-    .insert([insertProjectData]);
+    .insert([insertProjectData])
+    .select();
 
   if (postError) {
     console.error("Error adding project:", postError);
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
   const result = {
     message: `프로젝트 정보 생성`,
     params: body,
+    data: newProject,
     timestamp: new Date().toISOString(),
   };
 

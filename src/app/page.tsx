@@ -3,6 +3,7 @@
 "use client";
 
 import ProjectCard from "@/components/features/project/ProjectCard";
+import ProjectCardHeader from "@/components/features/project/ProjectCardHeader";
 import { useRouter } from "next/navigation";
 
 const Home = () => {
@@ -15,6 +16,7 @@ const Home = () => {
   return (
     <div className="h-full flex flex-col bg-gray-50">
       <div className="flex-1 overflow-auto">
+        <ProjectCardHeader />
         <ProjectCard onSelectProject={handleSelectProject} />
       </div>
     </div>

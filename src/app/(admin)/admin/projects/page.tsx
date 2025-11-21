@@ -2,6 +2,7 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor, primaryBorderColor } from "@/app/sample/color/page";
+import { Icon } from "@/components/shared/Icon";
 
 export default function AdminProjectsPage() {
   const progress = 65;
@@ -10,13 +11,16 @@ export default function AdminProjectsPage() {
       title="프로젝트 관리"
       titleIcon="folder"
       action={
-        <div className="flex">
+        <div className="flex items-center gap-2">
           <input
             type="text"
             placeholder="프로젝트 검색"
-            className="text-sm font-normal w-full max-w-48 border"
+            className="h-12 text-sm font-normal w-2xs border px-3 rounded-md"
           />
-          <div>필터 자리</div>
+          <div className="h-12 flex items-center gap-1 rounded-md border border-gray-100 px-3 cursor-pointer">
+            <Icon type="filter" size={18} />
+            <span className="inline-block">필터</span>
+          </div>
         </div>
       }
     >
@@ -33,7 +37,7 @@ export default function AdminProjectsPage() {
               <li className="font-normal text-sm">멤버: 5명</li>
             </ul>
           </div>
-          <Button icon="trash" size={16} variant="basic" />
+          <Button btnType="icon" icon="trash" size={16} variant="basic" />
         </div>
         {/* 진행률 */}
         <div

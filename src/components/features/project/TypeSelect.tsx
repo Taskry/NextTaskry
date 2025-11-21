@@ -16,7 +16,7 @@ interface TypeSelectProps {
 export function TypeSelect({ value, onValueChange }: TypeSelectProps) {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger>
+      <SelectTrigger className="w-full">
         <SelectValue placeholder="프로젝트 분류를 선택해주세요" />
       </SelectTrigger>
       <SelectContent>
