@@ -11,12 +11,14 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
-import { Task, TaskStatus } from "@/types";
+import { ProjectRole, Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
+import InviteMemberModal from "../project/InviteMemberModal";
+
 
 interface KanbanBoardProps {
   projectName: string;
@@ -27,6 +29,8 @@ interface KanbanBoardProps {
   onCreateTask: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
+  userRole: ProjectRole | null
+  projectId: string
 }
 
 const KanbanBoard = ({
@@ -36,6 +40,8 @@ const KanbanBoard = ({
   onUpdateTask,
   onDeleteTask,
   onCreateTask,
+  userRole,
+  projectId,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
@@ -136,6 +142,8 @@ const KanbanBoard = ({
         <Header
           projectName={projectName}
           onAddClick={() => setShowTaskAddModal(true)}
+          userRole = {userRole}
+          projectId={projectId}
         />
 
         {/* DndContext로 감싸기 */}
@@ -195,19 +203,54 @@ const KanbanBoard = ({
 function Header({
   projectName,
   onAddClick,
+  userRole,
+  projectId,
 }: {
   projectName: string;
   onAddClick: () => void;
+  userRole: ProjectRole | null;
+  projectId:string;
 }) {
+
+
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+
+
   return (
     <div className="flex justify-between px-6 py-4 border-b border-gray-200 bg-main-200/80">
       <h2 className="text-2xl font-bold text-gray-800">{projectName}</h2>
+
+
+
+    <div className="flex items-center gap-3">
+    {userRole==="leader" && 
+    (  
       <button
-        onClick={onAddClick}
-        className="px-4 py-2 bg-main-500 text-white rounded-lg hover:bg-main-600 transition-colors"
+        onClick={() => setInviteOpen(true)}
+        className="flex items-center gap-2 px-3 py-2 bg-main-400 text-white rounded-lg 
+                  hover:bg-main-500 transition-colors text-sm"
       >
-        새 작업 추가
+        + 초대
       </button>
+      )
+    }
+    <button
+      onClick={onAddClick}
+      className="px-4 py-2 bg-main-500 text-white rounded-lg hover:bg-main-600 transition-colors"
+    >
+      새 작업 추가
+    </button>
+  </div>
+
+
+      {inviteOpen && (
+        <InviteMemberModal
+          projectId={projectId}
+          onClose={() => setInviteOpen(false)}
+        />
+      )}
+      
     </div>
   );
 }

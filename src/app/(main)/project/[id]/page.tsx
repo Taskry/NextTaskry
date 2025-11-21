@@ -16,6 +16,10 @@ import {
   updateTask,
   deleteTask,
 } from "@/app/api/tasks/tasks";
+import { useSession } from "next-auth/react";
+import { supabase } from "@/lib/supabase/supabase";
+import { ProjectRole } from "@/types";
+
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
@@ -29,6 +33,46 @@ export default function ProjectPage() {
   const [currentView, setCurrentView] = useState<NavItem>("kanban");
   const [showMemoPanel, setShowMemoPanel] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<ProjectRole | null >(null)
+  const{data : session} = useSession();
+
+
+
+  //해당 프로젝트에 대한 로그인한 유저의 role 조회
+  useEffect(()=>{
+    // console.log("ProjectPage 실행 유저 역할조회")
+  
+    //임시데이터
+    // console.log("session.user.user_id:", session?.user?.user_id);
+    // console.log("projectId:", projectId);
+    // 원찬 id : dada0d9d-0dbd-4d3e-b0b8-61a0bee576c3
+    // 8b492a03-f167-4523-b9d0-1e94ce499889
+    // leader
+
+    const fetchRole = async ()=>{
+    
+    if(!session?.user?.user_id || !projectId) return;
+    const {data, error} = await supabase
+    .from("project_members")
+    .select("role")
+    .eq("project_id",projectId)
+    .eq("user_id",session.user.user_id)
+    .maybeSingle();
+
+    console.log(data,"data")
+    
+    if(data) setUserRole(data.role as ProjectRole)
+      
+    }
+    fetchRole();
+  
+  },[projectId, session?.user?.user_id])
+
+  
+
+ 
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -183,6 +227,8 @@ export default function ProjectPage() {
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
+                userRole = {userRole}
+                projectId={projectId}
               />
             )}
           </div>
