@@ -22,11 +22,8 @@ export default function NoticeDetail() {
 
   const rawId = Array.isArray(params.id) ? params.id[0] : params.id;
   const noticeId = rawId;
-  const adminEmails =
-    process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-  const isAdmin =
-    session?.user?.role === "admin" ||
-    (session?.user?.email && adminEmails.includes(session.user.email));
+
+  const isAdmin = session?.user?.role === "admin";
 
   // 데이터 상태
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -128,8 +125,6 @@ export default function NoticeDetail() {
       }
     }
   };
-
-  // --- 렌더링 ---
 
   if (isLoading) {
     return (

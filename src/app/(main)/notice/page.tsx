@@ -17,14 +17,7 @@ const ITEMS_PER_PAGE = 8;
 
 export default function NoticePage() {
   const { data: session } = useSession();
-  // ---------------------------- 추후 수정 필요
-  const adminEmails =
-    process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-
-  const isAdmin =
-    session?.user?.role === "admin" ||
-    (session?.user?.email && adminEmails.includes(session.user.email));
-  // ---------------------------- 추후 수정 필요
+  const isAdmin = session?.user?.role === "admin";
 
   const [notices, setNotices] = useState<Notice[]>([]);
   const [currentPage, setCurrentPage] = useState(1);

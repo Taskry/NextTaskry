@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Icon } from "@/components/shared/Icon";
 import { Notice } from "@/app/data/mockNotices";
@@ -84,7 +85,7 @@ export default function NoticeList({
                 <td className="py-6 px-4 text-sm">
                   <div className="flex items-center justify-center gap-2">
                     <Link
-                      href={`/notice/edit/${notice.announcement_id}`}
+                      href={`/notice/${notice.announcement_id}?edit=true`}
                       className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
                     >
                       수정
