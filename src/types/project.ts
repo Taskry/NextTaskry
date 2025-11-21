@@ -20,3 +20,6 @@ export type InsertProject = Omit<
   "project_id" | "created_at" | "updated_at"
 >;
 export type UpdateProject = Partial<Omit<Project, "project_id" | "created_at">>;
+
+
+export type ProjectRole = "leader" | "member";

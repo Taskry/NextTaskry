@@ -14,9 +14,6 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
 
-  if (session) {
-    console.log(session.user);
-  }
 
   let handleLoginModal = () => {
     if (!session) {
