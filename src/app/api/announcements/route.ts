@@ -59,9 +59,10 @@ export async function checkAdminFnc() {
     };
   }
 
-  const adminEmails =
-    process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
-  if (!adminEmails.includes(session.user.email!)) {
+  // const adminEmails =
+  //   process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",").map((e) => e.trim()) || [];
+  const isAdmin = session?.user?.role === "admin";
+  if (!isAdmin) {
     return {
       authorized: false,
       error: NextResponse.json(
