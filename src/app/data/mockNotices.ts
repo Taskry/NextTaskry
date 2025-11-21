@@ -1,19 +1,8 @@
+import { Notice } from "@/types/notice";
+
 // ------------------------------------------------------
 // 테스트용 mock 데이터
-
-// 스키마:
-// announcement_id, user_id, title, content,
-// is_important, created_at, updated_at
 // ------------------------------------------------------
-export type Notice = {
-  announcement_id: string; // (int8)
-  user_id: string | null; // (uuannouncement_id)
-  title: string; // (varcher(255))
-  content: string; // (text: any)
-  is_important: boolean; // (default false) -> 중요 공지
-  created_at: string; // (timestamp)
-  updated_at: string; // (timestamp)
-};
 
 export const mockNotices: Notice[] = [
   {
