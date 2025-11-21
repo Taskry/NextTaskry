@@ -60,7 +60,6 @@ export async function POST(request: Request) {
   // }
 
   const insertProjectData = {
-    user_id: 1, //테스트용
     project_name: projectName,
     type: type,
     status: status,

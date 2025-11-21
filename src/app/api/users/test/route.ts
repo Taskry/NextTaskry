@@ -18,13 +18,13 @@ export async function GET(request: Request) {
   if (id) {
     switch (type) {
       case "eq":
-        query = query.eq("id", id);
+        query = query.eq("user_id", id);
         break;
       case "neq":
-        query = query.neq("id", id);
+        query = query.neq("user_id", id);
         break;
       default:
-        query = query.eq("id", id);
+        query = query.eq("user_id", id);
     }
   }
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
   }
 
   const result = {
-    message: `프로젝트[${id}] 정보 조회`,
+    message: `유저[${id}] 정보 조회`,
     params: {
       projectId: id || "파라미터 없음",
     },

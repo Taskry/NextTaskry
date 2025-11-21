@@ -1,23 +1,13 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase/supabase";
-
-// const supabase = createClient(
-//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-// );
+// import { getServerSession } from "next-auth";
+// import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 // ------------------------------------------------------
 // 공지사항 조회
 // ------------------------------------------------------
 
 export async function GET(request: Request) {
-  // 사용자 인증
-  // const session = await getServerSession(authOptions);
-
-  // if (!session?.user) {
-  //   return Response.json({ error: 'Unauthorized-test', session:session }, { status: 401 });
-  // }
-
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -26,7 +16,7 @@ export async function GET(request: Request) {
       const { data, error } = await supabase
         .from("notices")
         .select("*")
-        .eq("announcement_id", id)
+        .eq("id", id)
         .single();
 
       if (error) {
@@ -43,7 +33,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
       .from("notices")
       .select("*")
-      .order("is_pinned", { ascending: false })
+      .order("is_important", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -70,6 +60,24 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // 인증 세션 가져오기 및 권한 확인
+    /* 관리자 권한 체크 임시 주석 처리
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user || session.user.role !== "admin") {
+      // 관리자 권한이 없거나 로그인되지 않은 경우
+      return NextResponse.json(
+        { error: "관리자 권한이 없습니다." },
+        { status: 403 }
+      );
+    }
+
+    // 세션에서 유효한 UUID 추출
+    const authorId = session.user.user_id;
+    */
+
+    const authorId = "00000000-0000-0000-0000-000000000001"; // 임시 UUID
+
     const body = await request.json();
 
     // 유효성 검사
@@ -89,7 +97,7 @@ export async function POST(request: Request) {
 
     if (!body.content?.trim()) {
       return NextResponse.json(
-        { error: "내용을 입력해주세요" },
+        { error: "내용을 입력해주세요." },
         { status: 400 }
       );
     }
@@ -99,11 +107,10 @@ export async function POST(request: Request) {
       .from("notices")
       .insert([
         {
-          // user_id: body.user_id || null,
-          user_id: "00000000-0000-0000-0000-000000000001",
+          author_id: authorId,
           title: body.title.trim(),
           content: body.content.trim(),
-          is_pinned: body.is_pinned || false,
+          is_important: body.is_important || false,
         },
       ])
       .select()
@@ -112,7 +119,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error("공지사항 등록 오류: ", error);
       return NextResponse.json(
-        { error: "공지사항 등록에 실패했습니다" },
+        { error: error.message || "공지사항 등록에 실패했습니다" },
         { status: 500 }
       );
     }
@@ -168,13 +175,14 @@ export async function PUT(request: Request) {
 
     if (body.title !== undefined) updates.title = body.title.trim();
     if (body.content !== undefined) updates.content = body.content.trim();
-    if (body.is_pinned !== undefined) updates.is_pinned = body.is_pinned;
+    if (body.is_important !== undefined)
+      updates.is_important = body.is_important;
 
     // 공지사항 수정
     const { data, error } = await supabase
       .from("notices")
       .update(updates)
-      .eq("announcement_id", id)
+      .eq("id", id)
       .select()
       .single();
 
@@ -213,10 +221,7 @@ export async function DELETE(request: Request) {
     }
 
     // 공지사항 삭제
-    const { error } = await supabase
-      .from("notices")
-      .delete()
-      .eq("announcement_id", id);
+    const { error } = await supabase.from("notices").delete().eq("id", id);
 
     if (error) {
       console.error("공지사항 삭제 오류:", error);

@@ -69,7 +69,7 @@ export default function AdminNoticeCreatePage() {
       await createNotice({
         title: title.trim(),
         content: content.trim(),
-        is_pinned: isImportant,
+        is_important: isImportant,
       });
 
       alert("작성이 완료되었습니다.");

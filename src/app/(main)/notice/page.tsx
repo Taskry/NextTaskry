@@ -5,7 +5,7 @@ import EmptyNotice from "@/components/features/notice/EmptyNotice";
 import NoticeList from "@/components/features/notice/NoticeList";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import Container from "@/components/shared/Container";
-import { mockNotices, Notice, STORAGE_KEY } from "../data/mockNotices";
+import { Notice } from "@/app/data/mockNotices";
 import { getNotices } from "@/lib/api/notices";
 
 export default function NoticePage() {

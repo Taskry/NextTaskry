@@ -9,15 +9,16 @@ import { Input } from "@/components/ui/shadcn/Input";
 import { Label } from "@/components/ui/shadcn/Label";
 import { Textarea } from "@/components/ui/shadcn/Textarea";
 import {
-  addProjectMember,
   createProject,
   deleteProjectMember,
   getProjectById,
   getProjectMember,
+  getProjectMemberByRole,
   updateProject,
+  updateProjectMember,
 } from "@/lib/api/projects";
 import { showToast } from "@/lib/utils/toast";
-import { getUserById } from "@/lib/api/users";
+import { getUser, getUserById } from "@/lib/api/users";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ComboBox, type Item } from "./ComboBox";
@@ -30,12 +31,6 @@ interface ProjectProps {
   endedAt: Date | undefined;
   techStack: string;
   description: string;
-}
-
-interface ProjectMemberProps {
-  user: string;
-  email: string;
-  role: string;
 }
 
 export default function ProjectForm({ id }: { id?: string }) {
@@ -51,7 +46,7 @@ export default function ProjectForm({ id }: { id?: string }) {
   });
   const [user, setUser] = useState<Item | null>(null);
   const [userList, setUserList] = useState<Item[]>([]);
-  const [projectMember, setProjectMember] = useState<ProjectMemberProps[]>([]);
+  const [projectMember, setProjectMember] = useState<any[]>([]);
 
   const fetchProject = async () => {
     try {
@@ -71,6 +66,9 @@ export default function ProjectForm({ id }: { id?: string }) {
           setProjectData(projectData);
         }
       }
+
+      const res = await getProjectMemberByRole(id, "leader");
+      console.log(res);
     } catch (err) {
       console.error(err);
     }
@@ -78,18 +76,16 @@ export default function ProjectForm({ id }: { id?: string }) {
 
   const fetchUserList = async () => {
     try {
-      const result = await getUserById("neq", 1);
+      const result = await getUser();
       const data = result.data;
 
-      console.log(data);
       if (data) {
         const userData = data.map((user) => ({
-          id: user.id,
-          label: user.name,
-          value: user.name,
-          email: user,
+          id: user.user_id,
+          label: `${user.user_name} (${user.email})`,
+          value: user.user_name,
+          email: user.email,
         }));
-        console.log(data);
         setUserList(userData);
       }
     } catch (err) {
@@ -103,7 +99,23 @@ export default function ProjectForm({ id }: { id?: string }) {
       const data = result.data;
 
       if (data) {
-        setProjectMember(data);
+        const memberData = await Promise.all(data.map(async (member) => {
+          const userId = member.user_id;
+          const userData = await getUserById("eq", userId);
+          const userInfo = userData.data?.[0];
+
+          if (!userInfo) return []; 
+
+          return {
+            projectId: id,
+            userId: userInfo.user_id,
+            userName: userInfo.user_name,
+            email: userInfo.email,
+            role: member.role
+          };
+        }));
+        
+        setProjectMember(memberData);
       }
     } catch (err) {
       console.error(err);
@@ -111,8 +123,9 @@ export default function ProjectForm({ id }: { id?: string }) {
   };
   useEffect(() => {
     fetchProject();
-    // fetchUserList();
-    // fetchProjectMember();
+    fetchUserList();
+    fetchProjectMember();
+    
   }, []);
 
   //  useEffect(() => {
@@ -145,44 +158,35 @@ export default function ProjectForm({ id }: { id?: string }) {
   };
 
   const handleAddProjectMember = () => {
-    // const newData = {
-    //     id: id,
-    //     user: `user0${projectMember.length + 1}`,
-    //     email: `user0${projectMember.length + 1}@domail.com`,
-    //     role: 'member'
-    // }
-
-    // addProjectMember(newData);
-    // setProjectMember((prev) => [...prev, newData])
-
     if (user) {
-      console.log(user);
       const newMember = {
         projectId: id,
         userId: user.id,
+        userName: user.value,
         email: user.email,
         role: "member",
       };
-      console.log(newMember);
-      addProjectMember(newMember);
+      
+      setProjectMember((prev) => [...prev, newMember]);
     }
   };
 
   const handleDeleteProjectMember = (id: string) => {
-    deleteProjectMember(id);
-    fetchProjectMember();
+    const filterProjectMember = projectMember.filter(member => member.userId !== id);
+    setProjectMember(filterProjectMember);
+    console.log(projectMember)
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault(); // 폼 제출 시 페이지 새로고침 방지
     if (id) {
       await updateProject(id, projectData);
-      showToast("저장되었습니다.", "success");
     } else {
       await createProject(projectData);
-
-      showToast("저장되었습니다.", "success");
     }
+
+    // await updateProjectMember(id, projectMember);
+    showToast("저장되었습니다.", "success");
     router.push("/project/dashboard");
   };
 
@@ -266,7 +270,7 @@ export default function ProjectForm({ id }: { id?: string }) {
         <div className="flex items-center py-2">
           <Label className="pb-2 font-bold text-base">프로젝트 구성원</Label>
         </div>
-        <div>
+        <div className="">
           <ComboBox items={userList} value={user} setValue={setUser} />
           <Button
             btnType="icon"
@@ -286,7 +290,7 @@ export default function ProjectForm({ id }: { id?: string }) {
                   <Icon type="userCircle" className="text-gray-700!" />
                 </div>
                 <div>
-                  <div>{member.user}</div>
+                  <div>{member.userName}</div>
                   <div>
                     {member.email} - {member.role}
                   </div>
@@ -300,7 +304,7 @@ export default function ProjectForm({ id }: { id?: string }) {
                   color="red"
                   variant="white"
                   className="hover:bg-red-100/40 hover:border-red-100/40"
-                  onClick={() => handleDeleteProjectMember(member.user)}
+                  onClick={() => handleDeleteProjectMember(member.userId)}
                 />
               </div>
             </div>

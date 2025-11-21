@@ -1,4 +1,4 @@
-import { mockNotices, Notice, STORAGE_KEY } from "@/app/data/mockNotices";
+import { mockNotices, Notice, STORAGE_KEY } from "../src/app/data/mockNotices";
 
 // ------------------------------------------------------
 // mock 데이터 사용 여부 플래그 설정
@@ -12,8 +12,8 @@ const USE_MOCK = false;
 // ------------------------------------------------------
 function sortNotices(notices: Notice[]) {
   return notices.sort((a, b) => {
-    if (a.is_pinned !== b.is_pinned) {
-      return a.is_pinned ? -1 : 1; // pinned가 먼저
+    if (a.is_important !== b.is_important) {
+      return a.is_important ? -1 : 1; // pinned가 먼저
     }
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
@@ -72,7 +72,7 @@ export async function getNotices(): Promise<Notice[]> {
 
 export async function createNotice(data: {
   title: string;
-  is_pinned: boolean;
+  is_important: boolean;
   content: string;
 }): Promise<Notice> {
   // 유효성 검사
@@ -93,11 +93,11 @@ export async function createNotice(data: {
 
       // 새 공지사항 객체 생성
       const newNotice: Notice = {
-        announcement_id: crypto.randomUUID(),
-        user_id: "admin", // 변경 필요 (임시 사용자)
+        id: crypto.randomUUID(),
+        author_id: "admin", // 변경 필요 (임시 사용자)
         title: data.title.trim(),
         content: data.content.trim(),
-        is_pinned: data.is_pinned,
+        is_important: data.is_important,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -122,8 +122,8 @@ export async function createNotice(data: {
         body: JSON.stringify({
           title: data.title.trim(),
           content: data.content.trim(),
-          is_pinned: data.is_pinned,
-          user_id: "admin", // 변경 필요 (임시 사용자)
+          is_important: data.is_important,
+          author_id: "admin", // 변경 필요 (임시 사용자)
         }),
       });
 
@@ -149,7 +149,7 @@ export async function getNoticeById(id: string): Promise<Notice | null> {
     // ------- 로컬스토리지 사용 ------- //
     try {
       const notices = await getNotices();
-      return notices.find((notice) => notice.announcement_id === id) || null;
+      return notices.find((notice) => notice.id === id) || null;
     } catch (error) {
       console.error("공지사항 조회 오류: ", error);
       return null;

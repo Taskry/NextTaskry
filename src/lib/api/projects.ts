@@ -20,12 +20,13 @@ interface ProjectProps {
 interface ProjectMemberProps {
   projectId: string | undefined;
   userId: string;
+  userName: string;
   email: string;
   role: string;
 }
 
 const PROJECT_BASE_URL = "http://localhost:3000/api/projects";
-const PROJECT_MEMBER_BASE_URL = "http://localhost:3000/api/projectMembers/test";
+const PROJECT_MEMBER_BASE_URL = "http://localhost:3000/api/projectMembers";
 
 // Project Info API
 export async function getProject(): Promise<ResultProps> {
@@ -126,19 +127,10 @@ export async function getProjectMember(id?: string): Promise<ResultProps> {
     throw err;
   }
 }
-
-export async function addProjectMember(
-  projectMemberData: ProjectMemberProps
-): Promise<ResultProps> {
+export async function getProjectMemberByRole(id?: string, role?:string): Promise<ResultProps> {
   try {
-    const url = `${PROJECT_MEMBER_BASE_URL}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(projectMemberData),
-    });
+    const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}&role=${role}`;
+    const res = await fetch(url);
     const data = await res.json();
 
     return data;
