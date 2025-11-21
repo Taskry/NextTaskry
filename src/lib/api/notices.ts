@@ -1,17 +1,15 @@
-import { Notice } from "@/app/data/mockNotices";
+import { NOTICE_CONSTANS } from "../constants/notices";
+import { NoticeResponse } from "@/types/notice";
+import { Notice } from "@/types/notice";
 
-const ITEM_PER_PAGE = 8;
-
-interface NoticeResponse {
-  data: Notice[];
-  totalCount: number;
-}
+export const ITEM_PER_PAGE = NOTICE_CONSTANS.ITEMS_PER_PAGE;
 
 // ------------------------------------------------------
 // API 에러 처리 헬퍼 함수
 // ------------------------------------------------------
 
 async function handleApiResponse<T>(response: Response): Promise<T> {
+  // HTTP 응답 상태 확인
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.error || `API 요청 실패: ${response.status}`);
@@ -30,6 +28,7 @@ export async function getNotices(
   try {
     const response = await fetch(
       `/api/announcements?page=${page}&limit=${limit}`
+      // /api/announcements?page=1&limit=8
     );
     const result = await handleApiResponse<{
       data: Notice[];

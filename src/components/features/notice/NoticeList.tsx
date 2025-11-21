@@ -1,23 +1,24 @@
 "use client";
-import Link from "next/link";
+
 import { Icon } from "@/components/shared/Icon";
-import { Notice } from "@/app/data/mockNotices";
+import { Notice } from "@/types/notice";
 import { primaryBorderColor } from "@/app/sample/color/page";
 import { formatDate } from "@/lib/utils/utils";
+import Link from "next/link";
 
 export default function NoticeList({
   notices,
   currentPage,
   itemsPerPage,
   totalCount,
-  isAdmin = true,
+  admin = true,
   onDelete,
 }: {
-  notices: Notice[];
-  currentPage: number;
-  itemsPerPage: number;
-  totalCount: number;
-  isAdmin?: boolean;
+  notices: Notice[]; // 공지사항 데이터 배열
+  currentPage: number; // 현재 페이지
+  itemsPerPage: number; // 페이지 당 게시글 수
+  totalCount: number; // 전체 게시글 수
+  admin?: boolean; // 어드민인지 여부 확인
   onDelete?: (id: number) => void;
 }) {
   const tableHeaders = [
@@ -25,9 +26,7 @@ export default function NoticeList({
     { label: "제목", className: "w-full max-w-0" },
     { label: "작성일", className: "w-[150px] min-w-[150px]" },
     // 관리자 admin 일 때만 관리 컬럼 추가
-    ...(isAdmin
-      ? [{ label: "관리", className: "w-[150px] min-w-[150px]" }]
-      : []),
+    ...(admin ? [{ label: "관리", className: "w-[150px] min-w-[150px]" }] : []),
   ];
 
   return (
@@ -81,7 +80,7 @@ export default function NoticeList({
                 {formatDate(notice.created_at)}
               </td>
 
-              {isAdmin && (
+              {admin && (
                 <td className="py-6 px-4 text-sm">
                   <div className="flex items-center justify-center gap-2">
                     <Link

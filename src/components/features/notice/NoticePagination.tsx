@@ -1,13 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/shared/Icon";
-import Button from "@/components/ui/Button";
-
-interface NoticePaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}
+import { NoticePaginationProps } from "@/types/notice";
 
 export default function NoticePagination({
   currentPage,
