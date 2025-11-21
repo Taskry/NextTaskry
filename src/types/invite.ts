@@ -3,8 +3,8 @@ export type Invitation = {
   project_id: string;
   invited_email: string;
   invited_by: string;
-  project_role: string;
-  status: string;
+  project_role: "member" | "leader";
+   status: "pending" | "accepted" | "expired" | "canceled";
   created_at: string;
   updated_at: string;
 };
