@@ -18,6 +18,11 @@ export interface ProjectMemo {
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
+  author?: {
+    user_id: string;
+    user_name: string;
+    email: string;
+  };
 }
 
 // 메모 관련 상수 (길이 제한, 페이지네이션)

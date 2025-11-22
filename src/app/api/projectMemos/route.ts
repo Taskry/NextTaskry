@@ -2,6 +2,74 @@ import { supabase } from "@/lib/supabase/supabase";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
+// ============================================
+// 유틸 함수
+// ============================================
+
+/**
+ * 현재 인증된 사용자 ID 가져오기
+ */
+async function getAuthUserId() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.user_id) {
+    throw {
+      error: "인증이 필요합니다",
+      status: 401,
+    };
+  }
+
+  return session.user.user_id;
+}
+
+/**
+ * 메모 조회 (상세 정보 포함)
+ */
+async function getMemoById(memoId: string) {
+  const { data: memo, error } = await supabase
+    .from("project_memos")
+    .select("*")
+    .eq("memo_id", memoId)
+    .single();
+
+  if (error || !memo) {
+    throw {
+      error: "해당 메모를 찾을 수 없습니다",
+      status: 404,
+    };
+  }
+
+  return memo;
+}
+
+/**
+ * 작성자 권한 확인
+ */
+function checkAuthor(memo: any, userId: string) {
+  if (memo.user_id !== userId) {
+    throw {
+      error: "권한이 없습니다 (작성자만 가능)",
+      status: 403,
+    };
+  }
+}
+
+/**
+ * 에러 응답 생성
+ */
+function errorResponse(error: any, defaultMessage: string) {
+  if (error.error && error.status) {
+    return Response.json({ error: error.error }, { status: error.status });
+  }
+
+  console.error("API error:", error);
+  return Response.json({ error: defaultMessage }, { status: 500 });
+}
+
+// ============================================
+// API 엔드포인트
+// ============================================
+
 /**
  * GET /api/projectMemos
  * 프로젝트별 메모 목록 조회 (작성자 정보 포함)
@@ -26,33 +94,14 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit;
     const orderDirection = sortBy === "newest" ? "desc" : "asc";
 
-    // 메모 조회 + 사용자 정보 JOIN
+    // user_id만 가져오기 (JOIN은 나중에)
     const {
       data: memos,
       error: fetchError,
       count,
     } = await supabase
       .from("project_memos")
-      .select(
-        `
-        memo_id,
-        project_id,
-        user_id,
-        content,
-        is_pinned,
-        pinned_at,
-        is_deleted,
-        deleted_at,
-        created_at,
-        updated_at,
-        users:user_id (
-          id,
-          name,
-          email
-        )
-      `,
-        { count: "exact" }
-      )
+      .select("*", { count: "exact" })
       .eq("project_id", projectId)
       .eq("is_deleted", false)
       .order("is_pinned", { ascending: false })
@@ -67,18 +116,34 @@ export async function GET(request: Request) {
       );
     }
 
-    // 응답 포맷 변환
-    const formattedMemos = memos?.map((memo: any) => ({
+    // user_id들을 수집해서 한 번에 조회
+    const userIds = [...new Set(memos?.map((m) => m.user_id) || [])];
+
+    const userMap: Record<string, any> = {};
+    if (userIds.length > 0) {
+      const { data: users } = await supabase
+        .from("users")
+        .select("user_id, user_name, email")
+        .in("user_id", userIds);
+
+      users?.forEach((user) => {
+        userMap[user.user_id] = user;
+      });
+    }
+
+    // memos에 author 정보 추가
+    const memosWithAuthor = memos?.map((memo) => ({
       ...memo,
-      author:
-        Array.isArray(memo.users) && memo.users.length > 0
-          ? memo.users[0]
-          : { id: memo.user_id, name: "알 수 없음", email: "" },
+      author: userMap[memo.user_id] || {
+        user_id: memo.user_id,
+        user_name: "알 수 없음",
+        email: "",
+      },
     }));
 
     return Response.json(
       {
-        data: formattedMemos || [],
+        data: memosWithAuthor || [],
         total: count || 0,
         page,
         limit,
@@ -86,30 +151,19 @@ export async function GET(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API error:", error);
-    return Response.json(
-      { error: "서버 오류가 발생했습니다" },
-      { status: 500 }
-    );
+    return errorResponse(error, "메모 조회에 실패했습니다");
   }
 }
-
 /**
  * POST /api/projectMemos
  * 메모 생성
  */
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.user_id) {
-      return Response.json({ error: "인증이 필요합니다" }, { status: 401 });
-    }
-
+    const userId = await getAuthUserId();
     const body = await request.json();
     const { project_id, content } = body;
 
-    // 필수 필드 검증
     if (!project_id || !content) {
       return Response.json(
         { error: "project_id와 content는 필수입니다" },
@@ -117,49 +171,33 @@ export async function POST(request: Request) {
       );
     }
 
-    // 메모 생성
     const { data, error } = await supabase
       .from("project_memos")
       .insert([
         {
           project_id,
-          user_id: session.user.user_id,
+          user_id: userId,
           content: content.trim(),
         },
       ])
       .select()
       .single();
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return Response.json(
-        { error: "메모 저장에 실패했습니다" },
-        { status: 500 }
-      );
-    }
+    if (error) throw error;
 
     return Response.json(data, { status: 201 });
   } catch (error) {
-    console.error("API error:", error);
-    return Response.json(
-      { error: "서버 오류가 발생했습니다" },
-      { status: 500 }
-    );
+    return errorResponse(error, "메모 저장에 실패했습니다");
   }
 }
 
 /**
  * PUT /api/projectMemos
- * 메모 수정
+ * 메모 수정 (작성자만 가능)
  */
 export async function PUT(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.user_id) {
-      return Response.json({ error: "인증이 필요합니다" }, { status: 401 });
-    }
-
+    const userId = await getAuthUserId();
     const { searchParams } = new URL(request.url);
     const memoId = searchParams.get("memoId");
     const body = await request.json();
@@ -176,29 +214,9 @@ export async function PUT(request: Request) {
       );
     }
 
-    // 메모 조회 - 작성자 확인
-    const { data: memo, error: fetchError } = await supabase
-      .from("project_memos")
-      .select("user_id")
-      .eq("memo_id", memoId)
-      .single();
+    const memo = await getMemoById(memoId);
+    checkAuthor(memo, userId);
 
-    if (fetchError || !memo) {
-      return Response.json(
-        { error: "해당 메모를 찾을 수 없습니다" },
-        { status: 404 }
-      );
-    }
-
-    // 작성자 확인
-    if (memo.user_id !== session.user.user_id) {
-      return Response.json(
-        { error: "수정 권한이 없습니다 (작성자만 수정 가능)" },
-        { status: 403 }
-      );
-    }
-
-    // 메모 수정
     const { data, error } = await supabase
       .from("project_memos")
       .update({
@@ -209,37 +227,21 @@ export async function PUT(request: Request) {
       .select()
       .single();
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return Response.json(
-        { error: "메모 수정에 실패했습니다" },
-        { status: 500 }
-      );
-    }
+    if (error) throw error;
 
     return Response.json(data, { status: 200 });
   } catch (error) {
-    console.error("API error:", error);
-    return Response.json(
-      { error: "서버 오류가 발생했습니다" },
-      { status: 500 }
-    );
+    return errorResponse(error, "메모 수정에 실패했습니다");
   }
 }
 
 /**
  * DELETE /api/projectMemos
- * 메모 삭제 (소프트 삭제)
- * 작성자만 삭제 가능
+ * 메모 삭제 (소프트 삭제, 작성자만 가능)
  */
 export async function DELETE(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session?.user?.user_id) {
-      return Response.json({ error: "인증이 필요합니다" }, { status: 401 });
-    }
-
+    const userId = await getAuthUserId();
     const { searchParams } = new URL(request.url);
     const memoId = searchParams.get("memoId");
 
@@ -247,29 +249,9 @@ export async function DELETE(request: Request) {
       return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
     }
 
-    // 메모 조회 - 작성자 확인
-    const { data: memo, error: fetchError } = await supabase
-      .from("project_memos")
-      .select("user_id, memo_id")
-      .eq("memo_id", memoId)
-      .single();
+    const memo = await getMemoById(memoId);
+    checkAuthor(memo, userId);
 
-    if (fetchError || !memo) {
-      return Response.json(
-        { error: "해당 메모를 찾을 수 없습니다" },
-        { status: 404 }
-      );
-    }
-
-    // 작성자 확인 (작성자만 삭제 가능)
-    if (memo.user_id !== session.user.user_id) {
-      return Response.json(
-        { error: "삭제 권한이 없습니다 (작성자만 삭제 가능)" },
-        { status: 403 }
-      );
-    }
-
-    // 소프트 삭제: is_deleted = true, deleted_at 기록
     const { error: updateError } = await supabase
       .from("project_memos")
       .update({
@@ -278,13 +260,7 @@ export async function DELETE(request: Request) {
       })
       .eq("memo_id", memoId);
 
-    if (updateError) {
-      console.error("Supabase error:", updateError);
-      return Response.json(
-        { error: "메모 삭제에 실패했습니다" },
-        { status: 500 }
-      );
-    }
+    if (updateError) throw updateError;
 
     return Response.json(
       {
@@ -294,10 +270,46 @@ export async function DELETE(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("API error:", error);
-    return Response.json(
-      { error: "서버 오류가 발생했습니다" },
-      { status: 500 }
-    );
+    return errorResponse(error, "메모 삭제에 실패했습니다");
+  }
+}
+
+/**
+ * PATCH /api/projectMemos
+ * 메모 고정/해제
+ */
+export async function PATCH(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const memoId = searchParams.get("memoId");
+    const body = await request.json();
+    const { is_pinned } = body;
+
+    if (!memoId) {
+      return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
+    }
+
+    if (typeof is_pinned !== "boolean") {
+      return Response.json(
+        { error: "is_pinned 값이 필요합니다" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("project_memos")
+      .update({
+        is_pinned,
+        pinned_at: is_pinned ? new Date().toISOString() : null,
+      })
+      .eq("memo_id", memoId)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return Response.json(data, { status: 200 });
+  } catch (error) {
+    return errorResponse(error, "메모 고정에 실패했습니다");
   }
 }
