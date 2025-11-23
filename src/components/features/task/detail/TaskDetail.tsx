@@ -98,7 +98,7 @@ export default function TaskDetail({
 
     onUpdate?.(task.id, updates);
     showToast("작업이 저장되었습니다.", "success");
-    
+
     // 저장 후 모달 닫기
     setTimeout(() => {
       onClose?.();
@@ -109,7 +109,7 @@ export default function TaskDetail({
     if (!confirm(TASK_MESSAGES.DELETE_CONFIRM)) return;
     onDelete?.(task.id);
     showToast("작업이 삭제되었습니다.", "deleted");
-    
+
     // 삭제 후 모달 닫기
     setTimeout(() => {
       onClose?.();
