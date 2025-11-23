@@ -12,10 +12,11 @@ import DateInfo from "@/components/features/task/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;
+  projectId: string;
   onClick?: () => void;
 }
 
-const TaskCard = ({ task, onClick }: TaskCardProps) => {
+const TaskCard = ({ task, projectId, onClick }: TaskCardProps) => {
   // useSortable 훅을 사용하여 드래그 앤 드롭 기능 활성화
   const {
     attributes, // 드래그에 필요한 HTML 속성들
@@ -72,7 +73,7 @@ const TaskCard = ({ task, onClick }: TaskCardProps) => {
       <div className="flex items-center justify-between mt-4 pt-3 border-t">
         {/* 담당자 */}
         {task.assigned_user_id && (
-          <AssigneeInfo assignedTo={task.assigned_user_id} />
+          <AssigneeInfo userId={task.assigned_user_id} projectId={projectId} />
         )}
 
         {/* 우선순위 */}

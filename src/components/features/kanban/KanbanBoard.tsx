@@ -154,6 +154,7 @@ const KanbanBoard = ({
           {/* 칸반 컬럼 */}
           <ColumnGrid
             groupedTasks={groupedTasks}
+            projectId={projectId}
             onTaskClick={setSelectedTask}
           />
 
@@ -248,9 +249,11 @@ function Header({
 // 컬럼 그리드 컴포넌트
 function ColumnGrid({
   groupedTasks,
+  projectId,
   onTaskClick,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
+  projectId: string;
   onTaskClick: (task: Task) => void;
 }) {
   return (
@@ -262,6 +265,7 @@ function ColumnGrid({
             id={column.id}
             title={column.title}
             tasks={groupedTasks[column.id] || []}
+            projectId={projectId}
             onTaskClick={onTaskClick}
           />
         ))}

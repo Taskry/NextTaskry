@@ -11,10 +11,17 @@ interface KanbanColumnProps {
   id: string;
   title: string;
   tasks: Task[];
+  projectId: string;
   onTaskClick: (task: Task) => void;
 }
 
-const KanbanColumn = ({ id, title, tasks, onTaskClick }: KanbanColumnProps) => {
+const KanbanColumn = ({
+  id,
+  title,
+  tasks,
+  projectId,
+  onTaskClick,
+}: KanbanColumnProps) => {
   // 이 컬럼을 드롭 가능하게 만들기
   const { setNodeRef } = useDroppable({
     id: id, // 컬럼 id (예: 'todo', 'inprogress', 'done')
@@ -74,6 +81,7 @@ const KanbanColumn = ({ id, title, tasks, onTaskClick }: KanbanColumnProps) => {
               <TaskCard
                 key={task.id}
                 task={task}
+                projectId={projectId}
                 onClick={() => onTaskClick(task)}
               />
             ))
