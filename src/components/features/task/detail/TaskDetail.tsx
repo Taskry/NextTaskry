@@ -24,6 +24,7 @@ interface TaskDetailProps {
   task: Task;
   onUpdate?: (taskId: string, updates: Partial<Task>) => void;
   onDelete?: (taskId: string) => void;
+  onClose?: () => void;
 }
 
 type ProjectMember = {
@@ -46,6 +47,7 @@ export default function TaskDetail({
   task,
   onUpdate,
   onDelete,
+  onClose,
 }: TaskDetailProps) {
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -96,11 +98,22 @@ export default function TaskDetail({
 
     onUpdate?.(task.id, updates);
     showToast("작업이 저장되었습니다.", "success");
+    
+    // 저장 후 모달 닫기
+    setTimeout(() => {
+      onClose?.();
+    }, 500);
   };
 
   const handleDelete = () => {
     if (!confirm(TASK_MESSAGES.DELETE_CONFIRM)) return;
     onDelete?.(task.id);
+    showToast("작업이 삭제되었습니다.", "deleted");
+    
+    // 삭제 후 모달 닫기
+    setTimeout(() => {
+      onClose?.();
+    }, 500);
   };
 
   return (

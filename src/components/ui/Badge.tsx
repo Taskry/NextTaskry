@@ -11,7 +11,7 @@ export const badgeConfigs = {
   },
   overDue: {
     title: "계획에서 벗어남",
-    className: `${bgColorOpacity.colorOpacity2[0]}`,
+    className: `${bgColorOpacity.colorOpacity2[0]} text-red-700`,
     category: "status",
   },
   todo: {

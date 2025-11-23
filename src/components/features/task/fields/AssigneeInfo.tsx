@@ -96,9 +96,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
           </span>
         )}
       </div>
-      <span className="text-xs text-gray-600">
-        {userInfo.user_name}
-      </span>
+      <span className="text-xs text-gray-600">{userInfo.user_name}</span>
     </div>
   );
 };

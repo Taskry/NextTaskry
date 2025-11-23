@@ -180,6 +180,7 @@ const KanbanBoard = ({
               task={selectedTask}
               onUpdate={handleUpdateTask}
               onDelete={handleDeleteTask}
+              onClose={() => setSelectedTask(null)}
             />
           </Modal>
         )}

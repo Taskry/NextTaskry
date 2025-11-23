@@ -79,9 +79,7 @@ const SubtaskList = ({
     return (
       <div className="mb-3 p-2 bg-gray-50 rounded-lg">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-medium text-gray-600">
-            하위 작업
-          </p>
+          <p className="text-xs font-medium text-gray-600">하위 작업</p>
           <span className="text-xs text-gray-500">
             {completedCount}/{subtasks.length}
           </span>
@@ -93,9 +91,7 @@ const SubtaskList = ({
                 type={subtask.completed ? "circleCheck" : "circle"}
                 size={16}
                 className={
-                  subtask.completed
-                    ? "text-main-500"
-                    : "text-gray-300"
+                  subtask.completed ? "text-main-500" : "text-gray-300"
                 }
               />
               <span
@@ -156,7 +152,7 @@ const SubtaskList = ({
               type="checkbox"
               checked={subtask.completed}
               onChange={() => handleToggleComplete(subtask.id)}
-              className="w-4 h-4 cursor-pointer"
+              className="w-4 h-4 cursor-pointer accent-main-500"
             />
 
             {editingId === subtask.id ? (
