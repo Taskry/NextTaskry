@@ -80,7 +80,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-6 h-6 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
+      <div className="w-6 h-6 rounded-full bg-main-200 flex items-center justify-center overflow-hidden">
         {isValidImageUrl(userInfo.profile_image) && !imageError ? (
           <Image
             src={userInfo.profile_image!}
@@ -91,12 +91,12 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
             onError={() => setImageError(true)}
           />
         ) : (
-          <span className="text-xs font-medium text-main-600 dark:text-main-300">
+          <span className="text-xs font-medium text-main-600">
             {userInfo.user_name.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
-      <span className="text-xs text-gray-600 dark:text-gray-400">
+      <span className="text-xs text-gray-600">
         {userInfo.user_name}
       </span>
     </div>

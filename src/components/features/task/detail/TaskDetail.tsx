@@ -56,16 +56,13 @@ export default function TaskDetail({
     const fetchMember = async () => {
       setIsLoadingMembers(true);
       try {
-        console.log("TaskDetail - task.project_id:", task.project_id);
         const response = await fetch(
           `/api/projectMembers/forAssignment?projectId=${task.project_id}`
         );
-        console.log("TaskDetail - API response status:", response.status);
         if (!response.ok) {
           throw new Error("프로젝트 멤버를 불러오는 데 실패했습니다.");
         }
         const result = await response.json();
-        console.log("TaskDetail - members:", result.data);
         setMembers(result.data || []);
       } catch (error) {
         console.error(error);

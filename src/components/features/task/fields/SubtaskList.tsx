@@ -77,22 +77,32 @@ const SubtaskList = ({
   // 읽기 전용 모드 (카드에서 사용)
   if (!editable) {
     return (
-      <div className="mb-3">
-        <p className="text-xs text-gray-500 mb-1">
-          하위 작업 ({completedCount}/{subtasks.length})
-        </p>
-        <div className="space-y-1">
+      <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-medium text-gray-600">
+            하위 작업
+          </p>
+          <span className="text-xs text-gray-500">
+            {completedCount}/{subtasks.length}
+          </span>
+        </div>
+        <div className="space-y-1.5">
           {subtasks.slice(0, 2).map((subtask) => (
             <div key={subtask.id} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={subtask.completed}
-                readOnly
-                className="w-4 h-4"
+              <Icon
+                type={subtask.completed ? "circleCheck" : "circle"}
+                size={16}
+                className={
+                  subtask.completed
+                    ? "text-main-500"
+                    : "text-gray-300"
+                }
               />
               <span
                 className={
-                  subtask.completed ? "line-through text-gray-400" : ""
+                  subtask.completed
+                    ? "line-through text-gray-400"
+                    : "text-gray-700"
                 }
               >
                 {subtask.title}
@@ -100,7 +110,9 @@ const SubtaskList = ({
             </div>
           ))}
           {subtasks.length > 2 && (
-            <p className="text-xs text-gray-400">+{subtasks.length - 2}개 더</p>
+            <p className="text-xs text-gray-400 pl-6">
+              +{subtasks.length - 2}개 더
+            </p>
           )}
         </div>
       </div>

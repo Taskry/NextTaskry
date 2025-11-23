@@ -19,17 +19,6 @@ export async function GET(request: Request) {
 
   // 쿼리 실행 [프로젝트 멤버 조회 + 사용자 정보 JOIN]
   try {
-    console.log("조회할 projectId:", projectId);
-
-    // 먼저 project_members만 조회해보기
-    const { data: allMembers, error: allError } = await supabase
-      .from("project_members")
-      .select("*")
-      .eq("project_id", projectId);
-
-    console.log("project_members 전체 조회:", allMembers);
-    console.log("project_members 조회 에러:", allError);
-
     const { data: members, error } = await supabase
       .from("project_members")
       .select(
@@ -47,8 +36,6 @@ export async function GET(request: Request) {
       )
       .eq("project_id", projectId);
 
-    console.log("JOIN 쿼리 결과 - members:", members);
-    console.log("JOIN 쿼리 에러:", error);
     if (error) {
       console.error("Error fetching project members:", error);
       return Response.json({ error: error.message }, { status: 500 });
