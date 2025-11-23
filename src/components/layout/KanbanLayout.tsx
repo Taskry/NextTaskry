@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState, createContext, useContext } from "react";
-import MemoPanel from "@/components/features/kanban/MemoPanel";
+import MemoPanel from "@/components/features/kanban/MemoView";
 
 interface KanbanLayoutContextType {
   showMemoPanel: boolean;
