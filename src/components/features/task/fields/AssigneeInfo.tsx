@@ -61,7 +61,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-gray-200 animate-pulse" />
+        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
         <span className="text-xs text-gray-400">불러오는 중...</span>
       </div>
     );
@@ -70,33 +70,37 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   if (!userInfo) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-xs text-gray-400">?</span>
+        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+          <span className="text-xs text-gray-400 dark:text-gray-400">?</span>
         </div>
-        <span className="text-xs text-gray-400">담당자 없음</span>
+        <span className="text-xs text-gray-400 dark: text-gray-400">
+          담당자 없음
+        </span>
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-6 h-6 rounded-full bg-main-200 flex items-center justify-center overflow-hidden">
+      <div className="w-6 h-6 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
         {isValidImageUrl(userInfo.profile_image) && !imageError ? (
           <Image
             src={userInfo.profile_image!}
             alt={userInfo.user_name}
             width={24}
             height={24}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover *:rounded-full"
             onError={() => setImageError(true)}
           />
         ) : (
-          <span className="text-xs font-medium text-main-600">
+          <span className="text-xs font-medium text-main-600 dark:text-white">
             {userInfo.user_name.charAt(0).toUpperCase()}
           </span>
         )}
       </div>
-      <span className="text-xs text-gray-600">{userInfo.user_name}</span>
+      <span className="text-xs text-gray-600 dark:text-gray-400">
+        {userInfo.user_name}
+      </span>
     </div>
   );
 };
