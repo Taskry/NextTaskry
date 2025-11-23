@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
@@ -26,6 +26,18 @@ interface TaskDetailProps {
   onDelete?: (taskId: string) => void;
 }
 
+type ProjectMember = {
+  project_id: string;
+  user_id: string;
+  role: string;
+  users: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string;
+  };
+};
+
 // ============================================
 // Main Component
 // ============================================
@@ -37,6 +49,32 @@ export default function TaskDetail({
 }: TaskDetailProps) {
   const [editedTask, setEditedTask] = useState<Task>(task);
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [members, setMembers] = useState<ProjectMember[] | null>(null);
+
+  useEffect(() => {
+    const fetchMember = async () => {
+      setIsLoadingMembers(true);
+      try {
+        console.log("TaskDetail - task.project_id:", task.project_id);
+        const response = await fetch(
+          `/api/projectMembers/forAssignment?projectId=${task.project_id}`
+        );
+        console.log("TaskDetail - API response status:", response.status);
+        if (!response.ok) {
+          throw new Error("프로젝트 멤버를 불러오는 데 실패했습니다.");
+        }
+        const result = await response.json();
+        console.log("TaskDetail - members:", result.data);
+        setMembers(result.data || []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoadingMembers(false);
+      }
+    };
+    fetchMember();
+  }, [task.project_id]);
 
   const hasChanges = () => JSON.stringify(editedTask) !== JSON.stringify(task);
 
@@ -113,6 +151,8 @@ export default function TaskDetail({
       <AssigneeField
         value={editedTask.assigned_user_id}
         isEditing={editingField === "assigned_user_id"}
+        isLoading={isLoadingMembers}
+        members={members}
         onEdit={() => setEditingField("assigned_user_id")}
         onChange={(v) => handleChange("assigned_user_id", v)}
         onBlur={() => setEditingField(null)}

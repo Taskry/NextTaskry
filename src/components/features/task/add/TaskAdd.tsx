@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Task, TaskStatus, TaskPriority, Subtask } from "@/types";
 import Button from "@/components/ui/Button";
 
@@ -17,6 +17,7 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 
 interface TaskAddProps {
   boardId: string;
+  projectId: string;
   onSuccess?: (task: Omit<Task, "id" | "created_at" | "updated_at">) => void;
   onCancel: () => void;
 }
@@ -31,6 +32,18 @@ type FormData = {
   ended_at: string;
   memo: string;
   subtasks: Subtask[];
+};
+
+type ProjectMember = {
+  project_id: string;
+  user_id: string;
+  role: string;
+  users: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string;
+  };
 };
 
 const INITIAL_FORM_DATA: FormData = {
@@ -57,12 +70,40 @@ const cleanValue = (value: string) => value.trim() || undefined;
 
 export default function TaskAdd({
   boardId,
+  projectId,
   onSuccess,
   onCancel,
 }: TaskAddProps) {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [members, setMembers] = useState<ProjectMember[] | null>(null);
+
+  useEffect(() => {
+    const fetchMember = async () => {
+      setIsLoadingMembers(true);
+      try {
+        const response = await fetch(
+          `/api/projectMembers/forAssignment?projectId=${projectId}`
+        );
+        if (!response.ok) {
+          throw new Error("프로젝트 멤버를 불러오는 데 실패했습니다.");
+        }
+        const result = await response.json();
+        setMembers(result.data || []);
+      } catch (error) {
+        console.error(error);
+        setErrors((prev) => ({
+          ...prev,
+          submit: "프로젝트 멤버를 불러오는 데 실패했습니다.",
+        }));
+      } finally {
+        setIsLoadingMembers(false);
+      }
+    };
+    fetchMember();
+  }, [projectId]);
 
   const handleChange = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -175,6 +216,8 @@ export default function TaskAdd({
         value={formData.assigned_user_id}
         disabled={isSubmitting}
         onChange={(value) => handleChange("assigned_user_id", value)}
+        isLoading={isLoadingMembers}
+        members={members}
       />
 
       {/* 날짜 */}

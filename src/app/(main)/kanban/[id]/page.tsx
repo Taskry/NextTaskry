@@ -83,11 +83,9 @@ export default function KanbanBoardPage({ params }: PageProps) {
     }
   };
 
-  const handleUpdateTask = async (updatedTask: Task) => {
+  const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     try {
-      const { id, ...updates } = updatedTask;
-
-      const { data, error } = await updateTask(id, updates);
+      const { data, error } = await updateTask(taskId, updates);
 
       if (error) {
         console.error("Task 수정 실패:", error);
@@ -149,6 +147,8 @@ export default function KanbanBoardPage({ params }: PageProps) {
         <KanbanBoard
           boardId={boardId}
           projectName={board.name}
+          projectId={board.project_id}
+          userRole={null}
           tasks={tasks}
           onCreateTask={handleCreateTask}
           onUpdateTask={handleUpdateTask}

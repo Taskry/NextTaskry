@@ -63,7 +63,15 @@ export async function getTasksByBoardId(projectId: string) {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return { data: (data as Task[]) || [], error: null };
+
+    // project_id를 Task 객체에 포함시키기
+    const tasksWithProjectId = (data || []).map((task: any) => ({
+      ...task,
+      project_id: task.kanban_boards.project_id,
+      kanban_boards: undefined, // JOIN 데이터 제거
+    }));
+
+    return { data: tasksWithProjectId as Task[], error: null };
   } catch (error) {
     console.error("Task 조회 실패:", error);
     return { data: null, error };
