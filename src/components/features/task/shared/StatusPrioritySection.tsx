@@ -33,15 +33,15 @@ export function StatusPrioritySection({
   onPriorityChange: (value: TaskPriority) => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-8">
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
       {/* 상태 */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-fit">
         <Icon
           type="progressAlert"
           size={16}
           className="text-gray-600 dark:text-gray-400"
         />
-        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 whitespace-nowrap">
           상태
         </h3>
         <BadgeSelector
@@ -52,7 +52,7 @@ export function StatusPrioritySection({
       </div>
 
       {/* 우선순위 */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 min-w-fit">
         <Icon
           type="alertTriangle"
           size={16}

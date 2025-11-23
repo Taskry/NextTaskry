@@ -119,7 +119,7 @@ export default function TaskDetail({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Header createdAt={task.created_at} />
+      <Header createdAt={task.created_at} updatedAt={task.updated_at} />
 
       {/* Title */}
       <TitleField
@@ -218,16 +218,62 @@ export default function TaskDetail({
 // Sub Components
 // ============================================
 
-function Header({ createdAt }: { createdAt: string }) {
+function Header({
+  createdAt,
+  updatedAt,
+}: {
+  createdAt: string;
+  updatedAt: string;
+}) {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const isUpdated = createdAt !== updatedAt;
+
   return (
     <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <Icon
-          type="clock"
-          size={16}
-          className="text-gray-400 dark:text-gray-500"
-        />
-        <span>생성일: {new Date(createdAt).toLocaleDateString("ko-KR")}</span>
+      <div className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
+        {/* 생성 정보 */}
+        <div className="flex items-center gap-2">
+          <Icon
+            type="clock"
+            size={16}
+            className="text-gray-400 dark:text-gray-500"
+          />
+          <span className="font-medium text-gray-600 dark:text-gray-400">
+            생성:
+          </span>
+          <span>{formatDate(createdAt)}</span>
+          {/* TODO: 작성자 정보 추가 시 사용 */}
+          {/* <span className="text-gray-400 dark:text-gray-500">by</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">작성자명</span> */}
+        </div>
+
+        {/* 수정 정보 */}
+        {isUpdated && (
+          <div className="flex items-center gap-2">
+            <Icon
+              type="edit"
+              size={16}
+              className="text-gray-400 dark:text-gray-500"
+            />
+            <span className="font-medium text-gray-600 dark:text-gray-400">
+              수정:
+            </span>
+            <span>{formatDate(updatedAt)}</span>
+            {/* TODO: 수정자 정보 추가 시 사용 */}
+            {/* <span className="text-gray-400 dark:text-gray-500">by</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">수정자명</span> */}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -290,7 +336,7 @@ function DescriptionField({
         if (e.key === "Escape") onCancel();
       }}
       autoFocus
-      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
     />
   ) : (
     <p
@@ -324,7 +370,7 @@ function MemoField({
           if (e.key === "Escape") onCancel();
         }}
         autoFocus
-        className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+        className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
       />
     );
   }
