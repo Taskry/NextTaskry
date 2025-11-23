@@ -34,6 +34,7 @@ import {
 
 // check
 import {
+  TbCircle,
   TbCircleCheck,
   TbCircleCheckFilled,
   TbInfoCircle,
@@ -104,6 +105,7 @@ const ICON_MAP: Record<string, IconType> = {
   folder: TbFolder,
 
   //circle
+  circle: TbCircle,
   circleCheck: TbCircleCheck,
   circleCheckFilled: TbCircleCheckFilled,
   circleInfo: TbInfoCircle,

@@ -3,8 +3,12 @@ import { Icon } from "@/components/shared/Icon";
 
 export function FieldLabel({ icon, title }: { icon: string; title: string }) {
   return (
-    <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-      <Icon type={icon} size={16} color="#6B7280" />
+    <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+      <Icon
+        type={icon}
+        size={16}
+        className="text-gray-600 dark:text-gray-400"
+      />
       {title}
     </h3>
   );

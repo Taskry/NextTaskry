@@ -80,8 +80,12 @@ const DatePicker = ({
     <div className="relative" ref={calendarRef}>
       {/* 라벨 */}
       {label && (
-        <h3 className="text-sm font-semibold text-gray-600 mb-2 flex items-center gap-2">
-          <Icon type={icon} size={16} color="#6B7280" />
+        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
+          <Icon
+            type={icon}
+            size={16}
+            className="text-gray-600 dark:text-gray-400"
+          />
           {label}
         </h3>
       )}
@@ -96,34 +100,52 @@ const DatePicker = ({
         className={`
           w-full px-3 py-2 border rounded-lg transition-colors 
           flex items-center justify-between
+          bg-white dark:bg-gray-700
           ${
             !disabled
-              ? "cursor-pointer hover:border-gray-400"
+              ? "cursor-pointer hover:border-gray-400 dark:hover:border-gray-500"
               : "cursor-not-allowed opacity-50"
           }
-          ${error ? "border-red-500 hover:border-red-600" : "border-gray-300"}
+          ${
+            error
+              ? "border-red-500 dark:border-red-600 hover:border-red-600 dark:hover:border-red-500"
+              : "border-gray-300 dark:border-gray-600"
+          }
         `}
       >
-        <span className={value ? "text-gray-700" : "text-gray-400"}>
+        <span
+          className={
+            value
+              ? "text-gray-700 dark:text-gray-300"
+              : "text-gray-400 dark:text-gray-500"
+          }
+        >
           {value ? formatDisplayDate(value) : placeholder}
         </span>
-        <Icon type="calendar" size={16} color="#9CA3AF" />
+        <Icon
+          type="calendar"
+          size={16}
+          className="text-gray-400 dark:text-gray-500"
+        />
       </div>
 
       {/* 에러 메시지 */}
       {error && (
-        <p className="text-red-500 text-xs mt-1 text-left pl-3">* {error}</p>
+        <p className="text-red-500 dark:text-red-400 text-xs mt-1 text-left pl-3">
+          * {error}
+        </p>
       )}
 
       {/* 캘린더 */}
       {showCalendar && (
-        <div className="absolute top-full left-0 mt-2 z-30 bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200">
+        <div className="absolute top-full left-0 mt-2 z-30 shadow-xl rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
           <Calendar
             onChange={handleDateChange}
             value={value ? stringToLocalDate(value) : new Date()}
             minDate={minDate ? stringToLocalDate(minDate) : undefined}
             locale="ko-KR"
             calendarType="gregory"
+            className="react-calendar-custom"
           />
         </div>
       )}

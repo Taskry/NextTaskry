@@ -12,10 +12,11 @@ import DateInfo from "@/components/features/task/fields/DateInfo";
 
 interface TaskCardProps {
   task: Task;
+  projectId: string;
   onClick?: () => void;
 }
 
-const TaskCard = ({ task, onClick }: TaskCardProps) => {
+const TaskCard = ({ task, projectId, onClick }: TaskCardProps) => {
   // useSortable 훅을 사용하여 드래그 앤 드롭 기능 활성화
   const {
     attributes, // 드래그에 필요한 HTML 속성들
@@ -42,48 +43,55 @@ const TaskCard = ({ task, onClick }: TaskCardProps) => {
       {...attributes} // 드래그 속성 적용
       {...listeners} // 드래그 이벤트 적용
       onClick={onClick}
-      className="bg-white p-4 rounded-lg shadow-md border hover:shadow-lg transition-shadow cursor-grab active:cursor-grabbing"
+      className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow cursor-grab active:cursor-grabbing"
       // cursor-grab: 드래그 가능한 커서
       // active:cursor-grabbing: 드래그 중 커서
     >
-      {/* 제목 */}
-      <h3 className="font-bold text-lg mb-2">{task.title}</h3>
+      {/* 제목 & 우선순위 */}
+      <div className="flex items-start justify-between gap-2 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+        <h3 className="font-bold text-lg flex-1 line-clamp-2 text-gray-800 dark:text-gray-100">
+          {task.title}
+        </h3>
+        {task.priority && <PriorityBadge priority={task.priority} />}
+      </div>
 
       {/* 설명 */}
       {task.description && (
-        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+        <p className="text-gray-600 dark:text-gray-400 bg-accent p-2 rounded border border-accent-200 dark:border-accent-700 text-sm mb-3 line-clamp-2">
           {task.description}
         </p>
       )}
 
-      {/* Subtasks */}
+      {/* 담당자 */}
+      {task.assigned_user_id && (
+        <div className="mb-3 bg-accent p-2 rounded border border-accent-200 dark:border-accent-700">
+          <AssigneeInfo userId={task.assigned_user_id} projectId={projectId} />
+        </div>
+      )}
+
+      {/* 기간 */}
+      {(task.started_at || task.ended_at) && (
+        <div className="mb-3 bg-accent-50 dark:bg-accent-900/20 p-2 rounded border border-accent-200 dark:border-accent-700">
+          <DateInfo
+            startedAt={task.started_at ?? undefined}
+            endedAt={task.ended_at ?? undefined}
+          />
+        </div>
+      )}
+
+      {/* 하위 작업 */}
       {task.subtasks && task.subtasks.length > 0 && (
-        <SubtaskList subtasks={task.subtasks} />
+        <div className="mb-3 bg-accent-50 dark:bg-accent-900/20 p-2 rounded border border-accent-200 dark:border-accent-700">
+          <SubtaskList subtasks={task.subtasks} />
+        </div>
       )}
 
       {/* 메모 */}
       {task.memo && (
-        <div className="mb-3 p-2 bg-yellow-50 rounded text-sm">
-          📝 {task.memo}
+        <div className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded text-xs text-gray-700 dark:text-yellow-200 line-clamp-2">
+          {task.memo}
         </div>
       )}
-
-      {/* 하단 정보 */}
-      <div className="flex items-center justify-between mt-4 pt-3 border-t">
-        {/* 담당자 */}
-        {task.assigned_user_id && (
-          <AssigneeInfo assignedTo={task.assigned_user_id} />
-        )}
-
-        {/* 우선순위 */}
-        {task.priority && <PriorityBadge priority={task.priority} />}
-      </div>
-
-      {/* 날짜 정보 */}
-      <DateInfo
-        startedAt={task.started_at ?? undefined}
-        endedAt={task.ended_at ?? undefined}
-      />
     </div>
   );
 };

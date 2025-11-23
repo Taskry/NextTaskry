@@ -40,14 +40,18 @@ export default function BadgeSelector<T extends string>({
         className={`
           relative transition-all duration-200 cursor-pointer
           hover:scale-105 active:scale-95 
-          ${isOpen ? "ring-2 ring-main-300 ring-offset-1 rounded-sm" : ""}
+          ${
+            isOpen
+              ? "ring-2 ring-main-300 dark:ring-main-500 ring-offset-1 rounded-sm"
+              : ""
+          }
         `}
       >
         {current && <Badge type={current.badgeType} />}
       </button>
 
       {isOpen && (
-        <div className="flex items-center gap-1.5 animate-fadeIn flex-nowrap">
+        <div className="flex items-center gap-1.5 animate-fadeIn flex-nowrap bg-white dark:bg-gray-800 rounded-lg p-1.5 shadow-sm">
           {options
             .filter((opt) => opt.value !== value)
             .map((opt) => (

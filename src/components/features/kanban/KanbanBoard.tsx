@@ -19,7 +19,6 @@ import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
 import InviteMemberModal from "../project/InviteMemberModal";
 
-
 interface KanbanBoardProps {
   projectName: string;
   boardId: string;
@@ -29,8 +28,8 @@ interface KanbanBoardProps {
   onCreateTask: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
-  userRole: ProjectRole | null
-  projectId: string
+  userRole: ProjectRole | null;
+  projectId: string;
 }
 
 const KanbanBoard = ({
@@ -137,12 +136,12 @@ const KanbanBoard = ({
 
   return (
     <KanbanLayout>
-      <div className="h-full flex flex-col bg-white rounded-xl shadow-sm overflow-hidden w-full">
+      <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden w-full">
         {/* 헤더 */}
         <Header
           projectName={projectName}
           onAddClick={() => setShowTaskAddModal(true)}
-          userRole = {userRole}
+          userRole={userRole}
           projectId={projectId}
         />
 
@@ -155,16 +154,17 @@ const KanbanBoard = ({
           {/* 칸반 컬럼 */}
           <ColumnGrid
             groupedTasks={groupedTasks}
+            projectId={projectId}
             onTaskClick={setSelectedTask}
           />
 
           {/* 드래그 중인 Task 미리보기 (마우스 따라다님) */}
           <DragOverlay>
             {activeTask ? (
-              <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-main-500 opacity-90 rotate-3">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border-2 border-main-500 opacity-90 rotate-3">
                 <h3 className="font-bold text-lg">{activeTask.title}</h3>
                 {activeTask.description && (
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
                     {activeTask.description}
                   </p>
                 )}
@@ -180,6 +180,7 @@ const KanbanBoard = ({
               task={selectedTask}
               onUpdate={handleUpdateTask}
               onDelete={handleDeleteTask}
+              onClose={() => setSelectedTask(null)}
             />
           </Modal>
         )}
@@ -189,6 +190,7 @@ const KanbanBoard = ({
           <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
             <TaskAdd
               boardId={boardId}
+              projectId={projectId}
               onSuccess={handleCreateTask}
               onCancel={() => setShowTaskAddModal(false)}
             />
@@ -209,40 +211,33 @@ function Header({
   projectName: string;
   onAddClick: () => void;
   userRole: ProjectRole | null;
-  projectId:string;
+  projectId: string;
 }) {
-
-
   const [inviteOpen, setInviteOpen] = useState(false);
 
-
-
   return (
-    <div className="flex justify-between px-6 py-4 border-b border-gray-200 bg-main-200/80">
-      <h2 className="text-2xl font-bold text-gray-800">{projectName}</h2>
+    <div className="flex justify-between px-6 py-4 border-b border-gray-200 bg-main-200/80 dark:bg-main-700/80">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+        {projectName}
+      </h2>
 
-
-
-    <div className="flex items-center gap-3">
-    {userRole==="leader" && 
-    (  
-      <button
-        onClick={() => setInviteOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 bg-main-400 text-white rounded-lg 
-                  hover:bg-main-500 transition-colors text-sm"
-      >
-        + 초대
-      </button>
-      )
-    }
-    <button
-      onClick={onAddClick}
-      className="px-4 py-2 bg-main-500 text-white rounded-lg hover:bg-main-600 transition-colors"
-    >
-      새 작업 추가
-    </button>
-  </div>
-
+      <div className="flex items-center gap-3">
+        {userRole === "leader" && (
+          <button
+            onClick={() => setInviteOpen(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-main-400 dark:bg-main-600 text-white rounded-lg 
+                  hover:bg-main-500 dark:hover:bg-main-700 transition-colors text-sm"
+          >
+            + 초대
+          </button>
+        )}
+        <button
+          onClick={onAddClick}
+          className="px-4 py-2 bg-main-500 dark:bg-main-600 text-white rounded-lg hover:bg-main-600 dark:hover:bg-main-700 transition-colors"
+        >
+          새 작업 추가
+        </button>
+      </div>
 
       {inviteOpen && (
         <InviteMemberModal
@@ -250,7 +245,6 @@ function Header({
           onClose={() => setInviteOpen(false)}
         />
       )}
-      
     </div>
   );
 }
@@ -258,9 +252,11 @@ function Header({
 // 컬럼 그리드 컴포넌트
 function ColumnGrid({
   groupedTasks,
+  projectId,
   onTaskClick,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
+  projectId: string;
   onTaskClick: (task: Task) => void;
 }) {
   return (
@@ -272,6 +268,7 @@ function ColumnGrid({
             id={column.id}
             title={column.title}
             tasks={groupedTasks[column.id] || []}
+            projectId={projectId}
             onTaskClick={onTaskClick}
           />
         ))}
