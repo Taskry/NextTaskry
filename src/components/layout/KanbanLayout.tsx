@@ -53,7 +53,7 @@ export default function KanbanLayout({
           {/* 메모 패널 */}
           <aside
             className={`
-              h-full transition-all duration-300 overflow-hidden border-l border-gray-200 bg-white
+              h-full transition-all duration-300 overflow-hidden border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
               ${showMemoPanel ? "flex-[0.25] opacity-100" : "flex-0 opacity-0"}
             `}
           >

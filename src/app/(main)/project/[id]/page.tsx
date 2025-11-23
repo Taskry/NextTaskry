@@ -21,11 +21,9 @@ import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
 
-
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
 export default function ProjectPage() {
-
   const params = useParams();
   const projectId = params.id as string;
 
@@ -35,15 +33,13 @@ export default function ProjectPage() {
   const [currentView, setCurrentView] = useState<NavItem>("kanban");
   const [showMemoPanel, setShowMemoPanel] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<ProjectRole | null >(null)
-  const{data : session} = useSession();
-
-
+  const [userRole, setUserRole] = useState<ProjectRole | null>(null);
+  const { data: session } = useSession();
 
   //해당 프로젝트에 대한 로그인한 유저의 role 조회
-  useEffect(()=>{
+  useEffect(() => {
     // console.log("ProjectPage 실행 유저 역할조회")
-  
+
     //임시데이터
     // console.log("session.user.user_id:", session?.user?.user_id);
     // console.log("projectId:", projectId);
@@ -51,30 +47,21 @@ export default function ProjectPage() {
     // 8b492a03-f167-4523-b9d0-1e94ce499889
     // leader
 
-    const fetchRole = async ()=>{
-    
-    if(!session?.user?.user_id || !projectId) return;
-    const {data, error} = await supabase
-    .from("project_members")
-    .select("role")
-    .eq("project_id",projectId)
-    .eq("user_id",session.user.user_id)
-    .maybeSingle();
+    const fetchRole = async () => {
+      if (!session?.user?.user_id || !projectId) return;
+      const { data, error } = await supabase
+        .from("project_members")
+        .select("role")
+        .eq("project_id", projectId)
+        .eq("user_id", session.user.user_id)
+        .maybeSingle();
 
-    console.log(data,"data")
-    
-    if(data) setUserRole(data.role as ProjectRole)
-      
-    }
+      console.log(data, "data");
+
+      if (data) setUserRole(data.role as ProjectRole);
+    };
     fetchRole();
-  
-  },[projectId, session?.user?.user_id])
-
-  
-
- 
-
-
+  }, [projectId, session?.user?.user_id]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -206,13 +193,15 @@ export default function ProjectPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-gray-400 text-lg">불러오는 중...</p>
+        <p className="text-gray-400 dark:text-gray-500 text-lg">
+          불러오는 중...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
       <div className="flex-1 flex overflow-hidden gap-6 min-h-0 p-6">
         {/* 칸반 + 캘린더 영역 */}
         <div
@@ -229,7 +218,7 @@ export default function ProjectPage() {
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
-                userRole = {userRole}
+                userRole={userRole}
                 projectId={projectId}
               />
             )}
