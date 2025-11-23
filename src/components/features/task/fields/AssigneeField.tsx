@@ -199,7 +199,7 @@ export function AssigneeField({
               }
             }}
             autoFocus={isEditing}
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
             placeholder={isLoading ? "불러오는 중..." : placeholder}
             disabled={disabled || isLoading}
           />

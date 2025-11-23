@@ -47,7 +47,7 @@ export default function BadgeSelector<T extends string>({
       </button>
 
       {isOpen && (
-        <div className="flex items-center gap-1.5 animate-fadeIn flex-nowrap">
+        <div className="flex items-center gap-1.5 animate-fadeIn flex-nowrap bg-white dark:bg-gray-800 rounded-lg p-1.5 shadow-sm">
           {options
             .filter((opt) => opt.value !== value)
             .map((opt) => (

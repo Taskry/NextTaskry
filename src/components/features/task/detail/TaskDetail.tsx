@@ -220,9 +220,13 @@ export default function TaskDetail({
 
 function Header({ createdAt }: { createdAt: string }) {
   return (
-    <div className="pb-4 border-b">
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Icon type="clock" size={16} color="#9CA3AF" />
+    <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+        <Icon
+          type="clock"
+          size={16}
+          className="text-gray-400 dark:text-gray-500"
+        />
         <span>생성일: {new Date(createdAt).toLocaleDateString("ko-KR")}</span>
       </div>
     </div>
@@ -249,7 +253,7 @@ function TitleField({
           if (e.key === "Escape") onCancel();
         }}
         autoFocus
-        className="text-2xl font-bold text-gray-800 w-full border-b-2 border-main-300 focus:outline-none pb-2"
+        className="text-2xl font-bold text-gray-800 dark:text-gray-200 w-full border-b-2 border-main-300 dark:border-main-600 focus:outline-none pb-2 bg-transparent"
       />
     );
   }
@@ -257,9 +261,13 @@ function TitleField({
   return (
     <h2
       onClick={onEdit}
-      className="text-2xl font-bold text-gray-800 cursor-pointer hover:text-main-500 transition-colors flex items-center gap-2"
+      className="text-2xl font-bold text-gray-800 dark:text-gray-200 cursor-pointer hover:text-main-500 dark:hover:text-main-400 transition-colors flex items-center gap-2"
     >
-      <Icon type="edit" size={20} color="#6B7280" />
+      <Icon
+        type="edit"
+        size={20}
+        className="text-gray-600 dark:text-gray-400"
+      />
       {value}
     </h2>
   );
@@ -282,14 +290,18 @@ function DescriptionField({
         if (e.key === "Escape") onCancel();
       }}
       autoFocus
-      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-main-300 min-h-[100px]"
+      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
     />
   ) : (
     <p
       onClick={onEdit}
-      className="text-gray-700 whitespace-pre-wrap cursor-pointer hover:bg-gray-50 p-3 rounded min-h-[60px]"
+      className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-3 rounded min-h-[60px] transition-colors"
     >
-      {value || "클릭하여 설명 추가"}
+      {value || (
+        <span className="text-gray-400 dark:text-gray-500">
+          클릭하여 설명 추가
+        </span>
+      )}
     </p>
   );
 }
@@ -312,7 +324,7 @@ function MemoField({
           if (e.key === "Escape") onCancel();
         }}
         autoFocus
-        className="w-full px-3 py-2 border border-yellow-300 bg-yellow-50 rounded-lg focus:ring-yellow-400 min-h-20"
+        className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
       />
     );
   }
@@ -320,14 +332,16 @@ function MemoField({
   return value ? (
     <div
       onClick={onEdit}
-      className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 cursor-pointer hover:bg-yellow-100"
+      className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700/50 rounded-lg p-4 cursor-pointer hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors"
     >
-      <p className="text-gray-700 whitespace-pre-wrap">{value}</p>
+      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+        {value}
+      </p>
     </div>
   ) : (
     <p
       onClick={onEdit}
-      className="text-gray-400 cursor-pointer hover:bg-yellow-50 p-4 border border-dashed border-yellow-200 rounded-lg"
+      className="text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 p-4 border border-dashed border-yellow-200 dark:border-yellow-700/50 rounded-lg transition-colors"
     >
       클릭하여 메모 추가
     </p>
@@ -336,7 +350,7 @@ function MemoField({
 
 function ActionButtons({ hasChanges, onCancel, onSave, onDelete }: any) {
   return (
-    <div className="flex justify-between pt-4 border-t">
+    <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
       {/* 삭제 */}
       <Button btnType="form_s" variant="warning" onClick={onDelete}>
         삭제

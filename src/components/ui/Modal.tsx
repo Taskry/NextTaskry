@@ -16,12 +16,12 @@ const modalClasses = clsx(
 const modalInnerClasses = clsx(
   "relative m-auto w-xl min-h-68 py-9 px-7",
   "flex flex-col items-center justify-center",
-  "border border-gray-100 rounded-2xl shadow-sm bg-white"
+  "border border-gray-100 dark:border-gray-700 rounded-2xl shadow-sm bg-white dark:bg-gray-800"
 );
 const modalIconClasses = clsx(
   "size-15 flex items-center justify-center",
   "absolute -top-8 left-1/2 transform -translate-x-1/2",
-  "shadow-lg rounded-full bg-white"
+  "shadow-lg rounded-full bg-white dark:bg-gray-800"
 );
 
 export default function Modal({
@@ -71,7 +71,10 @@ export default function Modal({
 
   return (
     <div className={modalClasses}>
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/50 dark:bg-black/70"
+        onClick={onClose}
+      />
       <div className={modalInnerClasses}>
         {/* 모달 아이콘 */}
         {config?.icon && (
@@ -84,7 +87,10 @@ export default function Modal({
           </div>
         )}
         {/* 닫기 버튼 */}
-        <button onClick={onClose} className="absolute top-3 right-3">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+        >
           <Icon type="x" />
         </button>
 
@@ -94,17 +100,25 @@ export default function Modal({
             children
           ) : (
             <>
-              <h2 className="text-2xl font-bold">{finalTitle}</h2>
-              <p className="text-base font-medium mt-2">{finalDescription}</p>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {finalTitle}
+              </h2>
+              <p className="text-base font-medium mt-2 text-gray-700 dark:text-gray-300">
+                {finalDescription}
+              </p>
 
               {finalWarning && (
-                <p className="text-sm font-semibold mt-5 text-red-500">
+                <p className="text-sm font-semibold mt-5 text-red-500 dark:text-red-400">
                   {finalWarning}
                 </p>
               )}
 
               {config?.info && (
-                <p className={`text-sm font-medium mt-5`}>{config.info}</p>
+                <p
+                  className={`text-sm font-medium mt-5 text-gray-600 dark:text-gray-400`}
+                >
+                  {config.info}
+                </p>
               )}
             </>
           )}

@@ -161,14 +161,18 @@ export default function TaskAdd({
   return (
     <div className="space-y-6">
       {/* 헤더 */}
-      <div className="pb-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-800">새 작업 추가</h2>
+      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+          새 작업 추가
+        </h2>
       </div>
 
       {/* 에러 */}
       {errors.submit && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{errors.submit}</p>
+        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-red-600 dark:text-red-400 text-sm">
+            {errors.submit}
+          </p>
         </div>
       )}
 
@@ -178,17 +182,19 @@ export default function TaskAdd({
           type="text"
           value={formData.title}
           onChange={(e) => handleChange("title", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
             errors.title
-              ? "border-red-500 focus:ring-red-300"
-              : "border-gray-300 focus:ring-main-300"
+              ? "border-red-500 dark:border-red-600 focus:ring-red-300 dark:focus:ring-red-500"
+              : "border-gray-300 dark:border-gray-600 focus:ring-main-300 dark:focus:ring-main-500"
           }`}
           placeholder="작업 제목을 입력하세요"
           autoFocus
           disabled={isSubmitting}
         />
         {errors.title && (
-          <p className="text-red-500 text-xs mt-1 pl-3">* {errors.title}</p>
+          <p className="text-red-500 dark:text-red-400 text-xs mt-1 pl-3">
+            * {errors.title}
+          </p>
         )}
       </div>
 
@@ -205,8 +211,8 @@ export default function TaskAdd({
         <textarea
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-main-300 min-h-[100px]"
-          placeholder="설명을 입력하세요"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+          placeholder="설명을 입력하세요 "
           disabled={isSubmitting}
         />
       </FormSection>
@@ -243,14 +249,14 @@ export default function TaskAdd({
         <textarea
           value={formData.memo}
           onChange={(e) => handleChange("memo", e.target.value)}
-          className="w-full px-3 py-2 border border-yellow-300 bg-yellow-50 rounded-lg focus:ring-yellow-400 min-h-20"
+          className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
           placeholder="메모를 입력하세요"
           disabled={isSubmitting}
         />
       </FormSection>
 
       {/* 액션 버튼 */}
-      <div className="flex justify-end gap-3 pt-4 border-t">
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 ">
         <Button
           btnType="basic"
           variant="basic"
