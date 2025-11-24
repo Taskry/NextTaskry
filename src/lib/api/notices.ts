@@ -1,6 +1,6 @@
-import { NOTICE_CONSTANS } from "../constants/notices";
 import { NoticeResponse } from "@/types/notice";
 import { Notice } from "@/types/notice";
+import { NOTICE_CONSTANS, NOTICE_MESSAGES } from "../constants/notices";
 
 export const ITEM_PER_PAGE = NOTICE_CONSTANS.ITEMS_PER_PAGE;
 
@@ -56,13 +56,13 @@ export async function createNotice(data: {
 }): Promise<Notice> {
   // 클라이언트 측 유효성 검사
   if (!data.title.trim()) {
-    throw new Error("제목을 입력해주세요.");
+    throw new Error(NOTICE_MESSAGES.TITLE_REQUIRED);
   }
-  if (data.title.length > 255) {
-    throw new Error("제목은 255자를 초과할 수 없습니다.");
+  if (data.title.length > NOTICE_CONSTANS.TITLE_MAX_LENGTH) {
+    throw new Error(NOTICE_MESSAGES.TITLE_TOO_LONG);
   }
   if (!data.content.trim()) {
-    throw new Error("내용을 입력해주세요.");
+    throw new Error(NOTICE_MESSAGES.CONTENT_REQUIRED);
   }
 
   try {
@@ -122,10 +122,10 @@ export async function updateNotice(
 ): Promise<Notice> {
   if (data.title !== undefined) {
     if (!data.title.trim()) {
-      throw new Error("제목을 입력해주세요.");
+      throw new Error(NOTICE_MESSAGES.TITLE_REQUIRED);
     }
     if (data.title.length > 255) {
-      throw new Error("제목은 255자를 초과할 수 없습니다.");
+      throw new Error(NOTICE_MESSAGES.TITLE_TOO_LONG);
     }
   }
 
