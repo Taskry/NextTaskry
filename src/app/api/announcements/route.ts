@@ -1,26 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { createClient } from "@supabase/supabase-js";
 
-// ------------------------------------------------------
-// supabaseAdmin 클라이언트 생성 (서버 사이드 전용)
-// ------------------------------------------------------
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("관리자 환경 변수가 누락됐습니다.");
-}
-
-// RLS를 우회하는 관리자 클라이언트
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // ------------------------------------------------------
 // 공통 에러 핸들러
