@@ -353,6 +353,15 @@
   background-color: var(--color-gray-100) !important;
 }
 
+/* 날짜 셀 호버 효과 */
+.rbc-day-bg:hover {
+  background-color: var(--color-main-100) !important;
+  transition: background-color 0.2s;
+}
+.rbc-off-range-bg:hover {
+  background-color: var(--color-gray-200) !important;
+}
+
 /* 공휴일 (일요일, 토요일) */
 .rbc-date-cell:nth-child(7n + 1) {
   color: var(--color-red-100) !important;
@@ -468,6 +477,15 @@
   /* 이전/다음 달 날짜 */
   .rbc-off-range-bg {
     background-color: var(--color-gray-700) !important;
+  }
+
+  /* 날짜 셀 호버 효과 */
+  .rbc-day-bg:hover {
+    background-color: var(--color-main-600) !important;
+    transition: background-color 0.2s;
+  }
+  .rbc-off-range-bg:hover {
+    background-color: var(--color-gray-600) !important;
   }
 
   /* 공휴일 (일요일, 토요일) */

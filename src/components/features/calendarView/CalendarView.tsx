@@ -126,22 +126,34 @@ export default function CalendarView({
   // 단축키 처리
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // n 키를 누르면 오늘 날짜로 모달 열기
-      if (e.key === "n" || e.key === "N") {
-        // 모달이 이미 열려있으면 무시
-        if (showTaskAddModal || showTaskDetailModal) {
-          return;
+      // Esc - 모달 닫기
+      if (e.key === "Escape") {
+        if (showTaskAddModal) {
+          setShowTaskAddModal(false);
+          setSelectedDates(null);
         }
-
-        // input이나 textarea에 포커스가 있으면 무시
-        if (
-          document.activeElement?.tagName === "INPUT" ||
-          document.activeElement?.tagName === "TEXTAREA"
-        ) {
-          return;
+        if (showTaskDetailModal) {
+          setShowTaskDetailModal(false);
+          setSelectedTask(null);
         }
+        return;
+      }
 
-        // 기본 동작 방지 (문자 입력 방지)
+      // 모달이 이미 열려있으면 다른 단축키 무시
+      if (showTaskAddModal || showTaskDetailModal) {
+        return;
+      }
+
+      // input/textarea에 포커스가 있으면 무시
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
+      // N - 새 작업 추가 (오늘 날짜) - code로 물리적 키 감지 (한글 입력시에도 작동)
+      if (e.code === "KeyN") {
         e.preventDefault();
         e.stopPropagation();
         const today = new Date();
@@ -151,11 +163,38 @@ export default function CalendarView({
         });
         setShowTaskAddModal(true);
       }
+
+      // 화살표 키 - 날짜 이동
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        const newDate = new Date(currentDate);
+        if (currentView === "month") {
+          newDate.setMonth(newDate.getMonth() - 1);
+        } else if (currentView === "week") {
+          newDate.setDate(newDate.getDate() - 7);
+        } else if (currentView === "day") {
+          newDate.setDate(newDate.getDate() - 1);
+        }
+        setCurrentDate(newDate);
+      }
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        const newDate = new Date(currentDate);
+        if (currentView === "month") {
+          newDate.setMonth(newDate.getMonth() + 1);
+        } else if (currentView === "week") {
+          newDate.setDate(newDate.getDate() + 7);
+        } else if (currentView === "day") {
+          newDate.setDate(newDate.getDate() + 1);
+        }
+        setCurrentDate(newDate);
+      }
     };
 
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [showTaskAddModal, showTaskDetailModal]);
+  }, [showTaskAddModal, showTaskDetailModal, currentDate, currentView]);
 
   const events = (tasks ?? [])
     .filter((t) => t.started_at || t.ended_at)
