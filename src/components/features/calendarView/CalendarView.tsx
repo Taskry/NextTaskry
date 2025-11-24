@@ -88,16 +88,9 @@ export default function CalendarView({
       (slot.end.getTime() - slot.start.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    console.log(
-      "📅 선택한 날짜:",
-      format(startDate, "yyyy-MM-dd") + " ~ " + format(endDate, "yyyy-MM-dd"),
-      `(${daysDiff}일)`
-    );
-
     // 드래그로 범위 선택 (2일 이상) 또는 더블클릭
     if (daysDiff > 1) {
       // 드래그로 범위 선택
-      console.log("📌 범위 선택 감지!");
       setSelectedDates({
         started_at: format(startDate, "yyyy-MM-dd"),
         ended_at: format(endDate, "yyyy-MM-dd"),
@@ -107,7 +100,6 @@ export default function CalendarView({
       setLastClickedSlot("");
     } else if (slotKey === lastClickedSlot && timeDiff < 300) {
       // 더블클릭 감지
-      console.log("🎯 더블클릭 감지!");
       setSelectedDates({
         started_at: format(startDate, "yyyy-MM-dd"),
         ended_at: format(endDate, "yyyy-MM-dd"),
@@ -136,14 +128,8 @@ export default function CalendarView({
     const handleKeyPress = (e: KeyboardEvent) => {
       // n 키를 누르면 오늘 날짜로 모달 열기
       if (e.key === "n" || e.key === "N") {
-        console.log(
-          "🎹 n 키 감지, 활성 요소:",
-          document.activeElement?.tagName
-        );
-
         // 모달이 이미 열려있으면 무시
         if (showTaskAddModal || showTaskDetailModal) {
-          console.log("⚠️ 모달이 이미 열려있음");
           return;
         }
 
@@ -152,15 +138,12 @@ export default function CalendarView({
           document.activeElement?.tagName === "INPUT" ||
           document.activeElement?.tagName === "TEXTAREA"
         ) {
-          console.log("⚠️ input/textarea에 포커스 있음");
           return;
         }
 
         // 기본 동작 방지 (문자 입력 방지)
         e.preventDefault();
         e.stopPropagation();
-
-        console.log("✅ TaskAdd 모달 열기");
         const today = new Date();
         setSelectedDates({
           started_at: format(today, "yyyy-MM-dd"),
@@ -203,16 +186,13 @@ export default function CalendarView({
           date={currentDate}
           view={currentView}
           onNavigate={(date) => {
-            console.log("📆 날짜 네비게이션:", format(date, "yyyy-MM-dd"));
             setCurrentDate(date);
           }}
           onView={(view) => {
-            console.log("👁️ 뷰 변경:", view);
             setCurrentView(view);
           }}
           onSelectSlot={handleSelectSlot}
           onSelectEvent={(event) => {
-            console.log("📌 Task 클릭:", event.task);
             setSelectedTask(event.task);
             setShowTaskDetailModal(true);
             onSelectTask?.(event.task);
@@ -220,12 +200,16 @@ export default function CalendarView({
           startAccessor="start"
           endAccessor="end"
           style={{ height: "100%" }}
-          // ⭐⭐ 상태별 색상 적용 파트 ⭐⭐
+          // ⭐⭐ 상태별 색상 적용 파트 (칸반보드 Badge와 동일) ⭐⭐
           eventPropGetter={(event) => {
-            let bg = "#d1d5db"; // todo (기본)
+            let bg = "#9CA3AF"; // todo (회색)
 
-            if (event.task.status === "inprogress") bg = "#3b82f6";
-            if (event.task.status === "done") bg = "#22c55e";
+            if (event.task.status === "inprogress") {
+              bg = "#60a5facc"; // bg-blue-100/80 (진행중 - 파란색)
+            }
+            if (event.task.status === "done") {
+              bg = "#57bc71cc"; // bg-green-100/80 (완료 - 초록색)
+            }
 
             return {
               style: {
