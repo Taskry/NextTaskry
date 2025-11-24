@@ -55,6 +55,20 @@ export async function getProjectById(id: string): Promise<ResultProps> {
   }
 }
 
+export async function getProjectByIds(ids: string): Promise<ResultProps> {
+  try {
+    const url = `${PROJECT_BASE_URL}?ids=${ids}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+
 export async function createProject(
   projectData: ProjectProps
 ): Promise<ResultProps> {
@@ -129,6 +143,18 @@ export async function getProjectMember(id?: string): Promise<ResultProps> {
 export async function getProjectMemberByRole(id?: string, role?:string): Promise<ResultProps> {
   try {
     const url = `${PROJECT_MEMBER_BASE_URL}?id=${id}&role=${role}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+export async function getProjectMemberByUser(id?: string): Promise<ResultProps> {
+  try {
+    const url = `${PROJECT_MEMBER_BASE_URL}?userId=${id}`;
     const res = await fetch(url);
     const data = await res.json();
 

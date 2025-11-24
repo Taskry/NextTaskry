@@ -3,7 +3,9 @@ import { supabase } from "@/lib/supabase/supabase";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const ids = searchParams.get("ids");
 
+  console.log(ids)
   // 사용자 인증
   // const session = await getServerSession(authOptions);
 
@@ -18,6 +20,11 @@ export async function GET(request: Request) {
     // id 변수가 존재하는 경우 (예: null, undefined, 0, 빈 문자열 등이 아닐 때)
     query = query.eq("project_id", id);
   }
+  if (ids) {
+    const idsArray = ids.split(',').map(id => id.trim());
+    query = query.in('project_id', idsArray); 
+  }
+
   query.order("created_at", { ascending: true });
 
   const { data: projects, error: getError } = await query;
