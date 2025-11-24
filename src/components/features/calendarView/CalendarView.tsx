@@ -74,22 +74,24 @@ export default function CalendarView({
     "month" | "week" | "day" | "agenda" | "work_week"
   >("month");
 
+  /**
+   * 캘린더 날짜 선택 핸들러
+   * - 드래그: 범위 선택 (2일 이상)
+   * - 더블클릭: 단일 날짜 선택
+   */
   const handleSelectSlot = (slot: any) => {
-    // react-big-calendar의 end는 exclusive이므로 하루 빼기
     const startDate = new Date(slot.start);
     const endDate = new Date(slot.end);
-    endDate.setDate(endDate.getDate() - 1); // 하루 빼기
+    endDate.setDate(endDate.getDate() - 1);
 
     const slotKey = `${slot.start.getTime()}-${slot.end.getTime()}`;
     const now = Date.now();
     const timeDiff = now - lastClickTime;
 
-    // 날짜 범위 계산 (드래그 감지)
     const daysDiff = Math.ceil(
       (slot.end.getTime() - slot.start.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    // 드래그로 범위 선택 (2일 이상) 또는 더블클릭
     if (daysDiff > 1) {
       // 드래그로 범위 선택
       setSelectedDates({
@@ -100,7 +102,7 @@ export default function CalendarView({
       setLastClickTime(0);
       setLastClickedSlot("");
     } else if (slotKey === lastClickedSlot && timeDiff < 300) {
-      // 더블클릭 감지
+      // 더블클릭으로 단일 날짜 선택
       setSelectedDates({
         started_at: format(startDate, "yyyy-MM-dd"),
         ended_at: format(endDate, "yyyy-MM-dd"),
@@ -109,7 +111,7 @@ export default function CalendarView({
       setLastClickTime(0);
       setLastClickedSlot("");
     } else {
-      // 첫 번째 클릭
+      // 첫 번째 클릭 기록
       setLastClickTime(now);
       setLastClickedSlot(slotKey);
     }
@@ -124,10 +126,15 @@ export default function CalendarView({
     onTaskCreated?.();
   };
 
-  // 단축키 처리
+  /**
+   * 키보드 단축키 처리
+   * - ESC: 모달 닫기
+   * - Ctrl/Cmd + N: 새 작업 추가 (오늘 날짜)
+   * - Arrow Left/Right: 달/주/일 이동
+   */
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Esc - 모달 닫기
+      // ESC: 모달 닫기
       if (e.key === "Escape") {
         if (showTaskAddModal) {
           setShowTaskAddModal(false);
@@ -153,7 +160,7 @@ export default function CalendarView({
         return;
       }
 
-      // N - 새 작업 추가 (오늘 날짜) - code로 물리적 키 감지 (한글 입력시에도 작동)
+      // Ctrl/Cmd + N: 새 작업 추가 (e.code로 한글 입력 모드 대응)
       if (
         e.code === "KeyN" &&
         (e.ctrlKey || e.metaKey) &&
@@ -170,7 +177,7 @@ export default function CalendarView({
         setShowTaskAddModal(true);
       }
 
-      // 화살표 키 - 날짜 이동
+      // Arrow Left: 이전 달/주/일로 이동
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         const newDate = new Date(currentDate);
@@ -184,6 +191,7 @@ export default function CalendarView({
         setCurrentDate(newDate);
       }
 
+      // Arrow Right: 다음 달/주/일로 이동
       if (e.key === "ArrowRight") {
         e.preventDefault();
         const newDate = new Date(currentDate);
@@ -245,7 +253,7 @@ export default function CalendarView({
           startAccessor="start"
           endAccessor="end"
           style={{ height: "100%" }}
-          // ⭐⭐ 상태별 색상 적용 파트 (칸반보드 Badge와 동일) ⭐⭐
+          // 이벤트 상태별 색상 설정 (todo: 회색, inprogress: 파란색, done: 초록색)
           eventPropGetter={(event) => {
             const isDark = document.documentElement.classList.contains("dark");
             let bg = isDark ? "#4B5563" : "#9CA3AF"; // todo (회색)
@@ -267,6 +275,7 @@ export default function CalendarView({
               },
             };
           }}
+          // 커스텀 이벤트 컴포넌트: 우선순위 아이콘 표시
           components={{
             event: ({ event }) => {
               let priorityColor = "";

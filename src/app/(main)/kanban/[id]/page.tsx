@@ -56,9 +56,6 @@ export default function KanbanBoardPage({ params }: PageProps) {
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
     try {
-      console.log("🔴 [Page] handleCreateTask 시작");
-      console.log("🔴 [Page] 받은 데이터:", taskData);
-
       const { data, error } = await createTask({
         ...taskData,
         kanban_board_id: boardId,
@@ -70,11 +67,9 @@ export default function KanbanBoardPage({ params }: PageProps) {
       }
 
       if (data) {
-        console.log("✅ [Page] Task 생성 성공, state 업데이트");
         setTasks((prev) => {
-          console.log("📊 [Page] 이전 tasks 개수:", prev.length);
           const newTasks = [data, ...prev];
-          console.log("📊 [Page] 새로운 tasks 개수:", newTasks.length);
+
           return newTasks;
         });
       }

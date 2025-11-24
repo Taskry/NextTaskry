@@ -137,12 +137,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   const handleTogglePin = async (memoId: string, isPinned: boolean) => {
     try {
       setError(null);
-      console.log(
-        "Toggling pin for memo:",
-        memoId,
-        "Current isPinned:",
-        isPinned
-      );
+
       const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -194,8 +189,8 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-4 xl:px-6 py-3 xl:py-4 mb-3 xl:mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-t-lg shadow-sm">
-        <h2 className="text-lg xl:text-xl font-bold text-white dark:text-gray-100">
+      <div className="flex items-center justify-between px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-t-lg shadow-sm">
+        <h2 className="text-xl font-bold text-white dark:text-gray-100">
           메모
         </h2>
         <span className="text-sm font-medium text-white/90 dark:text-gray-200">
@@ -224,7 +219,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
       )}
 
       {/* 메모 입력 폼 */}
-      <div className="px-3 xl:px-4 pb-3 xl:pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="px-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <textarea
           value={newMemo}
           onChange={(e) => setNewMemo(e.target.value)}
@@ -253,7 +248,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
       </div>
 
       {/* 메모 목록 */}
-      <div className="flex-1 overflow-y-auto p-3 xl:p-4 space-y-2 xl:space-y-3">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-main-400"></div>

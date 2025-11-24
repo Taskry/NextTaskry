@@ -57,7 +57,10 @@ export default function ProjectPage() {
         .eq("user_id", session.user.user_id)
         .maybeSingle();
 
-      console.log(data, "data");
+      if (error) {
+        console.error("프로젝트 멤버 역할 조회 오류:", error);
+        return;
+      }
 
       if (data) setUserRole(data.role as ProjectRole);
     };
@@ -244,9 +247,7 @@ export default function ProjectPage() {
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
-                onSelectTask={(task: Task) => {
-                  console.log("캘린더에서 task 클릭:", task);
-                }}
+                onSelectTask={(task: Task) => {}}
                 onTaskCreated={handleRefresh}
               />
             )}
