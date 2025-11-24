@@ -38,9 +38,9 @@ const KanbanColumn = ({
   };
 
   return (
-    <div className="flex flex-col w-80 shrink-0 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="flex flex-col w-80 shrink-0 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-500 shadow-sm">
       {/* 컬럼 헤더 */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 rounded-t-lg bg-white dark:bg-gray-900">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-500 rounded-t-lg bg-white dark:bg-gray-600">
         <div className="flex items-center gap-2">
           {/* 상태별 컬러 동그라미 */}
           <span

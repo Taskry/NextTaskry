@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState, createContext, useContext } from "react";
-import MemoPanel from "@/components/features/kanban/MemoView";
+import MemoView from "@/components/features/kanban/MemoView";
 
 interface KanbanLayoutContextType {
   showMemoPanel: boolean;
@@ -22,11 +22,13 @@ export const useKanbanLayout = () => {
 
 interface KanbanLayoutProps {
   children: ReactNode;
+  projectId: string;
   initialShowMemoPanel?: boolean;
 }
 
 export default function KanbanLayout({
   children,
+  projectId,
   initialShowMemoPanel = false,
 }: KanbanLayoutProps) {
   const [showMemoPanel, setShowMemoPanel] = useState(initialShowMemoPanel);
@@ -37,29 +39,26 @@ export default function KanbanLayout({
 
   return (
     <KanbanLayoutContext.Provider value={{ showMemoPanel, toggleMemoPanel }}>
-      {/* 여기 wrapper가 max-width를 담당해야 함 */}
-      <div className="flex h-full w-full justify-center">
-        <div className="flex h-full w-full max-w-[1400px] overflow-hidden">
-          {/* 칸반 영역 */}
-          <main
-            className={`
-              h-full flex flex-col transition-all duration-300 min-w-0
-              ${showMemoPanel ? "flex-[0.75]" : "flex-1"}
-            `}
-          >
-            {children}
-          </main>
+      <div className="flex h-full w-full overflow-hidden gap-4">
+        {/* 칸반 영역 */}
+        <main
+          className={`
+            h-full flex flex-col transition-all duration-300 min-w-0
+            ${showMemoPanel ? "flex-[0.7]" : "flex-1"}
+          `}
+        >
+          {children}
+        </main>
 
-          {/* 메모 패널 */}
-          <aside
-            className={`
-              h-full transition-all duration-300 overflow-hidden border-l border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
-              ${showMemoPanel ? "flex-[0.25] opacity-100" : "flex-0 opacity-0"}
-            `}
-          >
-            {showMemoPanel && <MemoPanel />}
-          </aside>
-        </div>
+        {/* 메모 패널 */}
+        <aside
+          className={`
+            h-full transition-all duration-300 overflow-hidden
+            ${showMemoPanel ? "flex-[0.3] opacity-100" : "w-0 opacity-0"}
+          `}
+        >
+          {showMemoPanel && <MemoView projectId={projectId} />}
+        </aside>
       </div>
     </KanbanLayoutContext.Provider>
   );

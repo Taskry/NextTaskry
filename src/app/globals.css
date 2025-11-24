@@ -309,6 +309,7 @@
 .rbc-header {
   border-color: var(--color-gray-200) !important;
   background-color: white;
+  color: var(--color-gray-700);
 }
 .rbc-day-bg {
   border-color: var(--color-gray-200) !important;

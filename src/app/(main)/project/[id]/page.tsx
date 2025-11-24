@@ -20,6 +20,7 @@ import {
 import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
+import MemoView from "@/components/features/kanban/MemoView";
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
@@ -214,7 +215,7 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
-      <div className="flex-1 flex overflow-hidden gap-6 min-h-0 p-6">
+      <div className="flex-1 flex overflow-hidden gap-4 min-h-0 p-6">
         {/* 칸반 + 캘린더 영역 */}
         <div
           className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
@@ -258,7 +259,7 @@ export default function ProjectPage() {
             showMemoPanel ? "flex-[0.3] opacity-100" : "w-0 opacity-0"
           }`}
         >
-          <MemoPanel />
+          <MemoView projectId={projectId} />
         </div>
       </div>
 

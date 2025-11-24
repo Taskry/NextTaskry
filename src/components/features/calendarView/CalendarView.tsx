@@ -176,7 +176,7 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow p-4 overflow-hidden">
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden">
         <Calendar
           localizer={localizer}
           events={events}

@@ -43,12 +43,12 @@ const TaskCard = ({ task, projectId, onClick }: TaskCardProps) => {
       {...attributes} // 드래그 속성 적용
       {...listeners} // 드래그 이벤트 적용
       onClick={onClick}
-      className="bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow cursor-grab active:cursor-grabbing"
+      className="bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-500 hover:shadow-lg hover:border-main-300 dark:hover:border-main-400 transition-all cursor-grab active:cursor-grabbing"
       // cursor-grab: 드래그 가능한 커서
       // active:cursor-grabbing: 드래그 중 커서
     >
       {/* 제목 & 우선순위 */}
-      <div className="flex items-start justify-between gap-2 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
+      <div className="flex items-start justify-between gap-2 mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">
         <h3 className="font-bold text-lg flex-1 line-clamp-2 text-gray-800 dark:text-gray-100">
           {task.title}
         </h3>
