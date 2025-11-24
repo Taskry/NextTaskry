@@ -138,7 +138,7 @@ const DatePicker = ({
 
       {/* 캘린더 */}
       {showCalendar && (
-        <div className="absolute top-full left-0 mt-2 z-30 shadow-xl rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+        <div className="absolute top-full left-0 mt-2 z-30">
           <Calendar
             onChange={handleDateChange}
             value={value ? stringToLocalDate(value) : new Date()}

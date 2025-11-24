@@ -20,6 +20,8 @@ interface TaskAddProps {
   projectId: string;
   onSuccess?: (task: Omit<Task, "id" | "created_at" | "updated_at">) => void;
   onCancel: () => void;
+  initialStartDate?: string;
+  initialEndDate?: string;
 }
 
 type FormData = {
@@ -73,8 +75,14 @@ export default function TaskAdd({
   projectId,
   onSuccess,
   onCancel,
+  initialStartDate,
+  initialEndDate,
 }: TaskAddProps) {
-  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<FormData>({
+    ...INITIAL_FORM_DATA,
+    started_at: initialStartDate || "",
+    ended_at: initialEndDate || "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);

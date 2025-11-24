@@ -135,68 +135,68 @@ const KanbanBoard = ({
   };
 
   return (
-    <KanbanLayout>
-      <div className="h-full flex flex-col bg-white dark:bg-gray-900 rounded-xl shadow-sm overflow-hidden w-full">
-        {/* 헤더 */}
-        <Header
-          projectName={projectName}
-          onAddClick={() => setShowTaskAddModal(true)}
-          userRole={userRole}
+    <KanbanLayout projectId={projectId}>
+      {/* 헤더 */}
+      <Header
+        projectName={projectName}
+        onAddClick={() => setShowTaskAddModal(true)}
+        userRole={userRole}
+        projectId={projectId}
+      />
+
+      {/* DndContext로 감싸기 */}
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        {/* 칸반 컬럼 */}
+        <ColumnGrid
+          groupedTasks={groupedTasks}
           projectId={projectId}
+          onTaskClick={setSelectedTask}
         />
 
-        {/* DndContext로 감싸기 */}
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          {/* 칸반 컬럼 */}
-          <ColumnGrid
-            groupedTasks={groupedTasks}
-            projectId={projectId}
-            onTaskClick={setSelectedTask}
+        {/* 드래그 중인 Task 미리보기 (마우스 따라다님) */}
+        <DragOverlay>
+          {activeTask ? (
+            <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-2xl border-2 border-main-300 dark:border-main-400 opacity-95 rotate-2 transform scale-105">
+              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">
+                {activeTask.title}
+              </h3>
+              {activeTask.description && (
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
+                  {activeTask.description}
+                </p>
+              )}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
+      {/* Task 상세 모달 */}
+      {selectedTask && (
+        <Modal isOpen onClose={() => setSelectedTask(null)}>
+          <TaskDetail
+            task={selectedTask}
+            onUpdate={handleUpdateTask}
+            onDelete={handleDeleteTask}
+            onClose={() => setSelectedTask(null)}
           />
+        </Modal>
+      )}
 
-          {/* 드래그 중인 Task 미리보기 (마우스 따라다님) */}
-          <DragOverlay>
-            {activeTask ? (
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border-2 border-main-500 opacity-90 rotate-3">
-                <h3 className="font-bold text-lg">{activeTask.title}</h3>
-                {activeTask.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
-                    {activeTask.description}
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-
-        {/* Task 상세 모달 */}
-        {selectedTask && (
-          <Modal isOpen onClose={() => setSelectedTask(null)}>
-            <TaskDetail
-              task={selectedTask}
-              onUpdate={handleUpdateTask}
-              onDelete={handleDeleteTask}
-              onClose={() => setSelectedTask(null)}
-            />
-          </Modal>
-        )}
-
-        {/* Task 추가 모달 */}
-        {showTaskAddModal && (
-          <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
-            <TaskAdd
-              boardId={boardId}
-              projectId={projectId}
-              onSuccess={handleCreateTask}
-              onCancel={() => setShowTaskAddModal(false)}
-            />
-          </Modal>
-        )}
-      </div>
+      {/* Task 추가 모달 */}
+      {showTaskAddModal && (
+        <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
+          <TaskAdd
+            boardId={boardId}
+            projectId={projectId}
+            onSuccess={handleCreateTask}
+            onCancel={() => setShowTaskAddModal(false)}
+          />
+        </Modal>
+      )}
     </KanbanLayout>
   );
 };
@@ -216,8 +216,8 @@ function Header({
   const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
-    <div className="flex justify-between px-6 py-4 border-b border-gray-200 bg-main-200/80 dark:bg-main-700/80">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+    <div className="flex justify-between items-center px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-lg shadow-sm">
+      <h2 className="text-2xl font-bold text-white dark:text-gray-100">
         {projectName}
       </h2>
 
@@ -225,17 +225,30 @@ function Header({
         {userRole === "leader" && (
           <button
             onClick={() => setInviteOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 bg-main-400 dark:bg-main-600 text-white rounded-lg 
-                  hover:bg-main-500 dark:hover:bg-main-700 transition-colors text-sm"
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-200 dark:border-gray-600
+                  hover:bg-main-300 hover:border-main-300 dark:hover:bg-main-400 dark:hover:border-main-400 hover:text-white transition-all text-sm font-medium shadow-sm"
           >
-            + 초대
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            초대
           </button>
         )}
         <button
           onClick={onAddClick}
-          className="px-4 py-2 bg-main-500 dark:bg-main-600 text-white rounded-lg hover:bg-main-600 dark:hover:bg-main-700 transition-colors"
+          className="px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all font-medium shadow-sm"
         >
-          새 작업 추가
+          + 새 작업
         </button>
       </div>
 
@@ -260,7 +273,7 @@ function ColumnGrid({
   onTaskClick: (task: Task) => void;
 }) {
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-4 ">
+    <div className="flex-1 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4">
       <div className="flex gap-4 h-full justify-center">
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumn

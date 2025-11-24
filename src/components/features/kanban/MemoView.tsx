@@ -137,12 +137,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   const handleTogglePin = async (memoId: string, isPinned: boolean) => {
     try {
       setError(null);
-      console.log(
-        "Toggling pin for memo:",
-        memoId,
-        "Current isPinned:",
-        isPinned
-      );
+
       const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -192,176 +187,187 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      {/* 메모 박스 */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        {/* 헤더 */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-main-200/80 dark:bg-main-700/80">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-            📝 메모
-            <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
-              {memos.length}
-            </span>
-          </h2>
-        </div>
+    <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-t-lg shadow-sm">
+        <h2 className="text-xl font-bold text-white dark:text-gray-100">
+          메모
+        </h2>
+        <span className="text-sm font-medium text-white/90 dark:text-gray-200">
+          {memos.length}
+        </span>
+      </div>
 
-        {/* 에러 메시지 */}
-        {error && (
-          <div className="mx-4 mt-3 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-600 dark:text-red-400">
+      {/* 에러 메시지 */}
+      {error && (
+        <div className="mx-4 mb-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+          <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
+            <svg
+              className="w-4 h-4 shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
             {error}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* 메모 입력 */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <textarea
-            value={newMemo}
-            onChange={(e) => setNewMemo(e.target.value)}
-            onKeyDown={handleKeyDown}
-            maxLength={memoMaxLength}
-            placeholder="메모를 입력하세요 (저장: Ctrl+Enter)"
-            disabled={loadingMemos}
-            rows={3}
-            className={[
-              "w-full p-3 border rounded-lg resize-none text-sm focus:outline-none",
-              "border-gray-300 focus:ring-2 focus:ring-main-300 bg-white text-gray-900",
-              "dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-main-500 dark:text-gray-200",
-              "disabled:bg-gray-100 dark:disabled:bg-gray-600",
-            ].join(" ")}
-          />
-          <div className="flex items-center justify-between mt-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400">
-              {newMemo.length} / {memoMaxLength}자
+      {/* 메모 입력 폼 */}
+      <div className="px-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+        <textarea
+          value={newMemo}
+          onChange={(e) => setNewMemo(e.target.value)}
+          onKeyDown={handleKeyDown}
+          maxLength={MEMO_MAX_LENGTH}
+          placeholder="메모를 입력하세요..."
+          disabled={loadingMemos}
+          rows={3}
+          className="w-full p-3 border-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg resize-none text-sm focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+        />
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            {newMemo.length} / {MEMO_MAX_LENGTH}
+          </span>
+          <button
+            onClick={handleAddMemo}
+            disabled={loadingMemos || !newMemo.trim()}
+            className="group relative px-4 py-2 bg-gradient-to-r from-main-400 to-main-500 dark:from-main-500 dark:to-main-600 text-white text-sm rounded-lg font-medium shadow-sm hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 overflow-hidden"
+          >
+            <span className="relative z-10">
+              {loadingMemos ? "저장 중..." : "추가"}
             </span>
-            <button
-              onClick={handleAddMemo}
-              disabled={loadingMemos || !newMemo.trim()}
-              className={[
-                "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
-                "bg-main-300 text-white hover:bg-main-400",
-                "disabled:bg-gray-300 disabled:cursor-not-allowed",
-                "dark:bg-main-500 dark:hover:bg-main-600",
-                "dark:disabled:bg-gray-600",
-              ].join(" ")}
-            >
-              {loadingMemos ? "저장 중..." : "메모 추가"}
-            </button>
+            <div className="absolute inset-0 bg-gradient-to-r from-main-500 to-main-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        </div>
+      </div>
+
+      {/* 메모 목록 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-main-400"></div>
           </div>
-        </div>
-
-        {/* 메모 목록 */}
-        <div className="flex-1 overflow-y-auto p-4">
-          {isLoading ? (
-            <div className="text-center text-gray-400 dark:text-gray-500 text-sm py-8">
-              로딩 중...
-            </div>
-          ) : memos.length === 0 ? (
-            <div className="text-center text-gray-400 dark:text-gray-50₩0 text-sm py-8">
+        ) : memos.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <svg
+              className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               메모가 없습니다
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {memos.map((memo) => (
-                <div
-                  key={memo.memo_id}
-                  className={[
-                    "bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg shadow-sm",
-                    "border border-yellow-200 dark:border-yellow-200/20",
-                    "hover:shadow-md transition-shadow group",
-                  ].join(" ")}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    {/* 왼쪽: 고정 버튼 + 날짜 */}
-                    <div className="flex items-center gap-2">
-                      {/* 고정 버튼 - 고정된 경우 항상 표시, 아닌 경우 hover시만 표시 */}
-                      <button
-                        onClick={() =>
-                          handleTogglePin(memo.memo_id, memo.is_pinned)
-                        }
-                        className={[
-                          "transition-all p-1 rounded hover:bg-yellow-200 dark:hover:bg-yellow-800/50",
-                          memo.is_pinned
-                            ? "opacity-100 text-blue-600 dark:text-blue-400"
-                            : "opacity-0 group-hover:opacity-100 text-gray-400 dark:text-gray-500",
-                        ].join(" ")}
-                        title={memo.is_pinned ? "고정 해제" : "고정"}
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          style={{
-                            transform: memo.is_pinned
-                              ? "rotate(45deg)"
-                              : "rotate(0deg)",
-                            transition: "transform 0.2s",
-                          }}
-                        >
-                          <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
-                        </svg>
-                      </button>
+            </p>
+          </div>
+        ) : (
+          memos.map((memo) => (
+            <div
+              key={memo.memo_id}
+              className="group relative bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700/50 p-3 hover:shadow-md transition-all group"
+            >
+              {/* 상단: 날짜 + 버튼들 */}
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  {/* 고정 버튼 */}
+                  <button
+                    onClick={() =>
+                      handleTogglePin(memo.memo_id, memo.is_pinned)
+                    }
+                    className={`p-1.5 rounded-lg transition-all ${
+                      memo.is_pinned
+                        ? "text-main-500 dark:text-main-400 bg-main-50 dark:bg-main-900/30"
+                        : "text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                    title={memo.is_pinned ? "고정 해제" : "고정"}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      style={{
+                        transform: memo.is_pinned
+                          ? "rotate(45deg)"
+                          : "rotate(0deg)",
+                        transition: "transform 0.2s",
+                      }}
+                    >
+                      <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
+                    </svg>
+                  </button>
 
-                      {/* 날짜 및 시간 */}
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(memo.created_at).toLocaleString("ko-KR", {
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-
-                    {/* 오른쪽: 고정 상태 표시 + 삭제 버튼 */}
-                    <div className="flex items-center gap-2">
-                      {/* 삭제 버튼 - 작성자만 표시 */}
-                      {isAuthor(memo.user_id) && (
-                        <button
-                          onClick={() => handleDeleteMemo(memo.memo_id)}
-                          className={[
-                            "opacity-0 group-hover:opacity-100",
-                            "text-gray-400 hover:text-red-500 transition-all",
-                            "dark:text-gray-400/60 dark:hover:text-red-400",
-                            "p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20",
-                          ].join(" ")}
-                          title="삭제"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed mb-2">
-                    {memo.content}
-                  </p>
-
-                  {/* 작성자 정보 */}
-                  <div className="flex justify-end">
-                    <span className="text-xs text-gray-400 dark:text-gray-500">
-                      {memo.author?.user_name ||
-                        memo.author?.email ||
-                        "알 수 없음"}
-                    </span>
-                  </div>
+                  {/* 날짜 */}
+                  <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                    {new Date(memo.created_at).toLocaleString("ko-KR", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
                 </div>
-              ))}
+
+                {/* 삭제 버튼 */}
+                {isAuthor(memo.user_id) && (
+                  <button
+                    onClick={() => handleDeleteMemo(memo.memo_id)}
+                    className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                    title="삭제"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {/* 내용 */}
+              <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed mb-3">
+                {memo.content}
+              </p>
+
+              {/* 작성자 */}
+              <div className="flex justify-end">
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-md text-xs text-gray-600 dark:text-gray-400">
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {memo.author?.user_name || memo.author?.email || "알 수 없음"}
+                </span>
+              </div>
             </div>
-          )}
-        </div>
+          ))
+        )}
       </div>
     </div>
   );

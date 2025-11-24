@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 개발 중 Fast Refresh 개선
+  reactStrictMode: true,
+
   typescript: {
     ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [
@@ -14,6 +14,9 @@ const nextConfig = {
       },
     ],
   },
+
+  // Turbopack 설정 (Next.js 16+)
+  turbopack: {},
 };
 
 module.exports = nextConfig;
