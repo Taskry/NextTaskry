@@ -32,6 +32,18 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
      * 프로젝트 멤버 중 userId에 해당하는 사용자 정보 fetch
      */
     const fetchUserInfo = async () => {
+      // projectId 또는 userId가 유효하지 않으면 API 호출 방지
+      if (
+        !projectId ||
+        projectId === "undefined" ||
+        !userId ||
+        userId === "undefined"
+      ) {
+        setUserInfo(null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(
           `/api/projectMembers/forAssignment?projectId=${projectId}`
