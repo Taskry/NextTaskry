@@ -153,7 +153,12 @@ export default function CalendarView({
       }
 
       // N - 새 작업 추가 (오늘 날짜) - code로 물리적 키 감지 (한글 입력시에도 작동)
-      if (e.code === "KeyN") {
+      if (
+        e.code === "KeyN" &&
+        (e.ctrlKey || e.metaKey) &&
+        !e.shiftKey &&
+        !e.altKey
+      ) {
         e.preventDefault();
         e.stopPropagation();
         const today = new Date();
@@ -215,7 +220,7 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden">
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden relative">
         <Calendar
           localizer={localizer}
           events={events}
