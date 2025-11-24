@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
+/**
+ * AssigneeInfo: 프로젝트 담당자 정보를 표시하는 컴포넌트
+ * @param userId - 담당자 user_id
+ * @param projectId - 프로젝트 id
+ */
+
 interface AssigneeInfoProps {
   userId: string;
   projectId: string;
@@ -22,16 +28,17 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
+    /**
+     * 프로젝트 멤버 중 userId에 해당하는 사용자 정보 fetch
+     */
     const fetchUserInfo = async () => {
       try {
         const response = await fetch(
           `/api/projectMembers/forAssignment?projectId=${projectId}`
         );
         if (!response.ok) throw new Error("Failed to fetch user info");
-
         const result = await response.json();
         const member = result.data?.find((m: any) => m.user_id === userId);
-
         if (member) {
           setUserInfo({
             user_id: member.user_id,
@@ -41,16 +48,19 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
             role: member.role,
           });
         }
-      } catch (error) {
-        console.error("Error fetching user info:", error);
+      } catch {
+        // 네트워크/파싱 에러 처리
+        setUserInfo(null);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchUserInfo();
   }, [userId, projectId]);
 
+  /**
+   * 유효한 프로필 이미지 URL인지 검사
+   */
   const isValidImageUrl = (url?: string) => {
     if (!url) return false;
     if (url.includes("default-user") || url.includes("placeholder"))
@@ -58,6 +68,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
     return true;
   };
 
+  // 로딩 상태
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
@@ -67,19 +78,21 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
     );
   }
 
+  // 담당자 정보 없음
   if (!userInfo) {
     return (
       <div className="flex items-center gap-2">
         <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
           <span className="text-xs text-gray-400 dark:text-gray-400">?</span>
         </div>
-        <span className="text-xs text-gray-400 dark: text-gray-400">
+        <span className="text-xs text-gray-400 dark:text-gray-400">
           담당자 없음
         </span>
       </div>
     );
   }
 
+  // 담당자 정보 표시
   return (
     <div className="flex items-center gap-2">
       <div className="w-6 h-6 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
@@ -89,7 +102,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
             alt={userInfo.user_name}
             width={24}
             height={24}
-            className="w-full h-full object-cover *:rounded-full"
+            className="w-full h-full object-cover rounded-full"
             onError={() => setImageError(true)}
           />
         ) : (

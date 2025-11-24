@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 
 import CalendarView from "@/components/features/CalendarView/CalendarView";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
-import MemoPanel from "@/components/features/kanban/MemoPanel";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
 import { Task } from "@/types/kanban";
@@ -247,7 +246,7 @@ export default function ProjectPage() {
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
-                onSelectTask={(task: Task) => {}}
+                onSelectTask={() => {}}
                 onTaskCreated={handleRefresh}
               />
             )}
