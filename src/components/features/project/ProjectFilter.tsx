@@ -74,10 +74,10 @@ export default function PorjectCardFilter({ filter,
                 hover:bg-main-100/40 
                 hover:border-main-100/40 
                 text-main-400 
-                dark:text-main-200 
-                dark:bg-gray-700
-                dark:border-gray-500
-                dark:hover:bg-gray-100/40"
+                dark:text-main-200!
+                dark:bg-gray-700!
+                dark:border-gray-500!
+                dark:hover:bg-gray-100/40!"
             />
         </div>
     </div>

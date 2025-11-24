@@ -36,10 +36,10 @@ export function DeleteDialog({ onClick }: DeleteDialogProps) {
               hover:bg-red-100/40 
               hover:border-red-100/40
               text-red-100
-              dark:text-red-100/80
-              dark:bg-gray-700
-              dark:border-gray-500
-              dark:hover:bg-gray-100/40"
+              dark:text-red-100/80!
+              dark:bg-gray-700!
+              dark:border-gray-500!
+              dark:hover:bg-gray-100/40!"
           />
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

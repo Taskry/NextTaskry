@@ -213,7 +213,7 @@ export default function ProjectForm({ id }: { id?: string }) {
   };
 
   return (
-    <div className="mx-30 my-10 min-h-screen">
+    <div className="mx-30 my-10">
       <div>
         <div className="text-2xl font-bold pb-5">{id ? "프로젝트 수정" : "프로젝트 생성"}</div>
         <div className="py-2">
@@ -308,8 +308,7 @@ export default function ProjectForm({ id }: { id?: string }) {
                     type="userCircle"
                     className="
                       text-gray-700
-                      dark:text-gray-200
-                      dark:hover:bg-gray-100/40"
+                      dark:text-gray-200"
                     />
                 </div>
                 <div>
@@ -329,13 +328,14 @@ export default function ProjectForm({ id }: { id?: string }) {
                   btnType="icon"
                   icon="trash"
                   size={16}
-                  variant="white"
                   className="
+                    hover:bg-red-100/40
+                    hover:border-red-100/40
                     text-red-100
-                    dark:text-red-100/80
-                    dark:bg-gray-700
-                    dark:border-gray-500
-                    dark:hover:bg-gray-100/60"
+                    dark:text-red-100/80!
+                    dark:bg-gray-700!
+                    dark:border-gray-500!
+                    dark:hover:bg-gray-100/40!"
                   onClick={() => handleDeleteProjectMember(member.userId)}
                 />
               </div>
