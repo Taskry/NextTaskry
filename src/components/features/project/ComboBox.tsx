@@ -37,7 +37,7 @@ export function ComboBox({
   value, 
   setValue,
   onChange,
-  placeholder = "+ Select Data" 
+  placeholder = "추가하고 싶은 팀원을 선택해주세요." 
 }: ComboBoxProps) {
   const [open, setOpen] = useState(false)
 
@@ -45,7 +45,6 @@ export function ComboBox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
          <Button variant="outline" className="w-full justify-start px-3 text-left font-normal">
-          {/* 버튼 내부 텍스트가 길어질 경우 말줄임표 처리 */}
           <span className="truncate w-full">
             {value ? value.label : placeholder}
           </span>

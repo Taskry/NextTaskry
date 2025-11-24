@@ -14,7 +14,7 @@ const Home = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col">
       <div className="flex-1 overflow-auto">
         <ProjectCardHeader />
         <ProjectCard onSelectProject={handleSelectProject} />
