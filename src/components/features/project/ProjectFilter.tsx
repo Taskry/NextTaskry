@@ -26,7 +26,7 @@ export default function PorjectCardFilter({ filter,
     return (
     <div className={cn("flex", showFilter ? "justify-between" : "justify-end")}>
         { showFilter &&
-        <div className="px-4 mr-4 flex w-full border-gray-100 border-2 rounded-sm">
+        <div className="px-4 mr-4 flex w-full border-2 rounded-sm border-gray-100 dark:border-gray-500">
             <div className="flex justify-center items-center">  
             <div className="mr-2">
                 View Type:
