@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
 import { createNotice } from "@/lib/api/notices";
 import { SectionHeader } from "@/components/shared/SectionHeader";
+import { NOTICE_CONSTANS, NOTICE_MESSAGES } from "@/lib/constants/notices";
 import Button from "@/components/ui/Button";
 import RichTextEditor from "@/components/features/notice/RichTextEditor";
 import Checkbox from "@/components/ui/Checkbox";
@@ -35,19 +36,19 @@ export default function AdminNoticeCreatePage() {
     const newErrors = { title: "", content: "" };
 
     if (!title.trim()) {
-      newErrors.title = "제목을 입력해주세요.";
+      newErrors.title = NOTICE_MESSAGES.TITLE_REQUIRED;
       setErrors(newErrors);
       titleInputRef.current?.focus();
       return false;
     }
-    if (title.length > 255) {
-      newErrors.title = "제목은 255자를 초과할 수 없습니다.";
+    if (title.length > NOTICE_CONSTANS.TITLE_MAX_LENGTH) {
+      newErrors.title = NOTICE_MESSAGES.TITLE_TOO_LONG;
       setErrors(newErrors);
       titleInputRef.current?.focus();
       return false;
     }
     if (!content.trim()) {
-      newErrors.content = "내용을 입력해주세요.";
+      newErrors.content = NOTICE_MESSAGES.CONTENT_REQUIRED;
       setErrors(newErrors);
       contentEditorRef.current?.focus();
       return false;
@@ -72,14 +73,14 @@ export default function AdminNoticeCreatePage() {
         is_important: isImportant,
       });
 
-      alert("작성이 완료되었습니다.");
+      alert(NOTICE_MESSAGES.CREATE_SUCCESS);
 
       // 데이터 캐시를 새로고침하고 목록 페이지로 이동
       router.refresh();
       router.push("/notice");
     } catch (error) {
       console.log("오류 발생: ", error);
-      showToast("오류가 발생했습니다. 다시 시도해주세요.", "error");
+      showToast(NOTICE_MESSAGES.UNKNOWN_ERROR, "error");
     }
   };
 
@@ -96,9 +97,9 @@ export default function AdminNoticeCreatePage() {
       />
       <form
         onSubmit={handleSubmit}
-        className="space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] p-7 rounded-xl"
+        className="px-5 py-7 lg:p-7 space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] rounded-xl"
       >
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg">
+        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
           <legend className="text-lg font-bold px-2 mb-0">기본 정보</legend>
 
           <div className="flex flex-col space-y-2">
@@ -138,7 +139,7 @@ export default function AdminNoticeCreatePage() {
           </div>
         </fieldset>
 
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg">
+        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
           <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
           <div className="flex flex-col space-y-2">

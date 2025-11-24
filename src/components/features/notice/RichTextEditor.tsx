@@ -124,23 +124,30 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
     );
 
     // 마크다운을 HTML로 변환
-    const renderMarkdown = (text: any) => {
+    // 마크다운을 HTML로 변환하는 함수
+    const renderMarkdown = (text: string) => {
       if (!text) return "";
 
       return (
         text
-          // 제목
+          // ------------------------------------ 제목
           .replace(
             /^## (.+)$/gm,
             '<h2 class="text-xl font-bold mt-4 mb-2">$1</h2>'
           )
-          // 굵게
-          .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>')
-          // 기울임
-          .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
-          // 목록
-          .replace(/^- (.+)$/gm, '<li class="ml-4">$1</li>')
-          // 줄바꿈
+          // ------------------------------------ 굵게 (먼저 처리) - [\s\S]로 줄바꿈 포함
+          .replace(
+            /\*\*([\s\S]+?)\*\*/g,
+            '<strong class="font-bold">$1</strong>'
+          )
+          // ------------------------------------ 기울임 (굵게가 아닌 단일 * 만 매칭)
+          .replace(
+            /(?<!\*)\*(?!\*)([\s\S]+?)(?<!\*)\*(?!\*)/g,
+            '<em class="italic">$1</em>'
+          )
+          // ------------------------------------ 목록
+          .replace(/^- (.+)(\n)?/gm, '<li class="ml-4 list-disc">$1</li>')
+          // ------------------------------------ 줄바꿈
           .replace(/\n/g, "<br />")
       );
     };
@@ -150,9 +157,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
         type="button"
         btnType="basic"
         onClick={() => applyFormat(format)}
-        className={`text-sm transition-all ${
-          activeFormats[format] ? "bg-blue-100 border-blue-400" : ""
-        }`}
+        className={`text-sm transition-all`}
         title={shortcut}
       >
         {children}
@@ -162,8 +167,8 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
     return (
       <div className={`rounded-lg shadow-inner`}>
         {/* 툴바 */}
-        <div className="flex items-center justify-between p-2 border border-b-0 border-gray-100 rounded-t-lg">
-          <div className="flex gap-1">
+        <div className="flex flex-wrap justify-end gap-3 items-center justify-between p-2 border border-b-0 border-gray-100 rounded-t-lg">
+          <div className="flex gap-1 flex-wrap w-full">
             <ToolbarButton format="bold" shortcut="Ctrl+B">
               <strong>B</strong> (굵게)
             </ToolbarButton>
@@ -203,7 +208,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
             onSelect={detectActiveFormats}
             placeholder={placeholder}
             rows={rows}
-            className={`p-4 border resize-y ${
+            className={`p-4 border resize-y  ${
               showPreview
                 ? "w-1/2 border border-gray-200"
                 : "w-full border-gray-100"
@@ -214,7 +219,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
           {/* 프리뷰 영역 */}
           {showPreview && (
             <div
-              className="w-1/2 p-4 overflow-y-auto border bg-gray-50"
+              className="w-1/2 p-4 overflow-y-auto border bg-gray-50 dark:bg-transparent"
               style={{ minHeight: `${rows * 1.5}rem` }}
             >
               <div

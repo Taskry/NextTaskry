@@ -97,7 +97,7 @@ export default function NoticePage() {
         <div className="flex flex-col items-center">
           <EmptyNotice />
           {admin && (
-            <Link href="/admin/admin/notice/create" className="mt-4">
+            <Link href="/admin/notice/create" className="mt-4">
               <Button btnType="basic" variant="new">
                 첫 공지사항 작성하기
               </Button>

@@ -65,6 +65,18 @@ export default function Modal({
     };
   }, [isOpen]);
 
+  // ESC 키로 모달 닫기
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleEscKey);
+    return () => window.removeEventListener("keydown", handleEscKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) {
     return null;
   }

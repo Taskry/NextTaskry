@@ -4,6 +4,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const role = searchParams.get("role");
+  const userId = searchParams.get("userId");
 
   // 사용자 인증
   // const session = await getServerSession(authOptions);
@@ -20,6 +21,9 @@ export async function GET(request: Request) {
   if (role) {
     query = query.eq("role", role);
   }
+  if (userId) {
+    query = query.eq("user_id", userId);
+  }
 
   const { data: projectMembers, error: getError } = await query;
 
@@ -33,6 +37,7 @@ export async function GET(request: Request) {
     message: `프로젝트 멤버[${id}] 정보 조회`,
     params: {
       projectMemberId: id || "파라미터 없음",
+      userId: userId || "파라미터 없음",
     },
     data: projectMembers,
     timestamp: new Date().toISOString(),

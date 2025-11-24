@@ -171,6 +171,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // 한국 시간(KST, UTC+9)으로 저장
+    const now = new Date();
+    const kstTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+
     const { data, error } = await supabase
       .from("project_memos")
       .insert([
@@ -178,6 +182,8 @@ export async function POST(request: Request) {
           project_id,
           user_id: userId,
           content: content.trim(),
+          created_at: kstTime.toISOString(),
+          updated_at: kstTime.toISOString(),
         },
       ])
       .select()
@@ -185,7 +191,23 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
-    return Response.json(data, { status: 201 });
+    // 작성자 정보 추가
+    const { data: author } = await supabase
+      .from("users")
+      .select("user_id, user_name, email")
+      .eq("user_id", userId)
+      .single();
+
+    const memoWithAuthor = {
+      ...data,
+      author: author || {
+        user_id: userId,
+        user_name: "알 수 없음",
+        email: "",
+      },
+    };
+
+    return Response.json(memoWithAuthor, { status: 201 });
   } catch (error) {
     return errorResponse(error, "메모 저장에 실패했습니다");
   }
