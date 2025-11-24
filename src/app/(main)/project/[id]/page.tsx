@@ -179,6 +179,18 @@ export default function ProjectPage() {
     showToast("작업이 삭제되었습니다.", "success");
   };
 
+  const handleRefresh = async () => {
+    const { data: tasksData, error: tasksError } = await getTasksByBoardId(
+      projectId
+    );
+
+    if (tasksError) {
+      console.error("Tasks 조회 실패:", tasksError);
+    } else {
+      setTasks(tasksData || []);
+    }
+  };
+
   const handleViewChange = (view: NavItem) => {
     if (view === "memo") {
       setShowMemoPanel((prev) => !prev);
@@ -226,9 +238,15 @@ export default function ProjectPage() {
             {currentView === "calendar" && (
               <CalendarView
                 tasks={tasks}
+                boardId={kanbanBoardId}
+                projectId={projectId}
+                onCreateTask={handleCreateTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
                 onSelectTask={(task: Task) => {
                   console.log("캘린더에서 task 클릭:", task);
                 }}
+                onTaskCreated={handleRefresh}
               />
             )}
           </div>
