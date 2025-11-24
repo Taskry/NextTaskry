@@ -15,8 +15,8 @@ export default function AdminPageWrapper({
   action,
 }: pageWrapperProps) {
   return (
-    <section className="bg-[#fafafa] p-8 rounded-xl">
-      <div className="bg-[#ffffff] py-8 px-5 rounded-xl">
+    <section className="bg-[#fafafa] p-8 rounded-xl dark:bg-[#1A1A1A]">
+      <div className="bg-[#ffffff] py-8 px-5 rounded-xl dark:bg-transparent dark:border">
         <div className="flex items-center justify-between gap-2 mb-6">
           <div className="flex items-center gap-2">
             <Icon type={titleIcon} />
