@@ -310,12 +310,20 @@ const MemoView = ({ projectId }: MemoFormProps) => {
 
                   {/* 날짜 */}
                   <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                    {new Date(memo.created_at).toLocaleString("ko-KR", {
-                      month: "short",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {(() => {
+                      // DB에 한국 시간으로 저장되어 있으므로 UTC로 파싱 후 9시간 빼기
+                      const utcDate = new Date(memo.created_at);
+                      const kstDate = new Date(
+                        utcDate.getTime() - 9 * 60 * 60 * 1000
+                      );
+                      return kstDate.toLocaleString("ko-KR", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false,
+                      });
+                    })()}
                   </span>
                 </div>
 
