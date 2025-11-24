@@ -9,6 +9,7 @@ import { Task } from "@/types/kanban";
 import Modal from "@/components/ui/Modal";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
+import { Icon } from "@/components/shared/Icon";
 
 const locales = { ko };
 const localizer = dateFnsLocalizer({
@@ -246,13 +247,14 @@ export default function CalendarView({
           style={{ height: "100%" }}
           // ⭐⭐ 상태별 색상 적용 파트 (칸반보드 Badge와 동일) ⭐⭐
           eventPropGetter={(event) => {
-            let bg = "#9CA3AF"; // todo (회색)
+            const isDark = document.documentElement.classList.contains("dark");
+            let bg = isDark ? "#4B5563" : "#9CA3AF"; // todo (회색)
 
             if (event.task.status === "inprogress") {
-              bg = "#60a5facc"; // bg-blue-100/80 (진행중 - 파란색)
+              bg = isDark ? "#2563ebcc" : "#60a5facc"; // 진행중 - 파란색
             }
             if (event.task.status === "done") {
-              bg = "#57bc71cc"; // bg-green-100/80 (완료 - 초록색)
+              bg = isDark ? "#16a34acc" : "#57bc71cc"; // 완료 - 초록색
             }
 
             return {
@@ -264,6 +266,31 @@ export default function CalendarView({
                 padding: "2px 4px",
               },
             };
+          }}
+          components={{
+            event: ({ event }) => {
+              let priorityColor = "";
+              if (event.task.priority === "high") {
+                priorityColor = "text-red-300 dark:text-red-500";
+              } else if (event.task.priority === "normal") {
+                priorityColor = "text-yellow-300 dark:text-yellow-500";
+              } else if (event.task.priority === "low") {
+                priorityColor = "text-green-300 dark:text-green-500";
+              }
+
+              return (
+                <div className="flex items-center gap-1">
+                  {event.task.priority && (
+                    <Icon
+                      type="circleCheckFilled"
+                      size={12}
+                      className={priorityColor}
+                    />
+                  )}
+                  <span className="truncate text-xs">{event.title}</span>
+                </div>
+              );
+            },
           }}
         />
       </div>

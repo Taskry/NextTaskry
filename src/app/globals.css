@@ -147,15 +147,20 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   React Calendar (react-calendar) - 미사용
+   React Calendar (react-calendar)
    -------------------------------------------------------------------------- */
 .react-calendar-custom {
   border: none !important;
   font-family: inherit;
   background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 .dark .react-calendar-custom {
   background: #1f2937;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 /* 네비게이션 */
@@ -206,6 +211,32 @@
   padding: 0.5em;
 }
 
+/* 일요일 헤더 (첫 번째 요일) */
+.react-calendar-custom
+  .react-calendar__month-view__weekdays__weekday:first-child
+  abbr {
+  color: var(--color-red-100) !important;
+}
+.dark
+  .react-calendar-custom
+  .react-calendar__month-view__weekdays__weekday:first-child
+  abbr {
+  color: var(--color-red-100) !important;
+}
+
+/* 토요일 헤더 (마지막 요일) */
+.react-calendar-custom
+  .react-calendar__month-view__weekdays__weekday:last-child
+  abbr {
+  color: var(--color-blue-100) !important;
+}
+.dark
+  .react-calendar-custom
+  .react-calendar__month-view__weekdays__weekday:last-child
+  abbr {
+  color: var(--color-blue-100) !important;
+}
+
 /* 날짜 셀 */
 .react-calendar-custom .react-calendar__tile {
   max-width: 100%;
@@ -215,6 +246,7 @@
   line-height: 16px;
   font-size: 0.875rem;
   color: #374151;
+  transition: all 0.2s ease;
 }
 .dark .react-calendar-custom .react-calendar__tile {
   color: #d1d5db;
@@ -222,57 +254,107 @@
 
 .react-calendar-custom .react-calendar__tile:enabled:hover,
 .react-calendar-custom .react-calendar__tile:enabled:focus {
-  background-color: #e0e7ff;
-  color: #4f46e5;
-  border-radius: 6px;
+  background-color: var(--color-main-100);
+  color: var(--color-main-400);
+  border-radius: 8px;
+  transform: scale(1.08);
+  font-weight: 600;
 }
 .dark .react-calendar-custom .react-calendar__tile:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile:enabled:focus {
-  background-color: #374151;
-  color: #6a929a;
+  background-color: var(--color-main-500);
+  color: var(--color-main-100);
+  border-radius: 8px;
+  transform: scale(1.08);
+  font-weight: 600;
+}
+
+/* 일요일 날짜 (각 행의 첫 번째) */
+.react-calendar-custom
+  .react-calendar__month-view__days__day:nth-child(7n + 1):not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  )
+  abbr {
+  color: var(--color-red-100) !important;
+}
+.dark
+  .react-calendar-custom
+  .react-calendar__month-view__days__day:nth-child(7n + 1):not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  )
+  abbr {
+  color: var(--color-red-100) !important;
+}
+
+/* 토요일 날짜 (각 행의 마지막) */
+.react-calendar-custom
+  .react-calendar__month-view__days__day:nth-child(7n):not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  )
+  abbr {
+  color: var(--color-blue-100) !important;
+}
+.dark
+  .react-calendar-custom
+  .react-calendar__month-view__days__day:nth-child(7n):not(
+    .react-calendar__month-view__days__day--neighboringMonth
+  )
+  abbr {
+  color: var(--color-blue-100) !important;
 }
 
 /* 오늘 날짜 */
 .react-calendar-custom .react-calendar__tile--now {
-  background: #dbeafe;
-  border-radius: 6px;
-  font-weight: 600;
-  color: #1e40af;
+  background: var(--color-main-100);
+  border-radius: 8px;
+  font-weight: 700;
+  color: var(--color-main-500);
+  border: 1px solid var(--color-main-100);
 }
 .dark .react-calendar-custom .react-calendar__tile--now {
-  background: #1f2937;
-  color: #87bac3;
-  border: 1px solid #4d6d72;
+  background: var(--color-main-500);
+  border-radius: 8px;
+  font-weight: 700;
+  color: var(--color-main-100);
+  border: 1px solid var(--color-main-500);
 }
 
 .react-calendar-custom .react-calendar__tile--now:enabled:hover,
 .react-calendar-custom .react-calendar__tile--now:enabled:focus {
-  background: #bfdbfe;
+  background: var(--color-main-200);
+  transform: scale(1.1);
 }
 .dark .react-calendar-custom .react-calendar__tile--now:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile--now:enabled:focus {
-  background: #374151;
+  background: var(--color-main-400);
+  transform: scale(1.1);
 }
 
 /* 선택된 날짜 */
 .react-calendar-custom .react-calendar__tile--active {
-  background: #6366f1 !important;
+  background: var(--color-main-400) !important;
   color: white !important;
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-weight: 700;
+  border: 1px solid var(--color-main-400);
 }
 .dark .react-calendar-custom .react-calendar__tile--active {
-  background: #4d6d72 !important;
+  background: var(--color-main-300) !important;
+  border-radius: 8px;
+  font-weight: 700;
   color: white !important;
+  border: 1px solid var(--color-main-300);
 }
 
 .react-calendar-custom .react-calendar__tile--active:enabled:hover,
 .react-calendar-custom .react-calendar__tile--active:enabled:focus {
-  background: #4f46e5 !important;
+  background: var(--color-main-500) !important;
+  transform: scale(1.1);
 }
 .dark .react-calendar-custom .react-calendar__tile--active:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile--active:enabled:focus {
-  background: #33494d !important;
+  background: var(--color-main-400) !important;
+  transform: scale(1.1);
 }
 
 /* 이웃 월 날짜 (이전/다음 달) */
@@ -311,6 +393,15 @@
   background-color: white;
   color: var(--color-gray-700);
 }
+
+/* 헤더 공휴일 색상 (일요일, 토요일) */
+.rbc-header:first-child {
+  color: var(--color-red-100) !important;
+}
+.rbc-header:last-child {
+  color: var(--color-blue-100) !important;
+}
+
 .rbc-day-bg {
   border-color: var(--color-gray-200) !important;
 }
@@ -367,10 +458,14 @@
 }
 
 /* 공휴일 (일요일, 토요일) */
-.rbc-date-cell:nth-child(7n + 1) {
+.rbc-date-cell:nth-child(7n + 1),
+.rbc-date-cell:nth-child(7n + 1) a,
+.rbc-date-cell:nth-child(7n + 1) .rbc-button-link {
   color: var(--color-red-100) !important;
 }
-.rbc-date-cell:nth-child(7n) {
+.rbc-date-cell:nth-child(7n),
+.rbc-date-cell:nth-child(7n) a,
+.rbc-date-cell:nth-child(7n) .rbc-button-link {
   color: var(--color-blue-100) !important;
 }
 
@@ -450,6 +545,15 @@
     background-color: var(--color-gray-600);
     color: var(--color-gray-100);
   }
+
+  /* 헤더 공휴일 색상 (일요일, 토요일) - 다크모드 */
+  .rbc-header:first-child {
+    color: var(--color-red-100) !important;
+  }
+  .rbc-header:last-child {
+    color: var(--color-blue-100) !important;
+  }
+
   .rbc-day-bg {
     border-color: var(--color-gray-500) !important;
   }
@@ -516,10 +620,14 @@
   }
 
   /* 공휴일 (일요일, 토요일) */
-  .rbc-date-cell:nth-child(7n + 1) {
+  .rbc-date-cell:nth-child(7n + 1),
+  .rbc-date-cell:nth-child(7n + 1) a,
+  .rbc-date-cell:nth-child(7n + 1) .rbc-button-link {
     color: var(--color-red-100) !important;
   }
-  .rbc-date-cell:nth-child(7n) {
+  .rbc-date-cell:nth-child(7n),
+  .rbc-date-cell:nth-child(7n) a,
+  .rbc-date-cell:nth-child(7n) .rbc-button-link {
     color: var(--color-blue-100) !important;
   }
 
