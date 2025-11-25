@@ -138,8 +138,8 @@ try {
 
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-[420px]">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center ">
+      <div className="bg-white dark:bg-black rounded-xl p-6 w-[420px]">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">팀원 초대</h2>
@@ -162,7 +162,7 @@ try {
         <div className="mb-3">
           <label className="text-sm font-medium">역할</label>
           <select
-            className="w-full mt-1 border rounded-md px-3 py-2"
+            className="w-full mt-1 border rounded-md px-3 py-2 dark:text-gray-200 bg-black"
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >

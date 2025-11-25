@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
       >
         <table className="w-full border-collapse">
           <thead
-            className={`${primaryBgColor.color1[2]} text-white text-sm uppercase`}
+            className={`${primaryBgColor.color1[2]} text-white text-sm uppercase dark:bg-gray-900`}
           >
             <tr>
               <th className="py-3 px-4 text-center text-sm">이름</th>
@@ -99,7 +99,7 @@ export default function AdminUsersPage() {
               <th className="py-3 px-4 text-center text-sm">삭제</th>
             </tr>
           </thead>
-          <tbody className="divide-y text-sm bg-white">
+          <tbody className="divide-y text-sm bg-white dark:text-gray-100  dark:bg-black">
             {filteredUsers.map((user) => (
               <tr key={user.member_id}>
                 {/* 이름 */}
@@ -121,7 +121,7 @@ export default function AdminUsersPage() {
 
                         handleRoleChange(user.member_id, newRole);
                       }}
-                    className="border rounded px-2 py-1 text-sm"
+                    className="border rounded px-2 py-1 text-sm dark:bg-black"
                   >
                     <option value="leader">leader</option>
                     <option value="member">member</option>
