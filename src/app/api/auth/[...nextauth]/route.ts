@@ -21,14 +21,14 @@ export const authOptions: NextAuthOptions = {
 
       if (!email) return false;
 
-      // 1️⃣ 기존 유저 조회
+      // 기존 유저 조회
       const { data: existingUser } = await supabase
         .from("users")
         .select("*")
         .eq("email", email)
         .single();
 
-      // 2️⃣ 기존 유저가 있고, global_role === 'admin'이면 → 관리자 정보만 업데이트만
+      // 기존 유저가 있고, global_role === 'admin'이면 → 관리자 정보만 업데이트만
       if (existingUser?.global_role === "admin") {
         console.log("관리자입니다. ");
 
@@ -46,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      // 3️⃣ 신규 유저라면 INSERT
+      //신규 유저라면 INSERT
       if (!existingUser) {
         console.log("신규유저입니다. ");
         await supabase.from("users").insert({
@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      // 4️⃣ 기존 일반 유저라면 UPDATE
+      //기존 일반 유저라면 UPDATE
       await supabase
         .from("users")
         .update({
@@ -115,38 +115,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  // callbacks: {
-  //   async signIn({user}) {
-  //     const {data:existingUser} = await supabase
-  //       .from('users')
-  //       .select('*')
-  //       .eq('oauth_id', user.id)
-  //       .single();
-  //     if (!existingUser) {
-  //       await supabase
-  //         .from('users')
-  //         .insert({
-  //           oauth_id:user.id,
-  //           name:user.name,
-  //           email: user.email,
-  //           data: {points:10000}
-  //         })
-  //     }
-  //     return true
-  //   },
-  //   async jwt({ token, user }) {
-  //     if (user) {
-  //       token.id = user.id;  // user.id → JWT에 저장
-  //     }
-  //     return token;
-  //   },
-  //   async session({ session, token }) {
-  //     if (session.user) {
-  //       session.user.id = token.id as string;  // JWT → session으로 전달
-  //     }
-  //     return session;
-  //   }
-  // },
+  
   secret: process.env.NEXTAUTH_SECRET,
 };
 

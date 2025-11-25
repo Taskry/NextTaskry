@@ -25,12 +25,10 @@ export default function LoginPage() {
           <Icon type="board" size={28} className="text-main-500" />
         </div>
 
-        {/* 타이틀 */}
         <h1 className="text-4xl font-bold text-gray-800 dark:text-white">
           Taskry
         </h1>
 
-        {/* 설명문 */}
         <div className="mt-3">
           <p className="text-sm md:text-md text-gray-600 dark:text-gray-300 text-center font-medium">
             Taskry와 함께 프로젝트를 쉽게 관리할 수 있습니다. <br />

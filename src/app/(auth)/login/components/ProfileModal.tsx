@@ -14,10 +14,10 @@ export interface ProfileModalProps {
 export default function ProfileModal({ onClose, user }: ProfileModalProps) {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center ">
-      {/* 배경 */}
+     
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      {/* 본문 */}
+      
       <div className="relative bg-white w-80 rounded-xl shadow-lg p-6 z-50 dark:bg-black dark:border border-gray-500
 ">
         {/* 닫기 버튼 */}
