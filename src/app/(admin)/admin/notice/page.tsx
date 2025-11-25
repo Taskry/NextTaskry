@@ -118,7 +118,7 @@ export default function AdminNoticesPage() {
                     btnType="icon"
                     icon="trash"
                     size={16}
-                    variant="warning"
+                    variant="white"
                     onClick={() => handleDelete(notice.announcement_id)}
                   />
                 </div>
