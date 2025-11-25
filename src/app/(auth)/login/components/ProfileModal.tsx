@@ -13,12 +13,13 @@ export interface ProfileModalProps {
 
 export default function ProfileModal({ onClose, user }: ProfileModalProps) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center">
+    <div className="fixed inset-0 z-40 flex items-center justify-center ">
       {/* 배경 */}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* 본문 */}
-      <div className="relative bg-white w-80 rounded-xl shadow-lg p-6 z-50">
+      <div className="relative bg-white w-80 rounded-xl shadow-lg p-6 z-50 dark:bg-black dark:border border-gray-500
+">
         {/* 닫기 버튼 */}
         <button
           onClick={onClose}
@@ -36,7 +37,7 @@ export default function ProfileModal({ onClose, user }: ProfileModalProps) {
           />
 
           <h3 className="mt-3 text-lg font-semibold">{user?.name}</h3>
-          <p className="text-gray-500 text-sm">{user?.email}</p>
+          <p className="text-gray-500 text-sm dark:text-white">{user?.email}</p>
         </div>
 
         {/* 버튼 */}
@@ -50,7 +51,7 @@ export default function ProfileModal({ onClose, user }: ProfileModalProps) {
 
           <button
             onClick={onClose}
-            className="w-full py-2 bg-gray-200 rounded-lg"
+            className="w-full py-2 bg-gray-200 rounded-lg dark:bg-gray-900"
           >
             닫기
           </button>
