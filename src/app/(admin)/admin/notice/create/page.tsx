@@ -122,7 +122,7 @@ export default function AdminNoticeCreatePage() {
                 setTitle(e.target.value);
                 setErrors((prev) => ({ ...prev, title: "" }));
               }}
-              className={`p-3 mb-0 border rounded-lg transition duration-150 w-full ${
+              className={`p-3 mb-0 border rounded-lg transition duration-150 w-full focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30 ${
                 errors.title ? "border-red-500" : "border-gray-100"
               }`}
             />
@@ -152,7 +152,13 @@ export default function AdminNoticeCreatePage() {
               }}
               placeholder="공지사항 내용을 입력해주세요."
               rows={15}
-              className={errors.content ? "border-red-500" : "border-gray-100"}
+              className={`
+                ${errors.content ? "border-red-500" : "border-gray-100"}
+                focus:border-[#87BAC3]
+                focus:outline-none
+                focus:ring
+                focus:ring-[#87BAC3]/30
+              `}
             />
             <span className="text-red-500 text-sm mt-2 h-4">
               {errors.content}

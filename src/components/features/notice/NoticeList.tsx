@@ -31,9 +31,9 @@ export default function NoticeList({
 
   return (
     <table
-      className={`w-full border-collapse border-t ${primaryBorderColor.Color2[0]}`}
+      className={`w-full border-collapse border-t dark:border-gray-100/40 ${primaryBorderColor.Color2[0]}`}
     >
-      <thead className="border-b border-b-gray-100 text-sm uppercase">
+      <thead className="hidden lg:table-header-group border-b border-b-gray-100 dark:border-b-gray-100/40 text-sm uppercase">
         <tr>
           {tableHeaders.map((header) => (
             <th
@@ -56,11 +56,13 @@ export default function NoticeList({
           return (
             <tr
               key={notice.announcement_id}
-              className="transition-colors text-center "
+              className={`transition-colors text-center text-base ${
+                notice.is_important ? "bg-[#FAFAFA] dark:bg-[#1A1A1A]" : ""
+              }`}
             >
-              <td className="items-center py-6 px-4 text-sm font-semibold">
+              <td className="hidden lg:table-cell py-6 px-4 font-regular ">
                 {notice.is_important ? (
-                  <span className="flex items-center justify-center gap-1">
+                  <span className="flex items-center justify-center gap-1 font-semibold">
                     <Icon type="bellFilled" size={18} />
                     중요 공지
                   </span>
@@ -68,20 +70,31 @@ export default function NoticeList({
                   noticeNumber
                 )}
               </td>
-              <td className="py-6 px-4 text-sm font-semibold text-left w-full max-w-0 overflow-hidden">
-                <Link
-                  href={`/notice/${notice.announcement_id}`}
-                  className="truncate block hover:text-main-200"
-                >
-                  {notice.title}
-                </Link>
+
+              {/* 제목 + 모바일 작성일 */}
+              <td className="py-6 px-4 text-left w-full max-w-0 overflow-hidden">
+                <div>
+                  <Link
+                    href={`/notice/${notice.announcement_id}`}
+                    className="truncate block font-semibold hover:text-main-200"
+                  >
+                    {notice.title}
+                  </Link>
+                  {/* 모바일에서만 작성일 보여주기 */}
+                  <div className="text-gray-500 text-base mt-1 lg:hidden">
+                    {formatDate(notice.created_at)}
+                  </div>
+                </div>
               </td>
-              <td className="py-6 px-4 text-sm">
+
+              {/* 작성일 - 데스크탑만 */}
+              <td className="hidden lg:table-cell py-6 px-4 text-base">
                 {formatDate(notice.created_at)}
               </td>
 
+              {/* 관리 컬럼 - 데스크탑만 */}
               {admin && (
-                <td className="py-6 px-4 text-sm">
+                <td className="y-6 px-4 text-sm">
                   <div className="flex items-center justify-center gap-2">
                     <Link
                       href={`/notice/${notice.announcement_id}?edit=true`}
