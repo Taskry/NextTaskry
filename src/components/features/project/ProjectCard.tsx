@@ -41,11 +41,11 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   const [projectList, setProjectList] = useState<any[]>([]);
   const [projectMember, setProjectMember] = useState<any>({});
   const [filter, setFilter] = useState<FilterProps>({
-    view: "personal",
+    view: "all",
     date: "startedAt",
     sort: "asc"
   });
-  const [showFilter, setShowFilter] = useState<boolean>(false);
+  const [showFilter, setShowFilter] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
   const { data: session, status } = useSession();
 
