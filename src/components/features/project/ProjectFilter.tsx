@@ -7,22 +7,21 @@ import { cn } from "@/lib/utils/utils";
 interface ProjectCardFilterProps {
     filter: any;
     onFilterChange: (key: string, value: string) => void;
-    showFilter: boolean;          // 부모로부터 받는 상태
-    onToggleFilter: () => void;   // 상태 변경 함수
+    showFilter: boolean;
+    onToggleFilter: () => void;
 }
 
-export default function PorjectCardFilter({ filter, 
+export default function PorjectCardFilter({ 
+    filter, 
     onFilterChange,
-    showFilter,     // props로 받음
-    onToggleFilter  // props로 받음
+    showFilter,
+    onToggleFilter
 }: ProjectCardFilterProps) {
-
     const handleSelectChange = (key:string, value:string) => {
         if (onFilterChange) {
             onFilterChange(key, value);
         }
     };
-    // Select 컴포넌트를 위한 handleChange
     return (
     <div className={cn("flex", showFilter ? "justify-between" : "justify-end")}>
         { showFilter &&

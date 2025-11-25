@@ -5,7 +5,6 @@ export async function GET(request: Request) {
   const id = searchParams.get("id");
   const ids = searchParams.get("ids");
 
-  console.log(ids)
   // 사용자 인증
   // const session = await getServerSession(authOptions);
 
@@ -14,8 +13,9 @@ export async function GET(request: Request) {
   // }
 
   // 쿼리 실행 [프로젝트 조회]
-  let query = supabase.from("projects").select("*");
+  let query = supabase.from("projects").select(`*,  project_members (count)`);
 
+  
   if (id) {
     // id 변수가 존재하는 경우 (예: null, undefined, 0, 빈 문자열 등이 아닐 때)
     query = query.eq("project_id", id);
@@ -33,7 +33,6 @@ export async function GET(request: Request) {
     console.error("Error fetching projects:", getError);
     return Response.json({ error: getError.message }, { status: 500 });
   }
-
   const result = {
     message: `프로젝트[${id}] 정보 조회`,
     params: {
