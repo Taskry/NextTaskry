@@ -19,16 +19,13 @@ import {
   getProjectMemberByUser,
 } from "@/lib/api/projects";
 import Link from "next/link";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { showApiError, showToast } from "@/lib/utils/toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { DeleteDialog } from "./DeleteDialog";
-import { ViewSelect } from "./ViewSelect";
-import { cn } from "@/lib/utils/utils";
-import { DateSelect } from "./DateSelect";
-import { SortSelect } from "./SortSelect";
 import PorjectCardFilter from "./ProjectFilter";
+import { supabase } from "@/lib/supabase/supabase";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -52,21 +49,24 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   const [loading, setLoading] = useState<boolean>(false);
   const { data: session, status } = useSession();
 
-   const fetchAllData = async () => {
+  // fetchAllData를 useCallback으로 감싸서 정의합니다.
+  // 이렇게 해야 이 함수가 의존성 배열에 들어가도 무한루프가 돌지 않습니다.
+  const fetchAllData = useCallback(async () => {
+    const userId = session?.user?.user_id;
+    if (status !== "authenticated" || !userId) return;
     try {
       let projectResult = null;
-      const userId= await session?.user.user_id;
       // 프로젝트 목록 조회
       if (filter.view === "personal") {
-        const memberByUserResult = await getProjectMemberByUser(userId);
-        const memberByUserData = memberByUserResult.data;
-
-        if (!memberByUserData) return;
-
-        if (memberByUserData.length === 0) {
-          memberByUserData.push({project_id: "00000000-0000-0000-0000-000000000000"})
+        const { data: memberData } = await getProjectMemberByUser(userId);
+      
+        // 참여 중인 프로젝트가 없는 경우 초기화 후 리턴
+        if (!memberData || memberData.length === 0) {
+          setProjectList([]);
+          setProjectMember({});
+          return;
         }
-        const currentIds = memberByUserData.map((memberData) => memberData.project_id).join(',');
+        const currentIds = memberData.map((memberData) => memberData.project_id).join(',');
 
         projectResult = await getProjectByIds(currentIds);
       } else {
@@ -84,39 +84,48 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
         projectName: project.project_name,
       }));
       setProjectList(formattedProjects);
-
-      // 각 프로젝트의 멤버 정보 조회
-      const memberPromises = formattedProjects.map((p) =>
-        getProjectMember(p.projectId)
-          .then((res) => ({ id: p.projectId, count: res.data?.length || 0 }))
-      );
       
-      // 모든 요청이 끝날 때까지 기다림
-      const membersResults = await Promise.all(memberPromises);
+      const memberMap = data.reduce((acc, project) => {
+        const countData = project.project_members; 
+        const count = countData?.[0]?.count || 0; 
+        acc[project.project_id] = count;
 
-      // 멤버 정보를 객체 형태로 변환하여 한 번에 업데이트
-      const memberMap = membersResults.reduce((acc, cur) => ({
-        ...acc,
-        [cur.id]: cur.count,
-      }), {});
-      
+        return acc;
+      }, {});
+
       setProjectMember(memberMap);
-
     } catch (err) {
       console.error(err);
       showApiError("데이터를 불러오는 중 오류가 발생했습니다.");
     }
-  };
+}, [filter.view, status, session?.user?.user_id]);
 
+useEffect(() => {
+  fetchAllData();
+}, [fetchAllData]);
 
-  useEffect(() => {
-    console.log(session?.user.user_id, status)
-  }, [status])
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchAllData();
-    }
-  }, [filter.view, status]);
+// useEffect(() => {
+//   const channel = supabase
+//     .channel('realtime-projects') // 채널 이름은 아무거나 상관없음
+//     .on(
+//       'postgres_changes',
+//       {
+//         event: '*', // INSERT, UPDATE, DELETE 모두 감지
+//         schema: 'public',
+//         table: 'projects', // 감시할 테이블 명
+//       },
+//       (payload) => {
+//         console.log('변경사항 감지:', payload)
+//         fetchAllData();
+//       }
+//     )
+//     .subscribe()
+
+//   // 컴포넌트 언마운트 시 구독 해제
+//   return () => {
+//     supabase.removeChannel(channel)
+//   }
+// }, [supabase, fetchAllData]);
 
 const sortedProjectList = useMemo(() => {
   if (projectList.length === 0) return [];
