@@ -10,14 +10,13 @@ export default function InviteDecisionModal({ invite } : {invite : Invitation}) 
   const router = useRouter();
   const { data: session } = useSession();
 
-  // 🔥 현재 로그인된 유저 ID
+  //현재 로그인된 유저 ID
   const userId = session?.user?.user_id;
 
   if (!userId) return null; // 로그인 안 됐으면 아무것도 렌더링 안 함
 
-  // ===================================
+ 
   // 참여하기
-  // ===================================
   const handleAccept = async () => {
     try {
       const { project_id, invitation_id, project_role } = invite;
@@ -65,9 +64,7 @@ export default function InviteDecisionModal({ invite } : {invite : Invitation}) 
     }
   };
 
-  // ===================================
   // 거절하기
-  // ===================================
   const handleReject = async () => {
     try {
       const { invitation_id } = invite;
@@ -99,9 +96,7 @@ export default function InviteDecisionModal({ invite } : {invite : Invitation}) 
     }
   };
 
-  // ===================================
-  // 렌더링
-  // ===================================
+
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
       <div className="bg-white dark:bg-gray-900 p-6 rounded-xl w-[380px]">

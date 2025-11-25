@@ -36,7 +36,6 @@ export async function GET() {
 
     const rows = data as RawRow[] | any;
     
-    // console.log(rows)
     const formatted = rows.map((row : any) => ({
       member_id: row.member_id,
       project_id: row.project_id,
@@ -46,10 +45,6 @@ export async function GET() {
       email: row.users?.email,
       role: row.role,
     }));
-
-
-// console.log(formatted);
-
 
     return NextResponse.json(formatted);
   } catch (err) {

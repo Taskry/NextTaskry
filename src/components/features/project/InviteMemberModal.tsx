@@ -81,8 +81,8 @@ export default function InviteMemberModal({ projectId, onClose }: InviteMemberMo
       status: "pending",
       created_at: new Date().toISOString(),
     })
-    .select("invitation_id") // ✅ 방금 생성된 row에서 invitation_id만 가져오겠다는 뜻
-    .single();               // ✅ 결과가 1줄이라고 기대할 때 사용
+    .select("invitation_id") // 방금 생성된 row에서 invitation_id만 가져오겠다는 뜻
+    .single();               // 결과가 1줄이라고 기대할 때 사용
 
     setIsLoading(false);
 
@@ -92,10 +92,10 @@ export default function InviteMemberModal({ projectId, onClose }: InviteMemberMo
       return;
     }
 
-    // ✅ 여기서 방금 생성된 invitation_id 확보
+    // 여기서 방금 생성된 invitation_id 확보
     const invitationId = data.invitation_id;
 
-    // ✅ STEP 3 — 이메일 발송 API 호출
+    // STEP 3 — 이메일 발송 API 호출
 try {
   const res = await fetch("/api/send-invite", {
     method: "POST",
@@ -117,7 +117,7 @@ try {
     console.error("Email sending error:", result);
     showToast("이메일 전송에 실패했습니다.", "error");
   } else {
-    showToast("초대 이메일을 전송했습니다!", "success");
+    showToast("초대 이메일을 전송했습니다.", "success");
   }
 } catch (err) {
   console.error("Email API 호출 오류:", err);
@@ -133,7 +133,7 @@ try {
     setEmail(""); // 초기화
     await fetchInvitations(); // 목록 갱신
   };
-    // ⬇️ 이 invitationId를 나중에 이메일 API 호출할 때 사용함
+    // 이 invitationId를 나중에 이메일 API 호출할 때 사용함
     // 예: /api/send-invite 로 { email, invitationId } 보내기
 
 
@@ -162,7 +162,7 @@ try {
         <div className="mb-3">
           <label className="text-sm font-medium">역할</label>
           <select
-            className="w-full mt-1 border rounded-md px-3 py-2 dark:text-gray-200 bg-black"
+            className="w-full mt-1 border rounded-md px-3 py-2 dark:text-gray-200 dark:bg-black"
             value={role}
             onChange={(e) => setRole(e.target.value)}
           >

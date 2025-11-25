@@ -2,7 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request, context: any) {
-  // ★ 여기! await 써야 정상 동작함 ★
+  
   const { memberId } = await context.params;
 
   const { role } = await req.json();
