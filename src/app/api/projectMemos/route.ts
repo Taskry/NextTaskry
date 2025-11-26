@@ -184,6 +184,8 @@ export async function POST(request: Request) {
           content: content.trim(),
           created_at: kstTime.toISOString(),
           updated_at: kstTime.toISOString(),
+          is_pinned: false, // 새 메모는 기본적으로 고정되지 않음
+          pinned_at: null, // 고정되지 않으므로 null
         },
       ])
       .select()
@@ -307,6 +309,8 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { is_pinned } = body;
 
+    console.log("🔧 서버 수신 데이터:", { memoId, body, is_pinned });
+
     if (!memoId) {
       return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
     }
@@ -318,15 +322,21 @@ export async function PATCH(request: Request) {
       );
     }
 
+    const updateData = {
+      is_pinned,
+      pinned_at: is_pinned ? new Date().toISOString() : null,
+    };
+
+    console.log("💾 DB 업데이트 데이터:", updateData);
+
     const { data, error } = await supabase
       .from("project_memos")
-      .update({
-        is_pinned,
-        pinned_at: is_pinned ? new Date().toISOString() : null,
-      })
+      .update(updateData)
       .eq("memo_id", memoId)
       .select()
       .single();
+
+    console.log("📊 DB 업데이트 결과:", { data, error });
 
     if (error) throw error;
 
