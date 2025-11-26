@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Subtask } from "@/types";
 import { Icon } from "@/components/shared/Icon";
 import Button from "@/components/ui/Button";
+import Modal from "@/components/ui/Modal";
+import { useModal } from "@/hooks/useModal";
 
 interface SubtaskListProps {
   subtasks: Subtask[];
@@ -21,6 +23,11 @@ const SubtaskList = ({
   const [editingTitle, setEditingTitle] = useState("");
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("");
   const [showAddInput, setShowAddInput] = useState(false);
+  const [deletingSubtaskId, setDeletingSubtaskId] = useState<string | null>(
+    null
+  );
+
+  const { modalProps, openModal, closeModal } = useModal();
 
   const completedCount = subtasks.filter((s) => s.completed).length;
 
@@ -54,13 +61,22 @@ const SubtaskList = ({
     setEditingTitle("");
   };
 
+  // 서브태스크 삭제 확인 모달 열기
   const handleDelete = (subtaskId: string) => {
     if (!editable || !onUpdate) return;
 
-    if (!confirm("이 하위 작업을 삭제하시겠습니까?")) return;
+    setDeletingSubtaskId(subtaskId);
+    openModal("delete", "하위 작업 삭제", "이 하위 작업을 삭제하시겠습니까?");
+  };
 
-    const updated = subtasks.filter((s) => s.id !== subtaskId);
+  // 서브태스크 삭제 실행
+  const confirmDeleteSubtask = () => {
+    if (!deletingSubtaskId) return;
+
+    const updated = subtasks.filter((s) => s.id !== deletingSubtaskId);
     onUpdate(updated);
+    setDeletingSubtaskId(null);
+    closeModal();
   };
 
   const handleAddSubtask = () => {
@@ -287,6 +303,9 @@ const SubtaskList = ({
           하위 작업 추가
         </Button>
       )}
+
+      {/* 삭제 확인 모달 */}
+      <Modal {...modalProps} onConfirm={confirmDeleteSubtask} />
     </div>
   );
 };

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Icon } from "@/components/shared/Icon";
+import { UserAvatar } from "@/components/shared/UserAvatar";
+import { NoMembersState } from "@/components/shared/EmptyState";
 
 // ============================================
 // Types & Constants
@@ -47,22 +48,9 @@ export function AssigneeField({
 }: AssigneeFieldProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
 
   // 선택된 멤버 처리
   const selectedMember = members?.find((m: any) => m.user_id === value);
-
-  const handleImageError = (userId: string) => {
-    setImageErrors((prev) => new Set(prev).add(userId));
-  };
-
-  const isValidImageUrl = (url: string | null | undefined) => {
-    if (!url) return false;
-    // default-user, placeholder 등의 더미 이미지 필터링
-    if (url.includes("default-user") || url.includes("placeholder"))
-      return false;
-    return true;
-  };
 
   // 입력값에 따른 멤버 필터링
   const filteredMembers = (members || []).filter((member: any) => {
@@ -105,23 +93,12 @@ export function AssigneeField({
             className="cursor-pointer rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-600"
           >
             <div className="flex items-center gap-3 p-2">
-              <div className="w-8 h-8 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
-                {isValidImageUrl(selectedMember?.users?.profile_image) &&
-                !imageErrors.has(selectedMember?.user_id) ? (
-                  <Image
-                    src={selectedMember.users.profile_image}
-                    alt={selectedMember.users.user_name}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                    onError={() => handleImageError(selectedMember.user_id)}
-                  />
-                ) : (
-                  <span className="text-sm font-medium text-main-600 dark:text-main-300">
-                    {selectedMember?.users?.user_name?.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
+              <UserAvatar
+                userName={selectedMember?.users?.user_name || ""}
+                profileImage={selectedMember?.users?.profile_image}
+                size={32}
+                onImageError={() => handleImageError(selectedMember?.user_id)}
+              />
               <div className="flex-1">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   {selectedMember?.users?.user_name}
@@ -136,12 +113,18 @@ export function AssigneeField({
             </div>
           </div>
         ) : (
-          <p
-            onClick={onEdit}
-            className="p-2 rounded transition-colors cursor-pointer text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            클릭하여 담당자 추가
-          </p>
+          <div>
+            {(members || []).length === 0 ? (
+              <NoMembersState iconSize={16} />
+            ) : (
+              <p
+                onClick={onEdit}
+                className="p-2 rounded transition-colors cursor-pointer text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                클릭하여 담당자 추가
+              </p>
+            )}
+          </div>
         )}
       </div>
     );
@@ -209,23 +192,12 @@ export function AssigneeField({
         {selectedMember && !isOpen && (
           <div className="border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
             <div className="flex items-center gap-3 px-3 py-2">
-              <div className="w-8 h-8 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
-                {isValidImageUrl(selectedMember.users.profile_image) &&
-                !imageErrors.has(selectedMember.user_id) ? (
-                  <Image
-                    src={selectedMember.users.profile_image}
-                    alt={selectedMember.users.user_name}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-cover"
-                    onError={() => handleImageError(selectedMember.user_id)}
-                  />
-                ) : (
-                  <span className="text-sm font-medium text-main-600 dark:text-main-300">
-                    {selectedMember.users.user_name?.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
+              <UserAvatar
+                userName={selectedMember?.users?.user_name || ""}
+                profileImage={selectedMember?.users?.profile_image}
+                size={32}
+                onImageError={() => handleImageError(selectedMember?.user_id)}
+              />
               <div className="flex-1">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   {selectedMember.users.user_name}
@@ -258,11 +230,9 @@ export function AssigneeField({
           </div>
         )}
 
-        {/* 맴버가 없는 경우 */}
-        {!isLoading && isOpen && filteredMembers.length === 0 && (
-          <div className="p-2 text-center text-gray-500 dark:text-gray-400">
-            프로젝트에 등록된 멤버가 없습니다.
-          </div>
+        {/* 멤버가 없는 경우 */}
+        {!isLoading && isOpen && (members || []).length === 0 && (
+          <NoMembersState />
         )}
 
         {/* 드롭다운 목록 */}
@@ -277,23 +247,12 @@ export function AssigneeField({
                 }}
                 className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
               >
-                <div className="w-8 h-8 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
-                  {isValidImageUrl(member.users.profile_image) &&
-                  !imageErrors.has(member.user_id) ? (
-                    <Image
-                      src={member.users.profile_image}
-                      alt={member.users.user_name}
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
-                      onError={() => handleImageError(member.user_id)}
-                    />
-                  ) : (
-                    <span className="text-sm font-medium text-main-600 dark:text-main-300">
-                      {member.users.user_name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
+                <UserAvatar
+                  userName={member.users.user_name}
+                  profileImage={member.users.profile_image}
+                  size={32}
+                  onImageError={() => handleImageError(member.user_id)}
+                />
                 <div className="flex-1">
                   <div className="text-sm text-gray-700 dark:text-gray-300">
                     {member.users.user_name}
@@ -313,7 +272,7 @@ export function AssigneeField({
         {/* 검색 결과 없음 */}
         {isOpen && !isLoading && filteredMembers.length === 0 && searchTerm && (
           <div className="p-2 text-center text-gray-500 dark:text-gray-400">
-            &quot;{searchTerm}&quot;와 일치하는 멤버가 없습니다.
+            &quot;{searchTerm}&quot;와 일치하는 팀원이 없어요
           </div>
         )}
       </div>
