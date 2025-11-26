@@ -152,9 +152,20 @@ export default function ProjectForm({ id }: { id?: string }) {
 
   // Calendar를 위한 핸들러
   const handleDateChange = (name: string, date: Date | undefined) => {
+    
+    if (!date) {
+      setProjectData((prevProjectData) => ({
+        ...prevProjectData,
+        [name]: undefined,
+      }));
+      return;
+    }
+    
+    const adjustedDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+
     setProjectData((prevProjectData) => ({
       ...prevProjectData,
-      [name]: date,
+      [name]: adjustedDate,
     }));
   };
 
@@ -191,7 +202,7 @@ export default function ProjectForm({ id }: { id?: string }) {
 
     try {
       let targetId = id;
-
+      
       if (!targetId) {
         const { data } = await createProject(projectData);
         targetId = data?.[0]?.project_id; 
