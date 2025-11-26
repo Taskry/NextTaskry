@@ -17,6 +17,8 @@ import { ProjectMemo } from "@/types/projectMemo";
 import { supabase } from "@/lib/supabase/supabase";
 import { useSession } from "next-auth/react";
 import { Icon } from "@/components/shared/Icon";
+import { useModal } from "@/hooks/useModal";
+import Modal from "@/components/ui/Modal";
 
 // 메모 최대 길이 제한
 const MEMO_MAX_LENGTH = 5000;
@@ -54,6 +56,8 @@ const MemoView = ({ projectId }: MemoFormProps) => {
 
   const { data: session } = useSession();
   const memoMaxLength = MEMO_MAX_LENGTH;
+  const { openModal, closeModal, modalProps } = useModal();
+  const [deletingMemoId, setDeletingMemoId] = useState<string | null>(null);
 
   /**
    * 필터링된 메모 계산
@@ -340,14 +344,20 @@ const MemoView = ({ projectId }: MemoFormProps) => {
     }
   };
 
-  // 메모 삭제
-  const handleDeleteMemo = async (memoId: string) => {
-    if (!confirm("메모를 삭제하시겠습니까?")) return;
+  // 메모 삭제 확인 모달 열기
+  const handleDeleteMemo = (memoId: string) => {
+    setDeletingMemoId(memoId);
+    openModal("delete", "메모 삭제", "이 메모를 삭제하시겠습니까?");
+  };
+
+  // 메모 삭제 실행
+  const confirmDeleteMemo = async () => {
+    if (!deletingMemoId) return;
 
     try {
       setError(null);
 
-      const res = await fetch(`/api/projectMemos?memoId=${memoId}`, {
+      const res = await fetch(`/api/projectMemos?memoId=${deletingMemoId}`, {
         method: "DELETE",
       });
 
@@ -355,8 +365,16 @@ const MemoView = ({ projectId }: MemoFormProps) => {
         const errorData = await res.json();
         throw new Error(errorData.error || "메모 삭제 실패");
       }
+
+      // 삭제 성공 시 deleteSuccess 모달 표시
+      closeModal();
+      setTimeout(() => {
+        openModal("deleteSuccess");
+      }, 100);
     } catch (err) {
       setError(err instanceof Error ? err.message : "메모 삭제 실패");
+    } finally {
+      setDeletingMemoId(null);
     }
   };
 
@@ -380,8 +398,6 @@ const MemoView = ({ projectId }: MemoFormProps) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-
-      const responseData = await res.json();
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -828,6 +844,9 @@ const MemoView = ({ projectId }: MemoFormProps) => {
           </>
         )}
       </div>
+
+      {/* 삭제 확인 모달 */}
+      <Modal {...modalProps} onConfirm={confirmDeleteMemo} />
     </div>
   );
 };
