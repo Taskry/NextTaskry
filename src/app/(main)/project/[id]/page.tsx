@@ -20,6 +20,7 @@ import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
 import MemoView from "@/components/features/kanban/MemoView";
+import { el } from "date-fns/locale";
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
@@ -144,6 +145,58 @@ export default function ProjectPage() {
     fetchData();
   }, [projectId]);
 
+  // 리얼타임 업데이트 설정
+  useEffect(() => {
+    console.log("🔥 구독 시작 횟수 확인");
+    if (!projectId || !kanbanBoardId) return;
+    console.log("리얼타임 업데이트 설정 실행");
+
+    const channel = supabase
+      .channel(`taskry-board-${kanbanBoardId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `kanban_board_id=eq.${kanbanBoardId}`,
+        },
+        (payload) => {
+          console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
+
+          if (payload.eventType === "INSERT") {
+            const newTask = payload.new as Task;
+            setTasks((prev) => {
+              // 중복 추가 방지
+              if (prev.some((t) => t.id === newTask.id)) {
+                console.log("이미 존재하는 Task");
+                return prev;
+              }
+              console.log("새로운 Task 추가:", newTask.title);
+              return [...prev, newTask];
+            });
+          } else if (payload.eventType === "UPDATE") {
+            const updatedTask = payload.new as Task;
+            setTasks((prev) =>
+              prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+            );
+          } else if (payload.eventType === "DELETE") {
+            const deletedTask = payload.old as Task;
+            setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
+            console.log("Task 삭제:", deletedTask.title);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Supabase 채널 상태:", status);
+      });
+
+    return () => {
+      console.log("Supabase 채널 해제");
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, kanbanBoardId]);
+
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
@@ -155,7 +208,7 @@ export default function ProjectPage() {
     }
 
     if (data) {
-      setTasks((prev) => [...prev, data]);
+      //    setTasks((prev) => [...prev, data]);
       showToast("작업이 생성되었습니다.", "success");
     }
   };
@@ -163,11 +216,11 @@ export default function ProjectPage() {
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     const result = await updateTask(taskId, updates);
 
-    if (result.data) {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-      );
-    }
+    // if (result.data) {
+    //   setTasks((prev) =>
+    //     prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+    //   );
+    // }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -178,7 +231,7 @@ export default function ProjectPage() {
       return;
     }
 
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    //  setTasks((prev) => prev.filter((t) => t.id !== taskId));
     showToast("작업이 삭제되었습니다.", "success");
   };
 

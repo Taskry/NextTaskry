@@ -108,7 +108,6 @@ export default function TaskDetail({
   const handleDelete = () => {
     if (!confirm(TASK_MESSAGES.DELETE_CONFIRM)) return;
     onDelete?.(task.id);
-    showToast("작업이 삭제되었습니다.", "deleted");
 
     // 삭제 후 모달 닫기
     setTimeout(() => {
