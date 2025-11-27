@@ -1,12 +1,12 @@
-import Badge from "@/components/ui/Badge";
+"Use Client"
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor } from "@/app/sample/color/page";
-import { Icon } from "@/components/shared/Icon";
 import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
 import { UserInfoRow } from "@/types/adminUser";
 import { updateUserRole } from "@/lib/api/adminUsers";
+import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
 
 
 export default function AdminUsersPage() {
@@ -14,45 +14,32 @@ export default function AdminUsersPage() {
   const[users, setUsers]= useState<UserInfoRow[]>([])
   const[searchName, setSearchName] = useState("");
   const[filterRole, setFilterRole] = useState("all"); // all | leader | member
+  const [isInviteOpen, setIsInviteOpen] = useState(false); //초대버튼
+  const [projects, setProjects] = useState<{ project_id: string; project_name: string }[]>([]);
 
   
 
-  async function handleRoleChange(memberId: string, newRole: string) {
-  try {
-    // 서버에 반영
-    await updateUserRole(memberId, newRole);
-
-    // UI 즉시 변경
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.member_id === memberId ? { ...u, role: newRole }as AdminUserRow : u
-      )
-    );
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  const filteredUsers = users.filter((u) =>
-  u.user_name.toLowerCase().includes(searchName.toLowerCase().trim())
-  ).filter((u) =>
-  filterRole === "all" ? true : u.role === filterRole
-  );
 
 
 
     
 
-  useEffect(() => {
-    async function getData() {
-      const data = await fetchAdminUsers();
-      setUsers(data);
-      console.log(data)
-    }
-    getData();
+useEffect(() => {
+  async function load() {
+    //1) 유저 목록 가져오기
+    const data = await fetchAdminUsers();
+    setUsers(data);
 
-   
-  }, []); 
+    //2) 프로젝트 목록 가져오기
+    const res = await fetch("/api/admin/projects");
+    const projectsData = await res.json();
+    
+    setProjects(projectsData);
+    console.log(projectsData,"프로젝트 목록")
+  }
+  
+  load();
+}, []);
 
  
 
@@ -70,13 +57,6 @@ export default function AdminUsersPage() {
               onChange={(e) => setSearchName(e.target.value)}
               className="h-12 text-sm font-normal w-2xs border px-3 rounded-md"
             />
-
-
-            {/* <div className="h-12 flex items-center gap-1 rounded-md border border-gray-100 px-3 cursor-pointer"> */}
-              {/* <Icon type="filter" size={18} />
-              <span className="inline-block">필터</span> */}
-
-
                 <select
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
@@ -86,7 +66,16 @@ export default function AdminUsersPage() {
                   <option value="leader">admin</option>
                   <option value="member">user</option>
                 </select>
-            {/* </div> */}
+              <Button
+              btnType="basic"
+              variant="primary"
+              className="h-12 px-4 rounded-md"
+              onClick={() => setIsInviteOpen(true)}
+            >
+              초대하기
+            </Button>
+
+
           </div>
         }
       >
@@ -102,7 +91,7 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y text-sm bg-white dark:text-gray-100  dark:bg-black">
-            {filteredUsers.map((user,index) => (
+            {users.map((user,index) => (
               <tr key={index}>
                 {/* 이름 */}
                 <td className="py-3 px-4 text-center">{user.user_name}</td>
@@ -116,12 +105,9 @@ export default function AdminUsersPage() {
                     value={user.global_role}
                       onChange={(e) => {
                         const newRole = e.target.value;
-
                         // 확인창 띄우기
                         const ok = window.confirm(`정말 ${user.user_name} 님의 권한을 '${newRole}' 로 변경하시겠습니까?`);
                         if (!ok) return; 
-
-                        handleRoleChange(user.member_id, newRole);
                       }}
                     className="border rounded px-2 py-1 text-sm dark:bg-black"
                   >
@@ -133,20 +119,28 @@ export default function AdminUsersPage() {
             
 
                 {/* 삭제 버튼 */}
-                <td className="p-4 text-gray-700 ">
-                  {" "}
+                <td className="p-4 text-gray-700 pl-18">
                   <Button
                     btnType="icon"
                     icon="trash"
                     size={16}
                     variant="warning"
+                  
                   />
                 </td>
               </tr>
             ))}
+
+
+                 
           </tbody>
-          
         </table>
+           {isInviteOpen && (
+        <AdminInviteModal
+          projects={projects} 
+          onClose={() => setIsInviteOpen(false)}
+        />
+      )}
       </AdminPageWrapper>
     </>
   );

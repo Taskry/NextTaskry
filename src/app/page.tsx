@@ -7,30 +7,28 @@ import ProjectCardHeader from "@/components/features/project/ProjectCardHeader";
 import { supabase } from "@/lib/supabase/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import InviteDecisionModal from "@/components/features/invite/InviteDecisionModal";
+import InviteDecisionModal_V2 from "@/components/features/invite/InviteDecisionModal_V2";
 
 
 
 const Home = () => {
   const router = useRouter();
-  console.log("프로젝트 목록페이지")
-
+  
+  //초대 확인 절차
   const handleSelectProject = (projectId: string) => {
     router.push(`/project/${projectId}`);
   };
 
   const [inviteData, setInviteData] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
     const checkInvite = async () => {
       const inviteId = localStorage.getItem("invite_id");
-
-      // ❌ 일반 로그인 → 초대 없음
       if (!inviteId) return;
 
-      // 🔥 해당 초대 정보 조회
+     
       const { data, error } = await supabase
-        .from("project_invitations")
+        .from("project_invitation_new")
         .select("*")
         .eq("invitation_id", inviteId)
         .maybeSingle();
@@ -40,7 +38,6 @@ const Home = () => {
         return;
       }
 
-      // 초대가 존재하고 상태가 pending일 때만 모달을 띄움
       if (data && data.status === "pending") {
         setInviteData(data);
       }
@@ -60,8 +57,9 @@ const Home = () => {
       </div>
 
 
-       {/* 🔥 초대 모달 표시 */}
-      {inviteData && <InviteDecisionModal invite={inviteData} />}
+       {/* 초대 모달 표시 */}
+      {inviteData && <InviteDecisionModal_V2 invite={inviteData} 
+       onCloseModal={() => setInviteData(null)}/>}
     </div>
   );
 };
