@@ -479,7 +479,7 @@ function Header({
         </button>
 
         {/* 정렬 드롭다운 */}
-        <div className="relative">
+        {/* <div className="relative">
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
             className="p-1.5 sm:p-2 hover:bg-white/20 rounded-lg transition-colors flex items-center gap-1"
@@ -527,7 +527,7 @@ function Header({
               ))}
             </div>
           )}
-        </div>
+        </div> */}
 
         <button
           onClick={onToggleFilter}
