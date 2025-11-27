@@ -295,7 +295,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
       <div className="flex-1 flex overflow-hidden gap-4 min-h-0 p-6">
         {/* 칸반 + 캘린더 영역 */}
         <div
