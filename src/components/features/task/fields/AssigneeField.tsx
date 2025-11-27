@@ -75,6 +75,11 @@ export function AssigneeField({
     onBlur?.();
   };
 
+  const handleImageError = (userId?: string) => {
+    // 이미지 로드 실패시 처리 (옵션)
+    console.log("Image load failed for user:", userId);
+  };
+
   // 편집 모드 렌더링 (TaskDetail용)
   if (isEditing !== undefined && isEditing !== true && onEdit) {
     return (
@@ -97,7 +102,6 @@ export function AssigneeField({
                 userName={selectedMember?.users?.user_name || ""}
                 profileImage={selectedMember?.users?.profile_image}
                 size={32}
-                onImageError={() => handleImageError(selectedMember?.user_id)}
               />
               <div className="flex-1">
                 <div className="text-sm text-gray-700 dark:text-gray-300">
@@ -251,7 +255,6 @@ export function AssigneeField({
                   userName={member.users.user_name}
                   profileImage={member.users.profile_image}
                   size={32}
-                  onImageError={() => handleImageError(member.user_id)}
                 />
                 <div className="flex-1">
                   <div className="text-sm text-gray-700 dark:text-gray-300">

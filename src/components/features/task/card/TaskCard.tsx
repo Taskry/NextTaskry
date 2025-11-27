@@ -49,7 +49,7 @@ const TaskCard = ({ task, projectId, onClick }: TaskCardProps) => {
         <div className="flex items-start gap-2 flex-1">
           {/* 완료 체크 아이콘 */}
           {isCompleted && (
-            <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
+            <div className="shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-0.5">
               <svg
                 className="w-3.5 h-3.5 text-white"
                 fill="currentColor"

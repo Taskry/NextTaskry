@@ -71,7 +71,7 @@ const SubtaskList = ({
 
   // 서브태스크 삭제 실행
   const confirmDeleteSubtask = () => {
-    if (!deletingSubtaskId) return;
+    if (!deletingSubtaskId || !onUpdate) return;
 
     const updated = subtasks.filter((s) => s.id !== deletingSubtaskId);
     onUpdate(updated);

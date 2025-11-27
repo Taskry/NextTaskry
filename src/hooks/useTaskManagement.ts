@@ -118,7 +118,7 @@ export function useTaskManagement({
     if (boardId) {
       fetchTasks();
     }
-  }, [fetchTasks]);
+  }, [fetchTasks, boardId]);
 
   return {
     tasks,
