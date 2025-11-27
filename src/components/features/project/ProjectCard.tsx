@@ -26,6 +26,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { DeleteDialog } from "./DeleteDialog";
 import PorjectCardFilter from "./ProjectFilter";
 import { supabase } from "@/lib/supabase/supabase";
+import ProjectPagination from "./ProjectPagination";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -47,6 +48,9 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   });
   const [showFilter, setShowFilter] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const ITEMS_PER_PAGE = 16;
   const { data: session, status } = useSession();
 
   // fetchAllData를 useCallback으로 감싸서 정의합니다.
@@ -62,19 +66,25 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       
         // 참여 중인 프로젝트가 없는 경우 초기화 후 리턴
         if (!memberData || memberData.length === 0) {
+          setTotalPage(0);
           setProjectList([]);
           setProjectMember({});
           return;
         }
         const currentIds = memberData.map((memberData) => memberData.project_id).join(',');
 
-        projectResult = await getProjectByIds(currentIds);
+        projectResult = await getProjectByIds(currentIds, currentPage);
       } else {
-        projectResult = await getProject();
+        projectResult = await getProject(currentPage);
       }
       
-      const data = projectResult.data;
-
+      const {data, totalCount} = projectResult;
+      
+      if (totalCount) {
+        const totalPages = Math.ceil(totalCount/ITEMS_PER_PAGE)
+        setTotalPage(totalPages);
+      }
+      
       if (!data) return;
 
       // 프로젝트 목록 가공
@@ -98,8 +108,11 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       console.error(err);
       showApiError("데이터를 불러오는 중 오류가 발생했습니다.");
     }
-}, [filter.view, status, session?.user?.user_id]);
+}, [filter.view, status, currentPage, session?.user?.user_id]);
 
+useEffect(() => {
+  setCurrentPage(1);
+}, [filter.view])
 useEffect(() => {
   fetchAllData();
 }, [fetchAllData]);
@@ -171,6 +184,10 @@ const sortedProjectList = useMemo(() => {
     showToast("삭제되었습니다.", "deleted");
   }
   
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
 
   if (loading) {
     return <LoadingSpinner />;
@@ -207,71 +224,79 @@ const sortedProjectList = useMemo(() => {
             showFilter={showFilter}
             onFilterChange={handleSelectChange}
             onToggleFilter={() => setShowFilter(prev => !prev)}
-        />  
-      <div
-        className="
-                grid
-                grid-cols-1
-                sm:grid-cols-1
-                md:grid-cols-2
-                lg:grid-cols-3
-                xl:grid-cols-3
-                2xl:grid-cols-4
-                gap-4"
-      >
-        {sortedProjectList.map((project, index) => {
-          return (
-            // 프로젝트 선택 시 칸반보드 이동
-            <Card
-              key={index}
-              className="rounded-md hover:border-main-200 cursor-pointer"
-              onClick={() => {
-                onSelectProject?.(project.project_id);
-              }}
-            >
-              <CardHeader className="flex w-full">
-                <CardTitle>{project.projectName}</CardTitle>
-              </CardHeader>
-              <CardDescription className="flex">
-                <div className="flex gap-2">{project.description}</div>
-              </CardDescription>
-              <CardContent className="flex justify-end">
-                <div className="flex gap-2 font-bold text-main-400 dark:text-main-200 ">
-                  <Icon type="users" size={20} className="text-main-400 dark:text-main-200 " />
-                  <div className="text-sm">
-                    {projectMember ? projectMember[project.project_id] : 1}팀원
+        />
+      <div className="h-[calc(100vh-340px)] overflow-y-auto">
+        <div
+          className="
+                  grid
+                  grid-cols-1
+                  sm:grid-cols-1
+                  md:grid-cols-2
+                  lg:grid-cols-3
+                  xl:grid-cols-3
+                  2xl:grid-cols-4
+                  gap-4"
+        >
+          {sortedProjectList.map((project, index) => {
+            return (
+              // 프로젝트 선택 시 칸반보드 이동
+              <Card
+                key={index}
+                className="rounded-md hover:border-main-200 cursor-pointer"
+                onClick={() => {
+                  onSelectProject?.(project.project_id);
+                }}
+              >
+                <CardHeader className="flex w-full">
+                  <CardTitle>{project.projectName}</CardTitle>
+                </CardHeader>
+                <CardDescription className="flex">
+                  <div className="flex gap-2">{project.description}</div>
+                </CardDescription>
+                <CardContent className="flex justify-end">
+                  <div className="flex gap-2 font-bold text-main-400 dark:text-main-200 ">
+                    <Icon type="users" size={20} className="text-main-400 dark:text-main-200 " />
+                    <div className="text-sm">
+                      {projectMember ? projectMember[project.project_id] : 1}팀원
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-end gap-2">
-                <div onClick={(e: any) => e.stopPropagation()}>
-                  <Link href={`/project/update/${project.projectId}`}>
-                    <Button
-                      btnType="icon"
-                      icon="edit"
-                      size={16}
-                      variant="white"
-                      color="primary"
-                      className="
-                        hover:bg-main-100/40 
-                        hover:border-main-100/40 
-                        text-main-400 
-                        dark:text-main-200!
-                        dark:bg-gray-700!
-                        dark:border-gray-500!
-                        dark:hover:bg-gray-100/40!"
-                    />
-                  </Link>
-                </div>
-                <div onClick={(e: any) => e.stopPropagation()}>
-                   <DeleteDialog onClick={() => handleDeleteProject(project.projectId)} />
-                </div>
-              </CardFooter>
-            </Card>
-          );
-        })}
-        
+                </CardContent>
+                <CardFooter className="flex justify-end gap-2">
+                  <div onClick={(e: any) => e.stopPropagation()}>
+                    <Link href={`/project/update/${project.projectId}`}>
+                      <Button
+                        btnType="icon"
+                        icon="edit"
+                        size={16}
+                        variant="white"
+                        color="primary"
+                        className="
+                          hover:bg-main-100/40 
+                          hover:border-main-100/40 
+                          text-main-400 
+                          dark:text-main-200!
+                          dark:bg-gray-700!
+                          dark:border-gray-500!
+                          dark:hover:bg-gray-100/40!"
+                      />
+                    </Link>
+                  </div>
+                  <div onClick={(e: any) => e.stopPropagation()}>
+                    <DeleteDialog onClick={() => handleDeleteProject(project.projectId)} />
+                  </div>
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>  
       </div>
+      <div className="mt-6">
+        <ProjectPagination 
+            currentPage={currentPage}
+            totalPage={totalPage}
+            onPageChange={handlePageChange} 
+          />
+        </div>
     </div>
   );
 }

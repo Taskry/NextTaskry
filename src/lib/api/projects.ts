@@ -29,9 +29,9 @@ const PROJECT_BASE_URL = "http://localhost:3000/api/projects";
 const PROJECT_MEMBER_BASE_URL = "http://localhost:3000/api/projectMembers";
 
 // Project Info API
-export async function getProject(): Promise<ResultProps> {
+export async function getProject(page: number = 0): Promise<ResultProps> {
   try {
-    const url = `${PROJECT_BASE_URL}`;
+    const url = `${PROJECT_BASE_URL}?page=${page}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -55,9 +55,9 @@ export async function getProjectById(id: string): Promise<ResultProps> {
   }
 }
 
-export async function getProjectByIds(ids: string): Promise<ResultProps> {
+export async function getProjectByIds(ids: string, page:number = 0): Promise<ResultProps> {
   try {
-    const url = `${PROJECT_BASE_URL}?ids=${ids}`;
+    const url = `${PROJECT_BASE_URL}?ids=${ids}&page=${page}`;
     const res = await fetch(url);
     const data = await res.json();
 
