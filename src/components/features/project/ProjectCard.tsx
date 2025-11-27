@@ -47,11 +47,11 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
     date: "startedAt",
     sort: "asc",
   });
-  const [showFilter, setShowFilter] = useState<boolean>(true);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const ITEMS_PER_PAGE = 16;
+  const ITEMS_PER_PAGE = 12;
   const { data: session, status } = useSession();
 
   // fetchAllData를 useCallback으로 감싸서 정의합니다.
@@ -200,9 +200,7 @@ useEffect(() => {
       <Container className="pt-0">
         <PorjectCardFilter
           filter={filter}
-          showFilter={showFilter}
           onFilterChange={handleSelectChange}
-          onToggleFilter={() => setShowFilter((prev) => !prev)}
         />
 
         <div className="items-center justify-center pt-40">
@@ -225,84 +223,84 @@ useEffect(() => {
     <div className="pb-10">
       <PorjectCardFilter
         filter={filter}
-        showFilter={showFilter}
         onFilterChange={handleSelectChange}
-        onToggleFilter={() => setShowFilter((prev) => !prev)}
       />
-      <div
-        className="
-          grid
-          grid-cols-1
-          sm:grid-cols-1
-          md:grid-cols-2
-          lg:grid-cols-3
-          xl:grid-cols-3
-          2xl:grid-cols-3
-          gap-4"
-      >
-        {sortedProjectList.map((project, index) => {
-          return (
-            // 프로젝트 선택 시 칸반보드 이동
-            <Card
-              key={index}
-              className=""
-              onClick={() => {
-                onSelectProject?.(project.project_id);
-              }}
-            >
-              <div>
-                <CardHeader className="flex w-full mb-2">
-                  <CardTitle>{project.projectName}</CardTitle>
-                </CardHeader>
-                <CardDescription className="flex">
-                  <div className="flex gap-2 text-sm text-dark-description">
-                    {project.description}
-                  </div>
-                </CardDescription>
-              </div>
-              <CardContent className="flex justify-end">
-                <div className="flex gap-2 font-medium text-main-400 dark:text-main-200 ">
-                  <Icon
-                    type="users"
-                    size={18}
-                    className="text-main-400 dark:text-main-200 "
-                  />
-                  <div className="text-sm">
-                    {projectMember ? projectMember[project.project_id] : 1}팀원
-                  </div>
+      <div className="h-[calc(100vh-400px)] overflow-y-auto">
+        <div
+          className="
+            grid
+            grid-cols-1
+            sm:grid-cols-1
+            md:grid-cols-2
+            lg:grid-cols-3
+            xl:grid-cols-3
+            2xl:grid-cols-3
+            gap-4"
+        >
+          {sortedProjectList.map((project, index) => {
+            return (
+              // 프로젝트 선택 시 칸반보드 이동
+              <Card
+                key={index}
+                className=""
+                onClick={() => {
+                  onSelectProject?.(project.project_id);
+                }}
+              >
+                <div>
+                  <CardHeader className="flex w-full mb-2">
+                    <CardTitle>{project.projectName}</CardTitle>
+                  </CardHeader>
+                  <CardDescription className="flex">
+                    <div className="flex gap-2 text-sm text-dark-description">
+                      {project.description}
+                    </div>
+                  </CardDescription>
                 </div>
-              </CardContent>
-              <CardFooter className="flex justify-end gap-2">
-                <div onClick={(e: any) => e.stopPropagation()}>
-                  <Link href={`/project/update/${project.projectId}`}>
-                    <Button
-                      btnType="icon"
-                      icon="edit"
-                      size={16}
-                      variant="white"
-                      color="primary"
-                      className="
-                        hover:bg-main-100/40 
-                        hover:border-main-100/40 
-                        text-main-400 
-                        dark:text-main-200!
-                        dark:bg-gray-700!
-                        dark:border-gray-500!
-                        dark:hover:bg-gray-100/40!"
+                <CardContent className="flex justify-end">
+                  <div className="flex gap-2 font-medium text-main-400 dark:text-main-200 ">
+                    <Icon
+                      type="users"
+                      size={18}
+                      className="text-main-400 dark:text-main-200 "
                     />
-                  </Link>
-                </div>
-                <div onClick={(e: any) => e.stopPropagation()}>
-                  <DeleteDialog
-                    onClick={() => handleDeleteProject(project.projectId)}
-                  />
-                </div>
-              </CardFooter>
-            </Card>
-          );
-        })}
+                    <div className="text-sm">
+                      {projectMember ? projectMember[project.project_id] : 1}팀원
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end gap-2">
+                  <div onClick={(e: any) => e.stopPropagation()}>
+                    <Link href={`/project/update/${project.projectId}`}>
+                      <Button
+                        btnType="icon"
+                        icon="edit"
+                        size={16}
+                        variant="white"
+                        color="primary"
+                        className="
+                          hover:bg-main-100/40 
+                          hover:border-main-100/40 
+                          text-main-400 
+                          dark:text-main-200!
+                          dark:bg-gray-700!
+                          dark:border-gray-500!
+                          dark:hover:bg-gray-100/40!"
+                      />
+                    </Link>
+                  </div>
+                  <div onClick={(e: any) => e.stopPropagation()}>
+                    <DeleteDialog
+                      onClick={() => handleDeleteProject(project.projectId)}
+                    />
+                  </div>
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>
       </div>
-      <div className="mt-6">
+      <div>
         <ProjectPagination 
             currentPage={currentPage}
             totalPage={totalPage}
