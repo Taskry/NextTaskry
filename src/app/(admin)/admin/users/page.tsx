@@ -5,13 +5,13 @@ import { primaryBgColor } from "@/app/sample/color/page";
 import { Icon } from "@/components/shared/Icon";
 import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
-import { AdminUserRow } from "@/types/adminUser";
+import { UserInfoRow } from "@/types/adminUser";
 import { updateUserRole } from "@/lib/api/adminUsers";
 
 
 export default function AdminUsersPage() {
 
-  const[users, setUsers]= useState<AdminUserRow[]>([])
+  const[users, setUsers]= useState<UserInfoRow[]>([])
   const[searchName, setSearchName] = useState("");
   const[filterRole, setFilterRole] = useState("all"); // all | leader | member
 
@@ -47,8 +47,11 @@ export default function AdminUsersPage() {
     async function getData() {
       const data = await fetchAdminUsers();
       setUsers(data);
+      console.log(data)
     }
     getData();
+
+   
   }, []); 
 
  
@@ -80,8 +83,8 @@ export default function AdminUsersPage() {
                   className="h-12 border px-3 rounded-md text-sm"
                 >
                   <option value="all">전체</option>
-                  <option value="leader">leader</option>
-                  <option value="member">member</option>
+                  <option value="leader">admin</option>
+                  <option value="member">user</option>
                 </select>
             {/* </div> */}
           </div>
@@ -95,13 +98,12 @@ export default function AdminUsersPage() {
               <th className="py-3 px-4 text-center text-sm">이름</th>
               <th className="py-3 px-4 text-center text-sm">이메일</th>
               <th className="py-3 px-4 text-center text-sm">권한</th>
-              <th className="py-3 px-4 text-center text-sm">프로젝트</th>
               <th className="py-3 px-4 text-center text-sm">삭제</th>
             </tr>
           </thead>
           <tbody className="divide-y text-sm bg-white dark:text-gray-100  dark:bg-black">
-            {filteredUsers.map((user) => (
-              <tr key={user.member_id}>
+            {filteredUsers.map((user,index) => (
+              <tr key={index}>
                 {/* 이름 */}
                 <td className="py-3 px-4 text-center">{user.user_name}</td>
 
@@ -111,7 +113,7 @@ export default function AdminUsersPage() {
                 {/* 권한 */}
                 <td className="py-3 px-4 text-center">
                   <select
-                    value={user.role}
+                    value={user.global_role}
                       onChange={(e) => {
                         const newRole = e.target.value;
 
@@ -123,18 +125,15 @@ export default function AdminUsersPage() {
                       }}
                     className="border rounded px-2 py-1 text-sm dark:bg-black"
                   >
-                    <option value="leader">leader</option>
-                    <option value="member">member</option>
+                    <option value="admin">admin</option>
+                    <option value="user">user</option>
                   </select>
                 </td>
 
-                {/* 프로젝트명 */}
-                <td className="py-3 px-4 text-center">
-                  {user.project_name}
-                </td>
+            
 
                 {/* 삭제 버튼 */}
-                <td className="p-4 text-gray-700">
+                <td className="p-4 text-gray-700 ">
                   {" "}
                   <Button
                     btnType="icon"
