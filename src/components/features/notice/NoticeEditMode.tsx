@@ -10,7 +10,7 @@ export function NoticeEditMode({
 }: NoticeEditModeProps) {
   return (
     <div className="px-5 py-7 lg:p-7 space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] rounded-xl">
-      <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
+      <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
         <legend className="text-lg font-bold px-2 mb-0">기본 정보</legend>
 
         <div className="flex flex-col space-y-2">
@@ -29,7 +29,7 @@ export function NoticeEditMode({
             placeholder="공지사항 제목을 입력해주세요."
             value={editState.title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="p-3 mb-0 border border-gray-100 rounded-lg transition duration-150 w-full focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30"
+            className="p-3 mb-0 border border-border rounded-lg transition duration-150 w-full focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30"
           />
         </div>
 
@@ -43,7 +43,7 @@ export function NoticeEditMode({
         </div>
       </fieldset>
 
-      <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
+      <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg ">
         <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
         <div className="flex flex-col space-y-2">
@@ -54,7 +54,7 @@ export function NoticeEditMode({
             }
             placeholder="공지사항 내용을 입력해주세요."
             rows={15}
-            className="border-gray-100 focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30"
+            className="focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30"
           />
         </div>
       </fieldset>

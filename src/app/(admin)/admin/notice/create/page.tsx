@@ -89,7 +89,7 @@ export default function AdminNoticeCreatePage() {
   };
 
   return (
-    <Container>
+    <div className="max-w-4xl m-auto py-25">
       <SectionHeader
         title="공지사항 작성"
         description="새로운 공지사항을 작성하고 관리합니다."
@@ -99,7 +99,7 @@ export default function AdminNoticeCreatePage() {
         onSubmit={handleSubmit}
         className="px-5 py-7 lg:p-7 space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] rounded-xl"
       >
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
+        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg">
           <legend className="text-lg font-bold px-2 mb-0">기본 정보</legend>
 
           <div className="flex flex-col space-y-2">
@@ -122,11 +122,11 @@ export default function AdminNoticeCreatePage() {
                 setTitle(e.target.value);
                 setErrors((prev) => ({ ...prev, title: "" }));
               }}
-              className={`p-3 mb-0 border rounded-lg transition duration-150 w-full focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30 ${
-                errors.title ? "border-red-500" : "border-gray-100"
+              className={`p-3 mb-0 border border-border rounded-lg transition duration-150 w-full focus:border-[#87BAC3] focus:outline-none focus:ring focus:ring-[#87BAC3]/30 ${
+                errors.title ? "border-red-100/60" : ""
               }`}
             />
-            <span className="text-red-500 text-sm mt-2">{errors.title}</span>
+            <span className="text-red-100 text-sm mt-2">{errors.title}</span>
           </div>
 
           <div className="flex items-center">
@@ -139,7 +139,7 @@ export default function AdminNoticeCreatePage() {
           </div>
         </fieldset>
 
-        <fieldset className="p-6 border border-gray-100 rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
+        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
           <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
           <div className="flex flex-col space-y-2">
@@ -153,7 +153,7 @@ export default function AdminNoticeCreatePage() {
               placeholder="공지사항 내용을 입력해주세요."
               rows={15}
               className={`
-                ${errors.content ? "border-red-500" : "border-gray-100"}
+                ${errors.content ? "border-red-500" : ""}
                 focus:border-[#87BAC3]
                 focus:outline-none
                 focus:ring
@@ -167,14 +167,22 @@ export default function AdminNoticeCreatePage() {
         </fieldset>
 
         <div className="flex justify-end pt-4 gap-3">
-          <Button type="button" btnType="basic" onClick={() => router.back()}>
-            취소
-          </Button>
-          <Button type="submit" btnType="basic" variant="new">
-            등록
-          </Button>
+          <Button
+            onClick={() => router.back()}
+            btnType="icon"
+            icon="x"
+            size={16}
+            aria-label="취소"
+          ></Button>
+          <Button
+            btnType="icon"
+            icon="deviceFloppy"
+            size={16}
+            aria-label="공지사항 등록"
+            type="submit"
+          ></Button>
         </div>
       </form>
-    </Container>
+    </div>
   );
 }
