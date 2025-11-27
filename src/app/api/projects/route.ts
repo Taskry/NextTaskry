@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   query.order("created_at", { ascending: true });
 
   if (page){
-    const limit = 16;
+    const limit = 12;
     const from = (Number(page) - 1) * limit
     const to = from + limit - 1;
 

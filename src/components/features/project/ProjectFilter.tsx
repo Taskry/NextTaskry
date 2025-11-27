@@ -6,16 +6,16 @@ import { cn } from "@/lib/utils/utils";
 
 interface ProjectCardFilterProps {
   filter: any;
+  // showFilter: boolean;
+  // onToggleFilter: () => void;
   onFilterChange: (key: string, value: string) => void;
-  showFilter: boolean;
-  onToggleFilter: () => void;
 }
 
 export default function PorjectCardFilter({
   filter,
+  // showFilter,
+  // onToggleFilter,
   onFilterChange,
-  showFilter,
-  onToggleFilter,
 }: ProjectCardFilterProps) {
   const handleSelectChange = (key: string, value: string) => {
     if (onFilterChange) {
@@ -26,56 +26,56 @@ export default function PorjectCardFilter({
     <div
       className={cn(
         "flex mb-5 min-h-[70px] ",
-        showFilter ? "justify-between" : "justify-end"
+        "justify-between"
       )}
     >
-      {showFilter && (
-        <div
-          className="
-          p-4 mr-4 
-          flex justify-start gap-4 md:justify-center flex-wrap 
-          border border-border 
-          rounded-xl 
-          w-full"
-        >
-          <div className="flex justify-center items-center">
-            <div className="mr-2">View Type:</div>
-            <div>
-              <ViewSelect
-                value={filter.view}
-                onValueChange={(value) => {
-                  handleSelectChange("view", value);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center">
-            <div className="mr-2">정렬 기준:</div>
-            <div>
-              <DateSelect
-                value={filter.date}
-                onValueChange={(value) => {
-                  handleSelectChange("date", value);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-center items-center">
-            <div className="mr-2">정렬:</div>
-            <div>
-              <SortSelect
-                value={filter.sort}
-                onValueChange={(value) => {
-                  handleSelectChange("sort", value);
-                }}
-              />
-            </div>
+    
+      <div
+        className="
+        p-4 mr-4 
+        flex justify-start gap-4 md:justify-center flex-wrap 
+        border border-border 
+        rounded-xl 
+        w-full"
+      >
+        <div className="flex justify-center items-center">
+          <div className="mr-2">View Type:</div>
+          <div>
+            <ViewSelect
+              value={filter.view}
+              onValueChange={(value) => {
+                handleSelectChange("view", value);
+              }}
+            />
           </div>
         </div>
-      )}
-      <div className="flex justify-center items-center">
+
+        <div className="flex justify-center items-center">
+          <div className="mr-2">정렬 기준:</div>
+          <div>
+            <DateSelect
+              value={filter.date}
+              onValueChange={(value) => {
+                handleSelectChange("date", value);
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-center items-center">
+          <div className="mr-2">정렬:</div>
+          <div>
+            <SortSelect
+              value={filter.sort}
+              onValueChange={(value) => {
+                handleSelectChange("sort", value);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      
+      {/* <div className="flex justify-center items-center">
         <Button
           btnType="icon"
           icon="filter"
@@ -91,7 +91,7 @@ export default function PorjectCardFilter({
                 dark:border-gray-500!
                 dark:hover:bg-gray-100/40!"
         />
-      </div>
+      </div> */}
     </div>
   );
 }
