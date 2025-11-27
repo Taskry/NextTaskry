@@ -24,7 +24,7 @@ export default function NoticePagination({
         {/* 이전 */}
         <li>
           <button
-            className="px-2 py-2 border border-gray-100 rounded disabled:opacity-50 cursor-pointer"
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -36,10 +36,8 @@ export default function NoticePagination({
         {generatePages().map((page) => (
           <li key={page}>
             <button
-              className={`px-3 py-1 border rounded cursor-pointer ${
-                page === currentPage
-                  ? "border-main-200 text-main-200"
-                  : "border-gray-100"
+              className={`px-3 py-1 border border-border rounded cursor-pointer ${
+                page === currentPage ? "border-main-200 text-main-200" : ""
               }`}
               onClick={() => onPageChange(page)}
             >
@@ -51,7 +49,7 @@ export default function NoticePagination({
         {/* 다음 */}
         <li>
           <button
-            className="px-2 py-2 border border-gray-100 rounded disabled:opacity-50 cursor-pointer"
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

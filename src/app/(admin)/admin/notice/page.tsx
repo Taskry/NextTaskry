@@ -75,7 +75,7 @@ export default function AdminNoticesPage() {
     >
       {!isLoading && notices.length > 0 && (
         <div className="mb-4">
-          <p className="text-base font-bold">총 {totalItems}개</p>
+          <p className="text-base font-medium">총 {totalItems}개</p>
         </div>
       )}
 
@@ -86,7 +86,7 @@ export default function AdminNoticesPage() {
           {notices.map((notice, index) => (
             <div
               key={notice.announcement_id || index}
-              className={`border ${primaryBorderColor.Color2[0]} py-7 px-5 rounded-xl mb-4 dark:border-gray-100/40`}
+              className={`border border-border py-7 px-5 rounded-xl mb-4`}
             >
               <div className="flex flex-col items-start lg:flex-row lg:justify-between lg:items-center  ">
                 <Link
@@ -94,13 +94,13 @@ export default function AdminNoticesPage() {
                   className="flex-1"
                 >
                   <div>
-                    <h3 className="text-lg font-bold">
+                    <h3 className="text-lg font-bold text-foreground">
                       {notice.is_important && "[중요 공지] "}
                       {notice.title}
                     </h3>
                     <ul className="flex gap-5 mt-3">
-                      <li className="font-normal text-sm">
-                        작성일 | {formatDate(notice.created_at)}
+                      <li className="text-sm text-muted-foreground">
+                        작성일: {formatDate(notice.created_at)}
                       </li>
                     </ul>
                   </div>
@@ -118,7 +118,7 @@ export default function AdminNoticesPage() {
                     btnType="icon"
                     icon="trash"
                     size={16}
-                    variant="white"
+                    variant="basic"
                     onClick={() => handleDelete(notice.announcement_id)}
                   />
                 </div>
