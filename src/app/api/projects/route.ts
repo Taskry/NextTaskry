@@ -4,6 +4,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   const ids = searchParams.get("ids");
+  const page = searchParams.get("page");
+
+  
 
   // 사용자 인증
   // const session = await getServerSession(authOptions);
@@ -13,21 +16,24 @@ export async function GET(request: Request) {
   // }
 
   // 쿼리 실행 [프로젝트 조회]
-  let query = supabase.from("projects").select(`*,  project_members (count)`);
-
+  let query = supabase.from("projects").select(`*,  project_members (count)`, { count: 'exact' });
   
   if (id) {
-    // id 변수가 존재하는 경우 (예: null, undefined, 0, 빈 문자열 등이 아닐 때)
     query = query.eq("project_id", id);
+  } else if (ids) {
+    query = query.in('project_id', ids.split(',').map(id => id.trim())); 
   }
-  if (ids) {
-    const idsArray = ids.split(',').map(id => id.trim());
-    query = query.in('project_id', idsArray); 
-  }
-
   query.order("created_at", { ascending: true });
 
-  const { data: projects, error: getError } = await query;
+  if (page){
+    const limit = 16;
+    const from = (Number(page) - 1) * limit
+    const to = from + limit - 1;
+
+    query.range(from, to);
+  }
+  
+  const { data: projects, count: count, error: getError } = await query;
 
   if (getError) {
     console.error("Error fetching projects:", getError);
@@ -39,6 +45,7 @@ export async function GET(request: Request) {
       projectId: id || "파라미터 없음",
     },
     data: projects,
+    totalCount: count,
     timestamp: new Date().toISOString(),
   };
 

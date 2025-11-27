@@ -26,6 +26,7 @@ import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { DeleteDialog } from "./DeleteDialog";
 import PorjectCardFilter from "./ProjectFilter";
 import { supabase } from "@/lib/supabase/supabase";
+import ProjectPagination from "./ProjectPagination";
 import Container from "@/components/shared/Container";
 
 interface ProjectCardProps {
@@ -48,6 +49,9 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
   });
   const [showFilter, setShowFilter] = useState<boolean>(true);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const ITEMS_PER_PAGE = 16;
   const { data: session, status } = useSession();
 
   // fetchAllData를 useCallback으로 감싸서 정의합니다.
@@ -63,6 +67,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 
         // 참여 중인 프로젝트가 없는 경우 초기화 후 리턴
         if (!memberData || memberData.length === 0) {
+          setTotalPage(0);
           setProjectList([]);
           setProjectMember({});
           return;
@@ -71,13 +76,18 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
           .map((memberData) => memberData.project_id)
           .join(",");
 
-        projectResult = await getProjectByIds(currentIds);
+        projectResult = await getProjectByIds(currentIds, currentPage);
       } else {
-        projectResult = await getProject();
+        projectResult = await getProject(currentPage);
       }
-
-      const data = projectResult.data;
-
+      
+      const {data, totalCount} = projectResult;
+      
+      if (totalCount) {
+        const totalPages = Math.ceil(totalCount/ITEMS_PER_PAGE)
+        setTotalPage(totalPages);
+      }
+      
       if (!data) return;
 
       // 프로젝트 목록 가공
@@ -101,11 +111,14 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
       console.error(err);
       showApiError("데이터를 불러오는 중 오류가 발생했습니다.");
     }
-  }, [filter.view, status, session?.user?.user_id]);
+}, [filter.view, status, currentPage, session?.user?.user_id]);
 
-  useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+useEffect(() => {
+  setCurrentPage(1);
+}, [filter.view])
+useEffect(() => {
+  fetchAllData();
+}, [fetchAllData]);
 
   // useEffect(() => {
   //   const channel = supabase
@@ -173,6 +186,11 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 
     showToast("삭제되었습니다.", "deleted");
   }
+  
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
 
   if (loading) {
     return <LoadingSpinner />;
@@ -284,6 +302,13 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
           );
         })}
       </div>
+      <div className="mt-6">
+        <ProjectPagination 
+            currentPage={currentPage}
+            totalPage={totalPage}
+            onPageChange={handlePageChange} 
+          />
+        </div>
     </div>
   );
 }
