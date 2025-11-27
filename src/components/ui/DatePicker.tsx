@@ -80,52 +80,50 @@ const DatePicker = ({
     <div className="relative" ref={calendarRef}>
       {/* 라벨 */}
       {label && (
-        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 flex items-center gap-2">
-          <Icon
-            type={icon}
-            size={16}
-            className="text-gray-600 dark:text-gray-400"
-          />
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           {label}
-        </h3>
+        </label>
       )}
 
       {/* 날짜 선택 Input */}
-      <div
-        onClick={() => {
-          if (!disabled) {
-            setShowCalendar(!showCalendar);
-          }
-        }}
-        className={`
-          w-full px-3 py-2 border rounded-lg transition-colors 
-          flex items-center justify-between
-          bg-white dark:bg-gray-700
-          ${
-            !disabled
-              ? "cursor-pointer hover:border-gray-400 dark:hover:border-gray-500"
-              : "cursor-not-allowed opacity-50"
-          }
-          ${
-            error
-              ? "border-red-500 dark:border-red-600 hover:border-red-600 dark:hover:border-red-500"
-              : "border-gray-300 dark:border-gray-600"
-          }
-        `}
-      >
-        <span
-          className={
-            value
-              ? "text-gray-700 dark:text-gray-300"
-              : "text-gray-400 dark:text-gray-500"
-          }
+      <div className="relative">
+        <div
+          onClick={() => {
+            if (!disabled) {
+              setShowCalendar(!showCalendar);
+            }
+          }}
+          className={`
+            w-full h-10 px-3 pr-10 border rounded-lg transition-all 
+            flex items-center
+            bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+            text-sm
+            ${
+              !disabled
+                ? "cursor-pointer focus:outline-none focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 focus:border-main-500"
+                : "cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
+            }
+            ${
+              error
+                ? "border-red-500 dark:border-red-600 hover:border-red-600 dark:hover:border-red-500"
+                : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+            }
+          `}
         >
-          {value ? formatDisplayDate(value) : placeholder}
-        </span>
+          <span
+            className={
+              value
+                ? "text-gray-900 dark:text-gray-100"
+                : "text-gray-400 dark:text-gray-500"
+            }
+          >
+            {value ? formatDisplayDate(value) : placeholder}
+          </span>
+        </div>
         <Icon
-          type="calendar"
+          type={icon}
           size={16}
-          className="text-gray-400 dark:text-gray-500"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
         />
       </div>
 

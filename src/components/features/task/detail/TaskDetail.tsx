@@ -18,6 +18,32 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 
 import { Task } from "@/types/kanban";
 
+// ===========================================
+// utilities
+// ===========================================
+
+const dateTimeUtils = {
+  // 저장용: 날짜+시간을 ISO 문자열로 변환
+  toISOString: (dateStr: string, timeStr?: string) => {
+    const time = timeStr || "00:00";
+    return `${dateStr}T${time}:00.000Z`;
+  },
+
+  // 표시용: ISO 문자열을 날짜/시간으로 분리
+  parseDateTime: (isoString?: string | null) => {
+    if (!isoString) return { date: "", time: "", hasTime: false };
+
+    const [datePart, timePart] = isoString.split("T");
+    const [hours, minutes] = timePart.split(":");
+
+    return {
+      date: datePart,
+      time: `${hours}:${minutes}`,
+      hasTime: hours !== "00" || minutes !== "00",
+    };
+  },
+};
+
 // ============================================
 // Types
 // ============================================
@@ -51,10 +77,23 @@ export default function TaskDetail({
   onDelete,
   onClose,
 }: TaskDetailProps) {
-  const [editedTask, setEditedTask] = useState<Task>(task);
+  const startDateTime = dateTimeUtils.parseDateTime(task.started_at);
+  const endDateTime = dateTimeUtils.parseDateTime(task.ended_at);
+
+  const initialTask = {
+    ...task,
+    started_at: startDateTime.date,
+    ended_at: endDateTime.date,
+    start_time: startDateTime.time,
+    end_time: endDateTime.time,
+    use_time: startDateTime.hasTime || endDateTime.hasTime,
+  };
+
+  const [editedTask, setEditedTask] = useState<Task>(initialTask);
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [members, setMembers] = useState<ProjectMember[] | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const { openModal, modalProps } = useModal();
 
   useEffect(() => {
@@ -98,36 +137,93 @@ export default function TaskDetail({
     fetchMember();
   }, [task.project_id]);
 
-  const hasChanges = () => JSON.stringify(editedTask) !== JSON.stringify(task);
+  const hasChanges = () => {
+    // 원본 데이터 파싱
+    const originalStart = dateTimeUtils.parseDateTime(task.started_at);
+    const originalEnd = dateTimeUtils.parseDateTime(task.ended_at);
+
+    return (
+      editedTask.title !== task.title ||
+      (editedTask.description || "") !== (task.description || "") ||
+      editedTask.status !== task.status ||
+      (editedTask.priority || "normal") !== (task.priority || "normal") ||
+      (editedTask.assigned_user_id || null) !==
+        (task.assigned_user_id || null) ||
+      // 날짜 비교
+      editedTask.started_at !== originalStart.date ||
+      editedTask.ended_at !== originalEnd.date ||
+      (editedTask.use_time || false) !==
+        (originalStart.hasTime || originalEnd.hasTime) ||
+      (editedTask.use_time
+        ? editedTask.start_time !== originalStart.time
+        : false) ||
+      (editedTask.use_time
+        ? editedTask.end_time !== originalEnd.time
+        : false) ||
+      (editedTask.memo || "") !== (task.memo || "") ||
+      JSON.stringify(editedTask.subtasks || []) !==
+        JSON.stringify(task.subtasks || [])
+    );
+  };
 
   const handleChange = (field: keyof Task, value: any) => {
     setEditedTask((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!hasChanges()) return;
 
-    const updates: Partial<Task> = {};
+    try {
+      // 저장: 입력값 그대로 ISO 형식으로
+      const startedAtISO = editedTask.started_at
+        ? editedTask.use_time && editedTask.start_time
+          ? dateTimeUtils.toISOString(
+              editedTask.started_at,
+              editedTask.start_time
+            )
+          : dateTimeUtils.toISOString(editedTask.started_at, "00:00")
+        : null;
 
-    Object.keys(editedTask).forEach((key) => {
-      const k = key as keyof Task;
-      if (editedTask[k] !== task[k]) updates[k] = editedTask[k] as any;
-    });
+      const endedAtISO = editedTask.ended_at
+        ? editedTask.use_time && editedTask.end_time
+          ? dateTimeUtils.toISOString(editedTask.ended_at, editedTask.end_time)
+          : dateTimeUtils.toISOString(editedTask.ended_at, "23:59")
+        : null;
 
-    updates.updated_at = new Date().toISOString();
-    delete (updates as any).id;
-    delete (updates as any).created_at;
-    delete (updates as any).kanban_boards;
+      const updates: Partial<Task> = {
+        title: editedTask.title,
+        description: editedTask.description,
+        status: editedTask.status,
+        priority: editedTask.priority,
+        assigned_user_id: editedTask.assigned_user_id,
+        started_at: startedAtISO,
+        ended_at: endedAtISO,
+        memo: editedTask.memo,
+        subtasks: editedTask.subtasks,
+        updated_at: new Date().toISOString(),
+      };
 
-    onUpdate?.(task.id, updates);
-    showToast("작업이 저장되었습니다.", "success");
+      // 불필요한 필드 제거
+      const filteredUpdates = { ...updates };
+      delete (filteredUpdates as any).id;
+      delete (filteredUpdates as any).created_at;
+      delete (filteredUpdates as any).kanban_boards;
+      delete (filteredUpdates as any).start_time;
+      delete (filteredUpdates as any).end_time;
+      delete (filteredUpdates as any).use_time;
 
-    // 저장 후 모달 닫기
-    setTimeout(() => {
-      onClose?.();
-    }, 500);
+      console.log("TaskDetail - Saving updates:", filteredUpdates);
+      await onUpdate?.(task.id, filteredUpdates);
+      showToast("작업이 저장되었습니다.", "success");
+
+      setTimeout(() => {
+        onClose?.();
+      }, 500);
+    } catch (error) {
+      console.error("작업 저장 중 오류:", error);
+      showToast("작업 저장에 실패했습니다.", "error");
+    }
   };
-
   // 작업 삭제 확인 모달 열기
   const handleDelete = () => {
     openModal("delete", "작업 삭제", TASK_MESSAGES.DELETE_CONFIRM);
@@ -158,7 +254,13 @@ export default function TaskDetail({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Header createdAt={task.created_at} updatedAt={task.updated_at} />
+      <Header 
+        createdAt={task.created_at} 
+        updatedAt={task.updated_at}
+        createdBy={task.created_by}
+        updatedBy={task.updated_by}
+        members={members}
+      />
 
       {/* Title */}
       <TitleField
@@ -216,8 +318,14 @@ export default function TaskDetail({
         <DateFields
           startDate={editedTask.started_at || ""}
           endDate={editedTask.ended_at || ""}
-          onStartDateChange={(v) => handleChange("started_at", v)}
-          onEndDateChange={(v) => handleChange("ended_at", v)}
+          startTime={editedTask.start_time || ""}
+          endTime={editedTask.end_time || ""}
+          useTime={editedTask.use_time || false}
+          onStartDateChange={(v: string) => handleChange("started_at", v)}
+          onEndDateChange={(v: string) => handleChange("ended_at", v)}
+          onStartTimeChange={(v: string) => handleChange("start_time", v)}
+          onEndTimeChange={(v: string) => handleChange("end_time", v)}
+          onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
         />
       </FormSection>
 
@@ -263,9 +371,15 @@ export default function TaskDetail({
 function Header({
   createdAt,
   updatedAt,
+  createdBy,
+  updatedBy,
+  members,
 }: {
   createdAt: string;
   updatedAt: string;
+  createdBy?: string | null;
+  updatedBy?: string | null;
+  members?: ProjectMember[] | null;
 }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -278,6 +392,14 @@ function Header({
     });
   };
 
+  // 사용자 정보 찾기 함수
+  const findUser = (userId: string | null | undefined) => {
+    if (!userId || !members) return null;
+    return members.find(member => member.user_id === userId)?.users || null;
+  };
+
+  const creator = findUser(createdBy);
+  const updater = findUser(updatedBy);
   const isUpdated = createdAt !== updatedAt;
 
   return (
@@ -294,9 +416,14 @@ function Header({
             생성:
           </span>
           <span>{formatDate(createdAt)}</span>
-          {/* TODO: 작성자 정보 추가 시 사용 */}
-          {/* <span className="text-gray-400 dark:text-gray-500">by</span>
-          <span className="font-medium text-gray-700 dark:text-gray-300">작성자명</span> */}
+          {creator && (
+            <>
+              <span className="text-gray-400 dark:text-gray-500">by</span>
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                {creator.name}
+              </span>
+            </>
+          )}
         </div>
 
         {/* 수정 정보 */}
@@ -311,9 +438,14 @@ function Header({
               수정:
             </span>
             <span>{formatDate(updatedAt)}</span>
-            {/* TODO: 수정자 정보 추가 시 사용 */}
-            {/* <span className="text-gray-400 dark:text-gray-500">by</span>
-            <span className="font-medium text-gray-700 dark:text-gray-300">수정자명</span> */}
+            {updater && (
+              <>
+                <span className="text-gray-400 dark:text-gray-500">by</span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">
+                  {updater.name}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>
