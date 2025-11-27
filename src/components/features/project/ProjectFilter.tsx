@@ -5,71 +5,84 @@ import { ViewSelect } from "./ViewSelect";
 import { cn } from "@/lib/utils/utils";
 
 interface ProjectCardFilterProps {
-    filter: any;
-    onFilterChange: (key: string, value: string) => void;
-    showFilter: boolean;
-    onToggleFilter: () => void;
+  filter: any;
+  onFilterChange: (key: string, value: string) => void;
+  showFilter: boolean;
+  onToggleFilter: () => void;
 }
 
-export default function PorjectCardFilter({ 
-    filter, 
-    onFilterChange,
-    showFilter,
-    onToggleFilter
+export default function PorjectCardFilter({
+  filter,
+  onFilterChange,
+  showFilter,
+  onToggleFilter,
 }: ProjectCardFilterProps) {
-    const handleSelectChange = (key:string, value:string) => {
-        if (onFilterChange) {
-            onFilterChange(key, value);
-        }
-    };
-    return (
-    <div className={cn("flex", showFilter ? "justify-between" : "justify-end")}>
-        { showFilter &&
-        <div className="px-4 mr-4 flex w-full border-2 rounded-sm border-gray-100 dark:border-gray-500">
-            <div className="flex justify-center items-center">  
-            <div className="mr-2">
-                View Type:
-            </div>
+  const handleSelectChange = (key: string, value: string) => {
+    if (onFilterChange) {
+      onFilterChange(key, value);
+    }
+  };
+  return (
+    <div
+      className={cn(
+        "flex mb-5 min-h-[70px] ",
+        showFilter ? "justify-between" : "justify-end"
+      )}
+    >
+      {showFilter && (
+        <div
+          className="
+          p-4 mr-4 
+          flex justify-start gap-4 md:justify-center flex-wrap 
+          border border-border 
+          rounded-xl 
+          w-full"
+        >
+          <div className="flex justify-center items-center">
+            <div className="mr-2">View Type:</div>
             <div>
-                <ViewSelect value={filter.view} onValueChange={(value) => {
-                handleSelectChange("view", value);
-                }}/>
+              <ViewSelect
+                value={filter.view}
+                onValueChange={(value) => {
+                  handleSelectChange("view", value);
+                }}
+              />
             </div>
-            </div>
-        
-            <div className="mx-2 flex justify-center items-center"> | </div>
-            <div className="flex justify-center items-center">  
-            <div className="mr-2">
-                정렬 기준:
-            </div>
-            <div>
-                <DateSelect value={filter.date} onValueChange={(value) => {
-                handleSelectChange("date", value);
-                }}/>
-            </div>
-            </div>
-            <div className="mx-2 flex justify-center items-center"> | </div>
+          </div>
 
-            <div className="flex justify-center items-center">  
-            <div className="mr-2">
-                정렬:
-            </div>
+          <div className="flex justify-center items-center">
+            <div className="mr-2">정렬 기준:</div>
             <div>
-                <SortSelect value={filter.sort} onValueChange={(value) => {
-                handleSelectChange("sort", value);
-                }}/>
+              <DateSelect
+                value={filter.date}
+                onValueChange={(value) => {
+                  handleSelectChange("date", value);
+                }}
+              />
             </div>
+          </div>
+
+          <div className="flex justify-center items-center">
+            <div className="mr-2">정렬:</div>
+            <div>
+              <SortSelect
+                value={filter.sort}
+                onValueChange={(value) => {
+                  handleSelectChange("sort", value);
+                }}
+              />
             </div>
+          </div>
         </div>
-        }
-        <div className="flex justify-center items-center">  
-            <Button
-            btnType="icon"
-            icon="filter"
-            size={16}
-            variant="white"
-            onClick={onToggleFilter} 
-            className="
+      )}
+      <div className="flex justify-center items-center">
+        <Button
+          btnType="icon"
+          icon="filter"
+          size={16}
+          variant="white"
+          onClick={onToggleFilter}
+          className="
                 hover:bg-main-100/40 
                 hover:border-main-100/40 
                 text-main-400 
@@ -77,8 +90,8 @@ export default function PorjectCardFilter({
                 dark:bg-gray-700!
                 dark:border-gray-500!
                 dark:hover:bg-gray-100/40!"
-            />
-        </div>
+        />
+      </div>
     </div>
-    )
+  );
 }

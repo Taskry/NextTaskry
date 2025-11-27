@@ -8,12 +8,11 @@ import { supabase } from "@/lib/supabase/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import InviteDecisionModal from "@/components/features/invite/InviteDecisionModal";
-
-
+import Container from "@/components/shared/Container";
 
 const Home = () => {
   const router = useRouter();
-  console.log("프로젝트 목록페이지")
+  console.log("프로젝트 목록페이지");
 
   const handleSelectProject = (projectId: string) => {
     router.push(`/project/${projectId}`);
@@ -21,7 +20,7 @@ const Home = () => {
 
   const [inviteData, setInviteData] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
     const checkInvite = async () => {
       const inviteId = localStorage.getItem("invite_id");
 
@@ -49,18 +48,14 @@ const Home = () => {
     checkInvite();
   }, []);
 
-
-
-
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto">
+      <Container className="h-full">
         <ProjectCardHeader />
         <ProjectCard onSelectProject={handleSelectProject} />
-      </div>
+      </Container>
 
-
-       {/* 🔥 초대 모달 표시 */}
+      {/* 🔥 초대 모달 표시 */}
       {inviteData && <InviteDecisionModal invite={inviteData} />}
     </div>
   );

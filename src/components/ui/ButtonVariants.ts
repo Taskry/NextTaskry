@@ -24,7 +24,7 @@ export const buttonVariants = cva(buttonCommonStyles, {
 
     variant: {
       basic:
-        "bg-gray-100 dark:bg-gray-700 text-txtMain600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600",
+        "bg-gray-100 hover:bg-gray-200 text-txtMain600 dark:hover:bg-gray-200 dark:text-gray-700",
       warning:
         "bg-red-500 dark:bg-red-600 text-white hover:bg-red-600 dark:hover:bg-red-700",
       success:

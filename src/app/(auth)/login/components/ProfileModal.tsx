@@ -1,3 +1,5 @@
+import Button from "@/components/ui/Button";
+import { Icon } from "@/components/shared/Icon";
 import { signOut } from "next-auth/react";
 
 export interface ProfileModalProps {
@@ -13,19 +15,19 @@ export interface ProfileModalProps {
 
 export default function ProfileModal({ onClose, user }: ProfileModalProps) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center ">
-     
+    <div className="fixed inset-0 z-60 flex items-center justify-center ">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
-      
-      <div className="relative bg-white w-80 rounded-xl shadow-lg p-6 z-50 dark:bg-black dark:border border-gray-500
-">
+      <div
+        className="relative w-80 rounded-xl shadow-lg p-6 z-50 border border-border bg-card
+"
+      >
         {/* 닫기 버튼 */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500"
         >
-          ✕
+          <Icon type="x" />
         </button>
 
         {/* 유저 정보 */}
@@ -42,19 +44,20 @@ export default function ProfileModal({ onClose, user }: ProfileModalProps) {
 
         {/* 버튼 */}
         <div className="mt-6 flex flex-col gap-3">
-          <button
+          <Button
+            btnType="basic"
+            variant="primary"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full py-2 bg-main-500 text-white rounded-lg"
           >
             로그아웃
-          </button>
-
-          <button
-            onClick={onClose}
-            className="w-full py-2 bg-gray-200 rounded-lg dark:bg-gray-900"
+          </Button>
+          <Button
+            btnType="basic"
+            variant="basic"
+            onClick={() => signOut({ callbackUrl: "/login" })}
           >
             닫기
-          </button>
+          </Button>
         </div>
       </div>
     </div>
