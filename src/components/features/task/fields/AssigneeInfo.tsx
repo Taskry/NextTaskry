@@ -74,7 +74,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
     return (
       <div className="flex items-center gap-2">
         <UserAvatar
-          userName=""
+          userName="로딩"
           profileImage={null}
           size={24}
           className="animate-pulse"
