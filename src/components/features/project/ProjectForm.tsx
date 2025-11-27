@@ -61,7 +61,6 @@ export default function ProjectForm() {
     if (storedProjectId) {
       setProjectId(storedProjectId);
     }
-    console.log(projectId)
   }, [router]);
 
   useEffect(() => {

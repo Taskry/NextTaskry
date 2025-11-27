@@ -168,11 +168,9 @@ useEffect(() => {
   }, [projectList, filter.date, filter.sort]);
 
   const handleEditProject = (projectId: string) => {
-    console.log(projectId)
     // 세션 스토리지에 선택한 프로젝트 ID 저장
     sessionStorage.setItem("current_project_id", projectId);
 
-    // URL에 ID 노출없이 프로젝트 페이지로 이동
     router.push('/project/update/');
   };
 
