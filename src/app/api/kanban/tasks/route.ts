@@ -43,7 +43,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // id, created_at, updated_at 제거 (Supabase가 자동 생성)
-    const { id, created_at, updated_at, ...taskData } = body;
+    const {
+      id: _id,
+      created_at: _created_at,
+      updated_at: _updated_at,
+      ...taskData
+    } = body;
 
     const { data, error } = await createTask(taskData);
 
