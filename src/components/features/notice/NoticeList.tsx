@@ -1,10 +1,10 @@
 "use client";
 
 import { Icon } from "@/components/shared/Icon";
-import { Notice } from "@/types/notice";
-import { primaryBorderColor } from "@/app/sample/color/page";
+import { Notice, NoticeListProps } from "@/types/notice";
 import { formatDate } from "@/lib/utils/utils";
 import Link from "next/link";
+import Button from "@/components/ui/Button";
 
 export default function NoticeList({
   notices,
@@ -13,14 +13,7 @@ export default function NoticeList({
   totalCount,
   admin = true,
   onDelete,
-}: {
-  notices: Notice[]; // 공지사항 데이터 배열
-  currentPage: number; // 현재 페이지
-  itemsPerPage: number; // 페이지 당 게시글 수
-  totalCount: number; // 전체 게시글 수
-  admin?: boolean; // 어드민인지 여부 확인
-  onDelete?: (id: number) => void;
-}) {
+}: NoticeListProps) {
   const tableHeaders = [
     { label: "NO", className: "w-[150px] min-w-[150px]" },
     { label: "제목", className: "w-full max-w-0" },
@@ -30,10 +23,8 @@ export default function NoticeList({
   ];
 
   return (
-    <table
-      className={`w-full border-collapse border-t dark:border-gray-100/40 ${primaryBorderColor.Color2[0]}`}
-    >
-      <thead className="hidden lg:table-header-group border-b border-b-gray-100 dark:border-b-gray-100/40 text-sm uppercase">
+    <table className="w-full border-t border-border border-collapse">
+      <thead className="hidden lg:table-header-group border-b border-border text-sm uppercase">
         <tr>
           {tableHeaders.map((header) => (
             <th
@@ -48,7 +39,7 @@ export default function NoticeList({
         </tr>
       </thead>
 
-      <tbody className="divide-y text-sm border-b">
+      <tbody className="divide-y text-sm border-b border-border">
         {notices.map((notice, index) => {
           const noticeNumber =
             totalCount - ((currentPage - 1) * itemsPerPage + index);
@@ -57,7 +48,7 @@ export default function NoticeList({
             <tr
               key={notice.announcement_id}
               className={`transition-colors text-center text-base ${
-                notice.is_important ? "bg-[#FAFAFA] dark:bg-[#1A1A1A]" : ""
+                notice.is_important ? "bg-[#FAFAFA] dark:bg-[#141414]" : ""
               }`}
             >
               <td className="hidden lg:table-cell py-6 px-4 font-regular ">
@@ -76,19 +67,19 @@ export default function NoticeList({
                 <div>
                   <Link
                     href={`/notice/${notice.announcement_id}`}
-                    className="truncate block font-semibold hover:text-main-200"
+                    className="truncate block font-semibold text-foreground hover:text-main-200"
                   >
                     {notice.title}
                   </Link>
                   {/* 모바일에서만 작성일 보여주기 */}
-                  <div className="text-gray-500 text-base mt-1 lg:hidden">
+                  <div className="text-muted-foreground text-base mt-1 lg:hidden">
                     {formatDate(notice.created_at)}
                   </div>
                 </div>
               </td>
 
               {/* 작성일 - 데스크탑만 */}
-              <td className="hidden lg:table-cell py-6 px-4 text-base">
+              <td className="hidden lg:table-cell py-6 px-4 text-base text-foreground">
                 {formatDate(notice.created_at)}
               </td>
 
@@ -96,18 +87,24 @@ export default function NoticeList({
               {admin && (
                 <td className="y-6 px-4 text-sm">
                   <div className="flex items-center justify-center gap-2">
-                    <Link
-                      href={`/notice/${notice.announcement_id}?edit=true`}
-                      className="px-3 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
-                    >
-                      수정
+                    <Link href={`/notice/${notice.announcement_id}?edit=true`}>
+                      <Button
+                        btnType="icon"
+                        icon="edit"
+                        size={16}
+                        variant="basic"
+                        aria-label="공지사항 수정"
+                      />
                     </Link>
-                    <button
+
+                    <Button
                       onClick={() => onDelete?.(notice.announcement_id)}
-                      className="px-3 py-1 text-xs border border-red-300 text-red-600 rounded hover:bg-red-50 transition-colors"
-                    >
-                      삭제
-                    </button>
+                      btnType="icon"
+                      icon="trash"
+                      size={16}
+                      variant="basic"
+                      aria-label="공지사항 삭제"
+                    />
                   </div>
                 </td>
               )}
