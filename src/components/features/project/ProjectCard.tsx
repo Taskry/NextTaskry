@@ -15,19 +15,18 @@ import {
   deleteProjectMember,
   getProject,
   getProjectByIds,
-  getProjectMember,
   getProjectMemberByUser,
 } from "@/lib/api/projects";
-import Link from "next/link";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { showApiError, showToast } from "@/lib/utils/toast";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { DeleteDialog } from "./DeleteDialog";
 import PorjectCardFilter from "./ProjectFilter";
-import { supabase } from "@/lib/supabase/supabase";
 import ProjectPagination from "./ProjectPagination";
 import Container from "@/components/shared/Container";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase/supabase";
 
 interface ProjectCardProps {
   onSelectProject?: (projectId: string) => void;
@@ -40,6 +39,7 @@ interface FilterProps {
 }
 
 export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
+  const router = useRouter();
   const [projectList, setProjectList] = useState<any[]>([]);
   const [projectMember, setProjectMember] = useState<any>({});
   const [filter, setFilter] = useState<FilterProps>({
@@ -116,6 +116,7 @@ export default function ProjectCard({ onSelectProject }: ProjectCardProps) {
 useEffect(() => {
   setCurrentPage(1);
 }, [filter.view])
+
 useEffect(() => {
   fetchAllData();
 }, [fetchAllData]);
@@ -165,6 +166,15 @@ useEffect(() => {
       return isAsc ? timeA - timeB : timeB - timeA;
     });
   }, [projectList, filter.date, filter.sort]);
+
+  const handleEditProject = (projectId: string) => {
+    console.log(projectId)
+    // 세션 스토리지에 선택한 프로젝트 ID 저장
+    sessionStorage.setItem("current_project_id", projectId);
+
+    // URL에 ID 노출없이 프로젝트 페이지로 이동
+    router.push('/project/update/');
+  };
 
   // Select 컴포넌트를 위한 handleChange
   const handleSelectChange = (name: string, value: string) => {
@@ -271,23 +281,22 @@ useEffect(() => {
                 </CardContent>
                 <CardFooter className="flex justify-end gap-2">
                   <div onClick={(e: any) => e.stopPropagation()}>
-                    <Link href={`/project/update/${project.projectId}`}>
-                      <Button
-                        btnType="icon"
-                        icon="edit"
-                        size={16}
-                        variant="white"
-                        color="primary"
-                        className="
-                          hover:bg-main-100/40 
-                          hover:border-main-100/40 
-                          text-main-400 
-                          dark:text-main-200!
-                          dark:bg-gray-700!
-                          dark:border-gray-500!
-                          dark:hover:bg-gray-100/40!"
-                      />
-                    </Link>
+                    <Button
+                      btnType="icon"
+                      icon="edit"
+                      size={16}
+                      variant="white"
+                      color="primary"
+                      className="
+                        hover:bg-main-100/40 
+                        hover:border-main-100/40 
+                        text-main-400 
+                        dark:text-main-200!
+                        dark:bg-gray-700!
+                        dark:border-gray-500!
+                        dark:hover:bg-gray-100/40!"
+                      onClick={() => handleEditProject(project.projectId)}
+                    />
                   </div>
                   <div onClick={(e: any) => e.stopPropagation()}>
                     <DeleteDialog
