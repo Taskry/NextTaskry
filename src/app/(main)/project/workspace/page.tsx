@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import CalendarView from "@/components/features/CalendarView/CalendarView";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
@@ -20,13 +20,19 @@ import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
 import MemoView from "@/components/features/kanban/MemoView";
-import { el } from "date-fns/locale";
+import { el, ro } from "date-fns/locale";
+import { set } from "date-fns";
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
 export default function ProjectPage() {
+  // const params = useParams();
+  // const projectId = params.id as string;
+
+  //
   const params = useParams();
-  const projectId = params.id as string;
+  const router = useRouter();
+  const [projectId, setProjectId] = useState<string>("");
 
   const [projectName, setProjectName] = useState<string>("");
   const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
@@ -36,6 +42,20 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<ProjectRole | null>(null);
   const { data: session } = useSession();
+
+  // URL에서 직접 ID를 노출하지 않고 세션 스토리지에서 안전하게 가져옴
+  useEffect(() => {
+    const storedProjectId = sessionStorage.getItem("current_Project_Id");
+
+    if (!storedProjectId) {
+      // 세션에 프로젝트 ID가 없으면 홈으로 리다이렉트 (보안)
+      showToast("프로젝트를 먼저 선택해주세요", "error");
+      router.push("/");
+      return;
+    }
+
+    setProjectId(storedProjectId);
+  }, [router]);
 
   //해당 프로젝트에 대한 로그인한 유저의 role 조회
   useEffect(() => {
@@ -68,6 +88,9 @@ export default function ProjectPage() {
   }, [projectId, session?.user?.user_id]);
 
   useEffect(() => {
+    // 세션에서 가져온 projectId가 있을 때만 데이터 로딩 실행
+    if (!projectId) return;
+
     const fetchData = async () => {
       try {
         if (!projectId || projectId === "undefined" || projectId === "null") {
@@ -78,6 +101,7 @@ export default function ProjectPage() {
 
         // 1. 프로젝트 정보 가져오기 - API Route 사용
         const projectRes = await fetch(`/api/projects/${projectId}`);
+
         if (projectRes.ok) {
           const projectData = await projectRes.json();
           setProjectName(projectData.project_name || "이름 없는 프로젝트");
@@ -251,6 +275,8 @@ export default function ProjectPage() {
     if (view === "memo") {
       setShowMemoPanel((prev) => !prev);
     } else if (view === "project") {
+      // 프로젝트 종료 시 세션 스토리지 정리 (보안)
+      sessionStorage.removeItem("current_Project_Id");
       window.location.href = "/";
     } else {
       setCurrentView(view);
