@@ -127,6 +127,7 @@ export async function PUT(request: Request) {
     ...(endedAt !== undefined && { ended_at: endedAt }),
     ...(techStack !== undefined && { tech_stack: techStack }),
     ...(description !== undefined && { description }),
+    updated_at: new Date()
   };
 
   // 쿼리 실행 [프로젝트 정보 업데이트]

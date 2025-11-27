@@ -29,16 +29,14 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden bg-white dark:bg-black text-gray-900 dark:text-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full overflow-hidden`}
         suppressHydrationWarning={true}
       >
         <Provider>
           <AuthProviders>
-            <div className="h-full flex flex-col dark:bg-black">
+            <div className="h-full flex flex-col">
               <Header />
-
               <div className="flex-1 overflow-auto">{children}</div>
-
               <Toaster />
             </div>
           </AuthProviders>

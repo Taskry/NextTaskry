@@ -1,18 +1,18 @@
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils/utils"
+import { cn } from "@/lib/utils/utils";
 
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-6 py-6 border-2 border-gray-100 dark:border-gray-500",
+        "flex flex-col gap-6 py-6 rounded-2xl border border-border hover:border-main-200 cursor-pointer transition-all duration-200",
         className
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -25,17 +25,17 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-title"
-      className={cn("font-semibold", className)}
+      className={cn("font-semibold text-dark-title", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
@@ -45,7 +45,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("px-4 text-gray-400 text-sm", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
@@ -58,7 +58,7 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
@@ -68,17 +68,13 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("px-4", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div
-      data-slot="card-footer"
-      className={cn("px-4", className)}
-      {...props}
-    />
-  )
+    <div data-slot="card-footer" className={cn("px-4", className)} {...props} />
+  );
 }
 
 export {
@@ -89,4 +85,4 @@ export {
   CardAction,
   CardDescription,
   CardContent,
-}
+};

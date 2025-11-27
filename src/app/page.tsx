@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import InviteDecisionModal from "@/components/features/invite/InviteDecisionModal";
+import Container from "@/components/shared/Container";
 
 const Home = () => {
   const router = useRouter();
@@ -52,10 +53,10 @@ const Home = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto">
+      <Container className="h-full">
         <ProjectCardHeader />
         <ProjectCard onSelectProject={handleSelectProject} />
-      </div>
+      </Container>
 
       {/* 🔥 초대 모달 표시 */}
       {inviteData && <InviteDecisionModal invite={inviteData} />}

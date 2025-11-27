@@ -1,10 +1,17 @@
-interface ContainerProps {
+interface ContainerProps extends React.HTMLAttributes<HTMLElement> {
   children: React.ReactNode;
 }
 
-export default function Container({ children, ...props }: ContainerProps) {
+export default function Container({
+  children,
+  className,
+  ...props
+}: ContainerProps) {
   return (
-    <section className="px-5 lg:px-8 max-w-[1010px] mx-auto py-15" {...props}>
+    <section
+      className={`w-full max-w-[1280px] px-10 mx-auto py-25 ${className || ""}`}
+      {...props}
+    >
       {children}
     </section>
   );
