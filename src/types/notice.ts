@@ -74,8 +74,19 @@ export interface NoticeViewModeProps {
 // ------------------------------------------------------
 // 공지사항 네비게이션 타입
 // ------------------------------------------------------
-
 export interface NoticeNavigationProps {
   nextNotice: Notice | null;
   prevNotice: Notice | null;
+}
+
+// ------------------------------------------------------
+// 공지사항 리스트 타입
+// ------------------------------------------------------
+export interface NoticeListProps {
+  notices: Notice[];
+  currentPage: number;
+  itemsPerPage: number;
+  totalCount: number;
+  admin?: boolean;
+  onDelete: (id: number) => void;
 }
