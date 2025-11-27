@@ -36,8 +36,9 @@ interface ProjectProps {
   description: string;
 }
 
-export default function ProjectForm({ id }: { id?: string }) {
+export default function ProjectForm() {
   const router = useRouter();
+  const [projectId, setProjectId] = useState<string>("");
   const [projectData, setProjectData] = useState<ProjectProps>({
     projectName: "",
     type: "",
@@ -55,6 +56,14 @@ export default function ProjectForm({ id }: { id?: string }) {
   const [projectMember, setProjectMember] = useState<any[]>([]);
 
   useEffect(() => {
+    const storedProjectId = sessionStorage.getItem("current_project_id");
+
+    if (storedProjectId) {
+      setProjectId(storedProjectId);
+    }
+  }, [router]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         // 유저 조회
@@ -70,14 +79,14 @@ export default function ProjectForm({ id }: { id?: string }) {
           );
         }
 
-        if (!id) {
+        if (!projectId) {
           return;
         }
 
         // 프로젝트 정보 및 멤버 조회
         const [projectResult, memberResult] = await Promise.all([
-          getProjectById(id),
-          getProjectMember(id),
+          getProjectById(projectId),
+          getProjectMember(projectId),
         ]);
 
         
@@ -106,7 +115,7 @@ export default function ProjectForm({ id }: { id?: string }) {
             }
 
             return {
-              projectId: id,
+              projectId: projectId,
               userId: userInfo.user_id,
               userName: userInfo.user_name,
               email: userInfo.email,
@@ -124,7 +133,7 @@ export default function ProjectForm({ id }: { id?: string }) {
       }
     };
     fetchData();
-  }, [id]);
+  }, [projectId]);
 
   // 일반 Input과 Textarea를 위한 handleChange
   const handleChange = (event: any) => {
@@ -188,7 +197,7 @@ export default function ProjectForm({ id }: { id?: string }) {
     }
 
     const newMember = {
-      projectId: id,
+      projectId: projectId,
       userId: newItem.id,
       userName: newItem.value,
       email: newItem.email,
@@ -209,7 +218,7 @@ export default function ProjectForm({ id }: { id?: string }) {
     event.preventDefault();
 
     try {
-      let targetId = id;
+      let targetId = projectId;
 
       if (!targetId) {
         const { data } = await createProject(projectData);
@@ -234,7 +243,7 @@ export default function ProjectForm({ id }: { id?: string }) {
     <Container>
       <div className="w-full max-w-4xl mx-auto px-4 py-8">
         <div className="text-2xl font-bold mb-8">
-          {id ? "프로젝트 수정" : "프로젝트 생성"}
+          {projectId ? "프로젝트 수정" : "프로젝트 생성"}
         </div>
         <div className="py-3">
           <Label className="mb-4 font-bold text-lg">프로젝트 명</Label>
@@ -288,7 +297,7 @@ export default function ProjectForm({ id }: { id?: string }) {
           </div>
         </div>
 
-        {id && <ProjectDateCard projectData={projectData} />}
+        {projectId && <ProjectDateCard projectData={projectData} />}
 
         <div className="py-3">
           <Label className="mb-4 font-bold text-lg">프로젝트 기술 스택</Label>
@@ -380,7 +389,7 @@ export default function ProjectForm({ id }: { id?: string }) {
             className="hover:cursor-pointer mr-2 text-white"
             onClick={handleSubmit}
           >
-            {id ? "수정 완료" : "프로젝트 생성"}
+            {projectId ? "수정 완료" : "프로젝트 생성"}
           </Button>
         </div>
       </div>
