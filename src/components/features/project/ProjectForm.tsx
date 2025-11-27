@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import { ComboBox, type Item } from "./ComboBox";
 import ProjectDateCard from "./ProjectDateCard";
 import { RoleSelect } from "./RoleSelect";
+import Container from "@/components/shared/Container";
 
 interface ProjectProps {
   projectName: string;
@@ -59,12 +60,14 @@ export default function ProjectForm({ id }: { id?: string }) {
         // 유저 조회
         const userResult = await getUser();
         if (userResult.data) {
-          setUserList(userResult.data.map(({ user_id, user_name, email }) => ({
-            id: user_id,
-            label: `${user_name} (${email})`,
-            value: user_name,
-            email,
-          })));
+          setUserList(
+            userResult.data.map(({ user_id, user_name, email }) => ({
+              id: user_id,
+              label: `${user_name} (${email})`,
+              value: user_name,
+              email,
+            }))
+          );
         }
 
         if (!id) {
@@ -74,7 +77,7 @@ export default function ProjectForm({ id }: { id?: string }) {
         // 프로젝트 정보 및 멤버 조회
         const [projectResult, memberResult] = await Promise.all([
           getProjectById(id),
-          getProjectMember(id)
+          getProjectMember(id),
         ]);
 
         
@@ -97,9 +100,9 @@ export default function ProjectForm({ id }: { id?: string }) {
           const memberPromises = memberResult.data.map(async (member) => {
             const { data } = await getUserById("eq", member.user_id);
             const userInfo = data?.[0];
-            
+
             if (!userInfo) {
-                return null;
+              return null;
             }
 
             return {
@@ -111,16 +114,17 @@ export default function ProjectForm({ id }: { id?: string }) {
             };
           });
 
-          const validMembers = (await Promise.all(memberPromises)).filter(Boolean);
+          const validMembers = (await Promise.all(memberPromises)).filter(
+            Boolean
+          );
           setProjectMember(validMembers);
         }
-
       } catch (err) {
         console.error(err);
       }
     };
     fetchData();
-  }, [id]); 
+  }, [id]);
 
   // 일반 Input과 Textarea를 위한 handleChange
   const handleChange = (event: any) => {
@@ -142,10 +146,10 @@ export default function ProjectForm({ id }: { id?: string }) {
   // RoleSelect 컴포넌트를 위한 handleChange
   const handleRoleSelectChange = (index: number, value: string) => {
     const newProjectMembers = [...projectMember];
-    
-    newProjectMembers[index] = { 
-      ...newProjectMembers[index], 
-      role: value 
+
+    newProjectMembers[index] = {
+      ...newProjectMembers[index],
+      role: value,
     };
 
     setProjectMember(newProjectMembers);
@@ -153,7 +157,6 @@ export default function ProjectForm({ id }: { id?: string }) {
 
   // Calendar를 위한 핸들러
   const handleDateChange = (name: string, date: Date | undefined) => {
-    
     if (!date) {
       setProjectData((prevProjectData) => ({
         ...prevProjectData,
@@ -161,8 +164,8 @@ export default function ProjectForm({ id }: { id?: string }) {
       }));
       return;
     }
-    
-    const adjustedDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+
+    const adjustedDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
 
     setProjectData((prevProjectData) => ({
       ...prevProjectData,
@@ -175,11 +178,13 @@ export default function ProjectForm({ id }: { id?: string }) {
     if (!newItem) {
       return;
     }
-    const isDuplicate = projectMember.some((member) => member.userId === newItem.id);
+    const isDuplicate = projectMember.some(
+      (member) => member.userId === newItem.id
+    );
 
     if (isDuplicate) {
       alert("이미 추가된 멤버입니다.");
-      return; 
+      return;
     }
 
     const newMember = {
@@ -189,24 +194,26 @@ export default function ProjectForm({ id }: { id?: string }) {
       email: newItem.email,
       role: "member",
     };
-    setProjectMember((prev) => [...prev, newMember]);    
+    setProjectMember((prev) => [...prev, newMember]);
   };
 
   // 프로젝트 멤버 삭제 핸들러
   const handleDeleteProjectMember = (id: string) => {
-    const filterProjectMember = projectMember.filter(member => member.userId !== id);
+    const filterProjectMember = projectMember.filter(
+      (member) => member.userId !== id
+    );
     setProjectMember(filterProjectMember);
   };
 
   const handleSubmit = async (event: any) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     try {
       let targetId = id;
-      
+
       if (!targetId) {
         const { data } = await createProject(projectData);
-        targetId = data?.[0]?.project_id; 
+        targetId = data?.[0]?.project_id;
       } else {
         await updateProject(targetId, projectData);
       }
@@ -217,19 +224,20 @@ export default function ProjectForm({ id }: { id?: string }) {
 
       showToast("저장되었습니다.", "success");
       router.push("/");
-      
-      } catch (error) {
-        console.error(error);
-        showToast("저장에 실패했습니다.", "error");
-      }
+    } catch (error) {
+      console.error(error);
+      showToast("저장에 실패했습니다.", "error");
+    }
   };
 
   return (
-    <div className="mx-30 my-10">
-      <div>
-        <div className="text-2xl font-bold pb-5">{id ? "프로젝트 수정" : "프로젝트 생성"}</div>
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 명</Label>
+    <Container>
+      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+        <div className="text-2xl font-bold mb-8">
+          {id ? "프로젝트 수정" : "프로젝트 생성"}
+        </div>
+        <div className="py-3">
+          <Label className="mb-4 font-bold text-lg">프로젝트 명</Label>
           <Input
             id="projectName"
             name="projectName"
@@ -239,9 +247,9 @@ export default function ProjectForm({ id }: { id?: string }) {
             onChange={handleChange}
           />
         </div>
-        <div className="flex py-2 grid grid-cols-2 gap-4">
+        <div className="flex py-3 grid grid-cols-2 gap-4">
           <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 분류</Label>
+            <Label className="mb-4 font-bold text-lg">프로젝트 분류</Label>
             <TypeSelect
               value={projectData.type}
               onValueChange={(value) => {
@@ -250,7 +258,7 @@ export default function ProjectForm({ id }: { id?: string }) {
             />
           </div>
           <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 상태</Label>
+            <Label className="mb-4 font-bold text-lg">프로젝트 상태</Label>
             <StatusSelect
               value={projectData.status}
               onValueChange={(value) => {
@@ -259,9 +267,9 @@ export default function ProjectForm({ id }: { id?: string }) {
             />
           </div>
         </div>
-        <div className="flex py-2 grid grid-cols-2 gap-4">
+        <div className="flex py-3 grid grid-cols-2 gap-4">
           <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 시작일</Label>
+            <Label className="mb-4 font-bold text-lg">프로젝트 시작일</Label>
             <Calendar22
               value={projectData.startedAt}
               onValueChange={(value) => {
@@ -270,7 +278,7 @@ export default function ProjectForm({ id }: { id?: string }) {
             />
           </div>
           <div>
-            <Label className="pb-2 font-bold text-base">프로젝트 종료일</Label>
+            <Label className="mb-4 font-bold text-lg">프로젝트 종료일</Label>
             <Calendar22
               value={projectData.endedAt}
               onValueChange={(value) => {
@@ -280,10 +288,10 @@ export default function ProjectForm({ id }: { id?: string }) {
           </div>
         </div>
 
-      { id && <ProjectDateCard projectData={projectData}/> }
-        
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 기술 스택</Label>
+        {id && <ProjectDateCard projectData={projectData} />}
+
+        <div className="py-3">
+          <Label className="mb-4 font-bold text-lg">프로젝트 기술 스택</Label>
           <Input
             id="techStack"
             name="techStack"
@@ -293,8 +301,8 @@ export default function ProjectForm({ id }: { id?: string }) {
             onChange={handleChange}
           />
         </div>
-        <div className="py-2">
-          <Label className="pb-2 font-bold text-base">프로젝트 설명</Label>
+        <div className="py-3">
+          <Label className="mb-4 font-bold text-lg">프로젝트 설명</Label>
           <Textarea
             id="description"
             name="description"
@@ -304,33 +312,42 @@ export default function ProjectForm({ id }: { id?: string }) {
           />
         </div>
 
-        <div className="flex items-center py-2">
-          <Label className="font-bold text-base">프로젝트 구성원</Label>
+        <div className="py-3">
+          <Label className="mb-4 font-bold text-lg">프로젝트 구성원</Label>
+
+          <div className="pb-4">
+            <ComboBox
+              items={userList}
+              value={user}
+              setValue={setUser}
+              onChange={handleAddProjectMember}
+            />
+          </div>
         </div>
 
-        <div className="pb-4">
-          <ComboBox items={userList} value={user} setValue={setUser} onChange={handleAddProjectMember}/>
-        </div>
         {projectMember.map((member, index) => {
           return (
             <div className="flex pb-6" key={index}>
               <div className="flex items-center w-full">
                 <div className="border-1 rounded-full p-3 mr-5 border-gray-100 dark:border-gray-500">
-                  <Icon 
+                  <Icon
                     type="userCircle"
                     className="
                       text-gray-700
                       dark:text-gray-200"
-                    />
+                  />
                 </div>
                 <div>
                   <div>{member.userName}</div>
                   <div className="flex justify-center items-center">
-                    <div className="mr-2"> 
-                      {member.email} - 
-                    </div>
+                    <div className="mr-2">{member.email} -</div>
                     <div>
-                      <RoleSelect value={member.role} onValueChange={(value) => handleRoleSelectChange(index, value)} />
+                      <RoleSelect
+                        value={member.role}
+                        onValueChange={(value) =>
+                          handleRoleSelectChange(index, value)
+                        }
+                      />
                     </div>
                   </div>
                 </div>
@@ -367,6 +384,6 @@ export default function ProjectForm({ id }: { id?: string }) {
           </Button>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

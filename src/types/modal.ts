@@ -1,7 +1,7 @@
 import React from "react";
 
 export interface ModalProps {
-  type?: "delete" | "success" | "error" | "progress";
+  type?: "delete" | "success" | "error" | "progress" | "deleteSuccess";
   isOpen: boolean;
   onClose: () => void;
   onConfirm?: () => void;

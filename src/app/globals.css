@@ -62,6 +62,12 @@
   --color-red-100: #ef4444;
   --color-blue-100: #60a5fa;
   --color-green-100: #57bc71;
+
+  /*************** 다크모드 전용 색상 추가 ****************/
+  --color-dark-title: var(--dark-title);
+  --color-drak-body: var(--dark-body);
+  --color-dark-description: var(--dark-description);
+  --color-dark-border: var(--dark-border);
 }
 
 :root {
@@ -97,6 +103,12 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /**************** 라이트 모드 색상 추가 ****************/
+  --dark-title: #171415;
+  --dark-body: #171415;
+  --dark-description: #5a5153;
+  --dark-border: #c5c0c1;
 }
 
 .dark {
@@ -131,6 +143,12 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /**************** 다크 모드 색상 추가 ****************/
+  --dark-title: #f5f5f5;
+  --dark-body: #171415;
+  --dark-description: #c5c0c1;
+  --dark-border: #373133;
 }
 
 @layer base {

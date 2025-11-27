@@ -10,6 +10,10 @@ import Modal from "@/components/ui/Modal";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import { Icon } from "@/components/shared/Icon";
+import {
+  getCalendarEventColor,
+  getTaskPriorityColor,
+} from "@/lib/utils/taskUtils";
 
 const locales = { ko };
 const localizer = dateFnsLocalizer({
@@ -253,21 +257,19 @@ export default function CalendarView({
           startAccessor="start"
           endAccessor="end"
           style={{ height: "100%" }}
-          // 이벤트 상태별 색상 설정 (todo: 회색, inprogress: 파란색, done: 초록색)
+          // 이벤트 상태별 색상 설정
           eventPropGetter={(event) => {
-            const isDark = document.documentElement.classList.contains("dark");
-            let bg = isDark ? "#4B5563" : "#9CA3AF"; // todo (회색)
-
-            if (event.task.status === "inprogress") {
-              bg = isDark ? "#2563ebcc" : "#60a5facc"; // 진행중 - 파란색
-            }
-            if (event.task.status === "done") {
-              bg = isDark ? "#16a34acc" : "#57bc71cc"; // 완료 - 초록색
-            }
+            const isDark =
+              typeof window !== "undefined" &&
+              document.documentElement.classList.contains("dark");
+            const backgroundColor = getCalendarEventColor(
+              event.task.status,
+              isDark
+            );
 
             return {
               style: {
-                backgroundColor: bg,
+                backgroundColor,
                 color: "white",
                 border: "none",
                 borderRadius: "6px",
@@ -278,22 +280,20 @@ export default function CalendarView({
           // 커스텀 이벤트 컴포넌트: 우선순위 아이콘 표시
           components={{
             event: ({ event }) => {
-              let priorityColor = "";
-              if (event.task.priority === "high") {
-                priorityColor = "text-red-300 dark:text-red-500";
-              } else if (event.task.priority === "normal") {
-                priorityColor = "text-yellow-300 dark:text-yellow-500";
-              } else if (event.task.priority === "low") {
-                priorityColor = "text-green-300 dark:text-green-500";
-              }
+              const isDark =
+                typeof window !== "undefined" &&
+                document.documentElement.classList.contains("dark");
+              const priorityColors = event.task.priority
+                ? getTaskPriorityColor(event.task.priority, isDark)
+                : null;
 
               return (
                 <div className="flex items-center gap-1">
-                  {event.task.priority && (
+                  {event.task.priority && priorityColors && (
                     <Icon
                       type="circleCheckFilled"
                       size={12}
-                      className={priorityColor}
+                      className={priorityColors.icon}
                     />
                   )}
                   <span className="truncate text-xs">{event.title}</span>
