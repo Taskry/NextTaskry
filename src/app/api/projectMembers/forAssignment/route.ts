@@ -10,12 +10,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const projectId = searchParams.get("projectId");
 
-  // 사용자 인증
-  if (!projectId)
+  // 파라미터 검증
+  if (!projectId) {
+    console.error("Missing projectId parameter");
     return Response.json(
       { error: "projectId 파라미터가 필요합니다." },
       { status: 400 }
     );
+  }
 
   // 쿼리 실행 [프로젝트 멤버 조회 + 사용자 정보 JOIN]
   try {
@@ -38,12 +40,24 @@ export async function GET(request: Request) {
 
     if (error) {
       console.error("Error fetching project members:", error);
-      return Response.json({ error: error.message }, { status: 500 });
+      return Response.json(
+        {
+          error: "프로젝트 멤버 조회 중 오류가 발생했습니다.",
+          details: error.message,
+          projectId: projectId,
+        },
+        { status: 500 }
+      );
     }
+
+    console.log(
+      `프로젝트 멤버 조회 성공 [${projectId}]: ${members?.length || 0}명`
+    );
 
     return Response.json({
       message: `Task 담당자 프로젝트 멤버[${projectId}] 정보 조회`,
       data: members || [],
+      count: members?.length || 0,
       timestamp: new Date().toISOString(),
     });
   } catch (err) {

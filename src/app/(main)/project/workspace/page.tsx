@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import CalendarView from "@/components/features/CalendarView/CalendarView";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
@@ -20,12 +20,19 @@ import { useSession } from "next-auth/react";
 import { supabase } from "@/lib/supabase/supabase";
 import { ProjectRole } from "@/types";
 import MemoView from "@/components/features/kanban/MemoView";
+import { el, ro } from "date-fns/locale";
+import { set } from "date-fns";
 
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
 export default function ProjectPage() {
+  // const params = useParams();
+  // const projectId = params.id as string;
+
+  //
   const params = useParams();
-  const projectId = params.id as string;
+  const router = useRouter();
+  const [projectId, setProjectId] = useState<string>("");
 
   const [projectName, setProjectName] = useState<string>("");
   const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
@@ -35,6 +42,20 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<ProjectRole | null>(null);
   const { data: session } = useSession();
+
+  // URL에서 직접 ID를 노출하지 않고 세션 스토리지에서 안전하게 가져옴
+  useEffect(() => {
+    const storedProjectId = sessionStorage.getItem("current_Project_Id");
+
+    if (!storedProjectId) {
+      // 세션에 프로젝트 ID가 없으면 홈으로 리다이렉트 (보안)
+      showToast("프로젝트를 먼저 선택해주세요", "error");
+      router.push("/");
+      return;
+    }
+
+    setProjectId(storedProjectId);
+  }, [router]);
 
   //해당 프로젝트에 대한 로그인한 유저의 role 조회
   useEffect(() => {
@@ -67,6 +88,9 @@ export default function ProjectPage() {
   }, [projectId, session?.user?.user_id]);
 
   useEffect(() => {
+    // 세션에서 가져온 projectId가 있을 때만 데이터 로딩 실행
+    if (!projectId) return;
+
     const fetchData = async () => {
       try {
         if (!projectId || projectId === "undefined" || projectId === "null") {
@@ -77,6 +101,7 @@ export default function ProjectPage() {
 
         // 1. 프로젝트 정보 가져오기 - API Route 사용
         const projectRes = await fetch(`/api/projects/${projectId}`);
+
         if (projectRes.ok) {
           const projectData = await projectRes.json();
           setProjectName(projectData.project_name || "이름 없는 프로젝트");
@@ -144,6 +169,58 @@ export default function ProjectPage() {
     fetchData();
   }, [projectId]);
 
+  // 리얼타임 업데이트 설정
+  useEffect(() => {
+    console.log("🔥 구독 시작 횟수 확인");
+    if (!projectId || !kanbanBoardId) return;
+    console.log("리얼타임 업데이트 설정 실행");
+
+    const channel = supabase
+      .channel(`taskry-board-${kanbanBoardId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `kanban_board_id=eq.${kanbanBoardId}`,
+        },
+        (payload) => {
+          console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
+
+          if (payload.eventType === "INSERT") {
+            const newTask = payload.new as Task;
+            setTasks((prev) => {
+              // 중복 추가 방지
+              if (prev.some((t) => t.id === newTask.id)) {
+                console.log("이미 존재하는 Task");
+                return prev;
+              }
+              console.log("새로운 Task 추가:", newTask.title);
+              return [...prev, newTask];
+            });
+          } else if (payload.eventType === "UPDATE") {
+            const updatedTask = payload.new as Task;
+            setTasks((prev) =>
+              prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+            );
+          } else if (payload.eventType === "DELETE") {
+            const deletedTask = payload.old as Task;
+            setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
+            console.log("Task 삭제:", deletedTask.title);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log("Supabase 채널 상태:", status);
+      });
+
+    return () => {
+      console.log("Supabase 채널 해제");
+      supabase.removeChannel(channel);
+    };
+  }, [projectId, kanbanBoardId]);
+
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => {
@@ -155,7 +232,7 @@ export default function ProjectPage() {
     }
 
     if (data) {
-      setTasks((prev) => [...prev, data]);
+      //    setTasks((prev) => [...prev, data]);
       showToast("작업이 생성되었습니다.", "success");
     }
   };
@@ -163,11 +240,11 @@ export default function ProjectPage() {
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
     const result = await updateTask(taskId, updates);
 
-    if (result.data) {
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-      );
-    }
+    // if (result.data) {
+    //   setTasks((prev) =>
+    //     prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+    //   );
+    // }
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -178,7 +255,7 @@ export default function ProjectPage() {
       return;
     }
 
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    //  setTasks((prev) => prev.filter((t) => t.id !== taskId));
     showToast("작업이 삭제되었습니다.", "success");
   };
 
@@ -198,6 +275,8 @@ export default function ProjectPage() {
     if (view === "memo") {
       setShowMemoPanel((prev) => !prev);
     } else if (view === "project") {
+      // 프로젝트 종료 시 세션 스토리지 정리 (보안)
+      sessionStorage.removeItem("current_Project_Id");
       window.location.href = "/";
     } else {
       setCurrentView(view);
@@ -216,7 +295,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900">
+    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
       <div className="flex-1 flex overflow-hidden gap-4 min-h-0 p-6">
         {/* 칸반 + 캘린더 영역 */}
         <div
