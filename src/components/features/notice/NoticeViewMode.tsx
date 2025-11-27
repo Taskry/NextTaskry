@@ -26,7 +26,7 @@ const renderMarkdown = (text: string) => {
 export function NoticeViewMode({ notice }: NoticeViewModeProps) {
   return (
     <>
-      <header className="border-b p-5 flex items-center justify-between">
+      <header className="p-5 flex items-center justify-between border-t border-b border-border">
         <h1 className="text-lg font-bold">{notice.title}</h1>
         <div className="text-base font-normal">
           <span className="font-medium">작성일</span>

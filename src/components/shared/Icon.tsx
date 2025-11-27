@@ -57,6 +57,8 @@ import {
   TbInbox,
   TbClipboard,
   TbLoader,
+  TbList,
+  TbDeviceFloppy,
 } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
@@ -135,6 +137,8 @@ const ICON_MAP: Record<string, IconType> = {
   inbox: TbInbox,
   clipboard: TbClipboard,
   loading: TbLoader,
+  list: TbList,
+  deviceFloppy: TbDeviceFloppy,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;

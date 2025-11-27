@@ -24,7 +24,7 @@ export const buttonVariants = cva(buttonCommonStyles, {
 
     variant: {
       basic:
-        "bg-gray-100 hover:bg-gray-200 text-txtMain600 dark:hover:bg-gray-200 dark:text-gray-700",
+        "bg-gray-100 hover:bg-gray-200 text-txtMain600 dark:hover:bg-gray-600 dark:text-gray-200",
       warning:
         "bg-red-500 dark:bg-red-600 text-white hover:bg-red-600 dark:hover:bg-red-700",
       success:
@@ -100,7 +100,7 @@ export const buttonVariants = cva(buttonCommonStyles, {
     {
       btnType: "form_s",
       className:
-        "text-sm bg-main-300 dark:bg-main-600 text-white px-3 py-1.5 rounded-sm hover:bg-main-400 dark:hover:bg-main-700",
+        "text-sm bg-main-300 dark:bg-main-600 text-white px-3 py-1.5 rounded-sm hover:bg-main-200 dark:hover:bg-main-700",
     },
 
     // ------------------------------------------------------------------
@@ -108,8 +108,15 @@ export const buttonVariants = cva(buttonCommonStyles, {
     // ------------------------------------------------------------------
     {
       btnType: "icon",
-      className:
-        "w-8 h-8 block rounded-full border border-gray-200 dark:border-gray-700 font-medium bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700",
+      className: `
+          w-8 h-8 
+          block 
+          rounded-full border border-gray-200 dark:border-gray-700 
+          font-medium 
+          bg-white dark:bg-gray-700 
+          text-gray-900 dark:text-gray-100 
+          hover:bg-gray-50 dark:hover:bg-gray-700"
+        `,
     },
   ],
 

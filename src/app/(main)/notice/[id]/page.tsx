@@ -112,16 +112,15 @@ export default function NoticeDetail() {
     );
   }
 
-  return (
-    <Container>
+  const content = (
+    <>
       <SectionHeader
         title="공지사항"
         description="공지사항을 안내합니다."
-        className="mb-10"
+        className="mb-10 "
       />
 
-      <article className="mx-auto border-t border-t-gray-600">
-        {/* // ---------------------------- 상세, 수정 모드 토글 */}
+      <article className="mx-auto">
         {isEditing ? (
           <NoticeEditMode
             editState={editState}
@@ -140,10 +139,8 @@ export default function NoticeDetail() {
         )}
       </article>
 
-      {/* // ---------------------------- 이전, 다음글 */}
       <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
 
-      {/* // ---------------------------- 수정, 삭제, 저장 버튼 */}
       <NoticeActionButtons
         admin={admin}
         isEditing={isEditing}
@@ -152,6 +149,12 @@ export default function NoticeDetail() {
         onCancel={handleCancel}
         onSave={handleSave}
       />
-    </Container>
+    </>
+  );
+
+  return isEditing ? (
+    <div className="max-w-4xl m-auto py-25">{content}</div>
+  ) : (
+    <Container>{content}</Container>
   );
 }
