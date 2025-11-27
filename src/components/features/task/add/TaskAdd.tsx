@@ -208,6 +208,7 @@ export default function TaskAdd({
           : toUTCString(formData.ended_at, "23:59:59") // 종일이면 하루 끝
         : undefined;
 
+      // 데이터베이스 저장용 payload (UI 전용 필드 제외)
       const payload: Omit<Task, "id" | "created_at" | "updated_at"> = {
         kanban_board_id: boardId,
         project_id: projectId,
@@ -218,6 +219,9 @@ export default function TaskAdd({
         assigned_user_id: cleanValue(formData.assigned_user_id),
         started_at: startedAtISO,
         ended_at: endedAtISO,
+        start_time: formData.use_time ? formData.start_time : null,
+        end_time: formData.use_time ? formData.end_time : null,
+        use_time: formData.use_time,
         memo: cleanValue(formData.memo),
         subtasks: formData.subtasks.length > 0 ? formData.subtasks : undefined,
       };

@@ -93,7 +93,6 @@ export default function TaskDetail({
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [members, setMembers] = useState<ProjectMember[] | null>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const { openModal, modalProps } = useModal();
 
   useEffect(() => {
@@ -190,6 +189,7 @@ export default function TaskDetail({
           : dateTimeUtils.toISOString(editedTask.ended_at, "23:59")
         : null;
 
+      // 데이터베이스 업데이트용 - UI 전용 필드 제외
       const updates: Partial<Task> = {
         title: editedTask.title,
         description: editedTask.description,
@@ -198,19 +198,19 @@ export default function TaskDetail({
         assigned_user_id: editedTask.assigned_user_id,
         started_at: startedAtISO,
         ended_at: endedAtISO,
+        start_time: editedTask.use_time ? editedTask.start_time : null,
+        end_time: editedTask.use_time ? editedTask.end_time : null,
+        use_time: editedTask.use_time || false,
         memo: editedTask.memo,
         subtasks: editedTask.subtasks,
         updated_at: new Date().toISOString(),
       };
 
-      // 불필요한 필드 제거
+      // 불필요한 필드 제거 (DB에 없는 컬럼들)
       const filteredUpdates = { ...updates };
       delete (filteredUpdates as any).id;
       delete (filteredUpdates as any).created_at;
       delete (filteredUpdates as any).kanban_boards;
-      delete (filteredUpdates as any).start_time;
-      delete (filteredUpdates as any).end_time;
-      delete (filteredUpdates as any).use_time;
 
       console.log("TaskDetail - Saving updates:", filteredUpdates);
       await onUpdate?.(task.id, filteredUpdates);
@@ -254,13 +254,7 @@ export default function TaskDetail({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Header 
-        createdAt={task.created_at} 
-        updatedAt={task.updated_at}
-        createdBy={task.created_by}
-        updatedBy={task.updated_by}
-        members={members}
-      />
+      <Header createdAt={task.created_at} updatedAt={task.updated_at} />
 
       {/* Title */}
       <TitleField
@@ -371,15 +365,9 @@ export default function TaskDetail({
 function Header({
   createdAt,
   updatedAt,
-  createdBy,
-  updatedBy,
-  members,
 }: {
   createdAt: string;
   updatedAt: string;
-  createdBy?: string | null;
-  updatedBy?: string | null;
-  members?: ProjectMember[] | null;
 }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -392,14 +380,6 @@ function Header({
     });
   };
 
-  // 사용자 정보 찾기 함수
-  const findUser = (userId: string | null | undefined) => {
-    if (!userId || !members) return null;
-    return members.find(member => member.user_id === userId)?.users || null;
-  };
-
-  const creator = findUser(createdBy);
-  const updater = findUser(updatedBy);
   const isUpdated = createdAt !== updatedAt;
 
   return (
@@ -416,14 +396,9 @@ function Header({
             생성:
           </span>
           <span>{formatDate(createdAt)}</span>
-          {creator && (
-            <>
-              <span className="text-gray-400 dark:text-gray-500">by</span>
-              <span className="font-medium text-gray-700 dark:text-gray-300">
-                {creator.name}
-              </span>
-            </>
-          )}
+          {/* TODO: 작성자 정보 추가 시 사용 */}
+          {/* <span className="text-gray-400 dark:text-gray-500">by</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300">작성자명</span> */}
         </div>
 
         {/* 수정 정보 */}
@@ -438,14 +413,9 @@ function Header({
               수정:
             </span>
             <span>{formatDate(updatedAt)}</span>
-            {updater && (
-              <>
-                <span className="text-gray-400 dark:text-gray-500">by</span>
-                <span className="font-medium text-gray-700 dark:text-gray-300">
-                  {updater.name}
-                </span>
-              </>
-            )}
+            {/* TODO: 수정자 정보 추가 시 사용 */}
+            {/* <span className="text-gray-400 dark:text-gray-500">by</span>
+            <span className="font-medium text-gray-700 dark:text-gray-300">수정자명</span> */}
           </div>
         )}
       </div>
