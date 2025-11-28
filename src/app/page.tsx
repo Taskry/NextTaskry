@@ -2,24 +2,14 @@
 
 "use client";
 
-import ProjectCard from "@/components/features/project/ProjectCard";
-import ProjectCardHeader from "@/components/features/project/ProjectCardHeader";
 import { supabase } from "@/lib/supabase/supabase";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import InviteDecisionModal from "@/components/features/invite/InviteDecisionModal";
 import Container from "@/components/shared/Container";
+import ProjectBoard from "@/components/features/project/ProjectBoard";
 
 const Home = () => {
-  const router = useRouter();
   console.log("프로젝트 목록페이지");
-
-  const handleSelectProject = (projectId: string) => {
-    // 세션 스토리지에 선택한 프로젝트 ID 저장
-    sessionStorage.setItem("current_Project_Id", projectId);
-    // URL에 ID 노출없이 프로젝트 페이지로 이동
-    router.push(`/project/workspace`);
-  };
 
   const [inviteData, setInviteData] = useState(null);
 
@@ -54,8 +44,7 @@ const Home = () => {
   return (
     <div className="h-full flex flex-col">
       <Container className="h-full">
-        <ProjectCardHeader />
-        <ProjectCard onSelectProject={handleSelectProject} />
+        <ProjectBoard />
       </Container>
 
       {/* 🔥 초대 모달 표시 */}

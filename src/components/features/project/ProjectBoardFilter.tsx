@@ -1,26 +1,17 @@
-import Button from "@/components/ui/Button";
+
+import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 import { DateSelect } from "./DateSelect";
 import { SortSelect } from "./SortSelect";
 import { ViewSelect } from "./ViewSelect";
 import { cn } from "@/lib/utils/utils";
 
-interface ProjectCardFilterProps {
-  filter: any;
-  // showFilter: boolean;
-  // onToggleFilter: () => void;
-  onFilterChange: (key: string, value: string) => void;
-}
-
-export default function PorjectCardFilter({
-  filter,
-  // showFilter,
-  // onToggleFilter,
-  onFilterChange,
-}: ProjectCardFilterProps) {
-  const handleSelectChange = (key: string, value: string) => {
-    if (onFilterChange) {
-      onFilterChange(key, value);
-    }
+export default function PorjectBoardFilter() {
+  const { filter, setFilter } = useProjectBoard();
+  const handleSelectChange = (name: string, value: string) => {
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      [name]: value,
+    }));
   };
   return (
     <div
@@ -29,12 +20,11 @@ export default function PorjectCardFilter({
         "justify-between"
       )}
     >
-    
       <div
         className="
         p-4 mr-4 
         flex justify-start gap-4 md:justify-center flex-wrap 
-        border border-border 
+        border
         rounded-xl 
         w-full"
       >
@@ -74,24 +64,6 @@ export default function PorjectCardFilter({
           </div>
         </div>
       </div>
-      
-      {/* <div className="flex justify-center items-center">
-        <Button
-          btnType="icon"
-          icon="filter"
-          size={16}
-          variant="white"
-          onClick={onToggleFilter}
-          className="
-                hover:bg-main-100/40 
-                hover:border-main-100/40 
-                text-main-400 
-                dark:text-main-200!
-                dark:bg-gray-700!
-                dark:border-gray-500!
-                dark:hover:bg-gray-100/40!"
-        />
-      </div> */}
     </div>
   );
 }

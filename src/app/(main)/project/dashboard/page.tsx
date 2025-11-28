@@ -1,11 +1,9 @@
-import ProjectCardHeader from "@/components/features/project/ProjectCardHeader";
-import ProjectCard from "@/components/features/project/ProjectCard";
+import ProjectBoard from "@/components/features/project/ProjectBoard";
 
 export default function Dashboard() {
     return (
         <div>
-            <ProjectCardHeader />
-            <ProjectCard />
+            <ProjectBoard />
         </div>
     );
 }
