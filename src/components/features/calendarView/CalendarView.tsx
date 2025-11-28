@@ -1,19 +1,42 @@
+// src/components/features/calendarView/CalendarView.tsx
+
 "use client";
 
-import { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+// React Hooks - 상태 관리 및 최적화
+import { useState, useEffect, useCallback, useMemo } from "react";
+
+// react-big-calendar - 구글 캘린더 스타일의 캘린더 라이브러리
+import { Calendar, dateFnsLocalizer, View } from "react-big-calendar";
+
+// date-fns - 날짜 처리 라이브러리 (moment.js의 경량 대안)
 import { format, parse, startOfWeek, getDay } from "date-fns";
-import { ko } from "date-fns/locale";
+import { ko } from "date-fns/locale"; // 한국어 로케일
+
+// react-big-calendar CSS - 기본 스타일링
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Task } from "@/types/kanban";
-import Modal from "@/components/ui/Modal";
-import TaskAdd from "@/components/features/task/add/TaskAdd";
-import TaskDetail from "@/components/features/task/detail/TaskDetail";
-import { Icon } from "@/components/shared/Icon";
-import {
-  getCalendarEventColor,
-  getTaskPriorityColor,
-} from "@/lib/utils/taskUtils";
+
+// 내부 모듈들
+import { Task } from "@/types/kanban"; // 태스크 타입 정의
+import Modal from "@/components/ui/Modal"; // 모달 컴포넌트
+import TaskAdd from "@/components/features/task/add/TaskAdd"; // 태스크 추가 폼
+import TaskDetail from "@/components/features/task/detail/TaskDetail"; // 태스크 상세보기
+import { getCalendarEventColor } from "@/lib/utils/taskUtils"; // 색상 유틸리티
+
+/**
+ * 📅 캘린더 이벤트 인터페이스
+ *
+ * react-big-calendar가 요구하는 형식에 맞춰 Task 데이터를 변환한 구조
+ * - Task 객체를 캘린더가 이해할 수 있는 Event 형태로 매핑
+ * - 원본 Task 정보는 task 필드에 보존하여 상세보기/수정 시 사용
+ */
+interface CalendarEvent {
+  id: string; // 고유 식별자 (Task.id와 동일)
+  title: string; // 캘린더에 표시될 제목 (Task.title)
+  start: Date; // 시작 날짜 (Task.created_at 또는 Task.started_at)
+  end: Date; // 종료 날짜 (Task.ended_at 또는 start + 1일)
+  task: Task; // 원본 Task 객체 (상세 정보 접근용)
+  allDay: boolean; // 종일 이벤트 여부 (현재는 모든 태스크가 종일)
+}
 
 const locales = { ko };
 const localizer = dateFnsLocalizer({
@@ -24,8 +47,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// 한글 메시지
-const messages = {
+const CALENDAR_MESSAGES = {
   allDay: "종일",
   previous: "이전",
   next: "다음",
@@ -39,6 +61,15 @@ const messages = {
   event: "이벤트",
   noEventsInRange: "이 기간에 이벤트가 없습니다.",
   showMore: (total: number) => `+${total}개 더보기`,
+};
+
+const CALENDAR_CONFIG = {
+  minTime: new Date(0, 0, 0, 6, 0, 0), // 오전 6시
+  maxTime: new Date(0, 0, 0, 23, 59, 0), // 오후 11시 59분
+  scrollToTime: new Date(0, 0, 0, 8, 0, 0), // 오전 8시로 스크롤
+  step: 15, // 15분 단위
+  timeslots: 4, // 1시간당 4개 슬롯
+  doubleClickThreshold: 300, // 더블클릭 감지 시간(ms)
 };
 
 interface CalendarViewProps {
@@ -64,6 +95,7 @@ export default function CalendarView({
   onSelectTask,
   onTaskCreated,
 }: CalendarViewProps) {
+  // 모달 상태
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -71,70 +103,89 @@ export default function CalendarView({
     started_at: string;
     ended_at: string;
   } | null>(null);
+
+  // 더블클릭 감지 상태
   const [lastClickTime, setLastClickTime] = useState<number>(0);
   const [lastClickedSlot, setLastClickedSlot] = useState<string>("");
+
+  // 캘린더 뷰 상태
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<
-    "month" | "week" | "day" | "agenda" | "work_week"
-  >("month");
+  const [currentView, setCurrentView] = useState<View>("month");
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // 현재 시간 업데이트 (1분마다)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   /**
-   * 캘린더 날짜 선택 핸들러
-   * - 드래그: 범위 선택 (2일 이상)
-   * - 더블클릭: 단일 날짜 선택
+   *  슬롯 선택 핸들러 (더블클릭 또는 드래그)
    */
-  const handleSelectSlot = (slot: any) => {
-    const startDate = new Date(slot.start);
-    const endDate = new Date(slot.end);
-    endDate.setDate(endDate.getDate() - 1);
+  const handleSelectSlot = useCallback(
+    (slot: any) => {
+      const startDate = new Date(slot.start);
+      const endDate = new Date(slot.end);
+      endDate.setDate(endDate.getDate() - 1);
 
-    const slotKey = `${slot.start.getTime()}-${slot.end.getTime()}`;
-    const now = Date.now();
-    const timeDiff = now - lastClickTime;
+      const slotKey = `${slot.start.getTime()}-${slot.end.getTime()}`;
+      const now = Date.now();
+      const timeDiff = now - lastClickTime;
+      const daysDiff = Math.ceil(
+        (slot.end.getTime() - slot.start.getTime()) / (1000 * 60 * 60 * 24)
+      );
 
-    const daysDiff = Math.ceil(
-      (slot.end.getTime() - slot.start.getTime()) / (1000 * 60 * 60 * 24)
-    );
+      // [발표2] 더블클릭 vs 드래그 구분 로직
+      const shouldOpenModal =
+        daysDiff > 1 || // 드래그로 범위 선택
+        (slotKey === lastClickedSlot &&
+          timeDiff < CALENDAR_CONFIG.doubleClickThreshold); // 더블클릭
 
-    if (daysDiff > 1) {
-      // 드래그로 범위 선택
-      setSelectedDates({
-        started_at: format(startDate, "yyyy-MM-dd"),
-        ended_at: format(endDate, "yyyy-MM-dd"),
-      });
-      setShowTaskAddModal(true);
-      setLastClickTime(0);
-      setLastClickedSlot("");
-    } else if (slotKey === lastClickedSlot && timeDiff < 300) {
-      // 더블클릭으로 단일 날짜 선택
-      setSelectedDates({
-        started_at: format(startDate, "yyyy-MM-dd"),
-        ended_at: format(endDate, "yyyy-MM-dd"),
-      });
-      setShowTaskAddModal(true);
-      setLastClickTime(0);
-      setLastClickedSlot("");
-    } else {
-      // 첫 번째 클릭 기록
-      setLastClickTime(now);
-      setLastClickedSlot(slotKey);
-    }
-  };
-
-  const handleTaskAddSuccess = async (
-    taskData: Omit<Task, "id" | "created_at" | "updated_at">
-  ) => {
-    await onCreateTask?.(taskData);
-    setShowTaskAddModal(false);
-    setSelectedDates(null);
-    onTaskCreated?.();
-  };
+      if (shouldOpenModal) {
+        setSelectedDates({
+          started_at: format(startDate, "yyyy-MM-dd"),
+          ended_at: format(endDate, "yyyy-MM-dd"),
+        });
+        setShowTaskAddModal(true);
+        setLastClickTime(0);
+        setLastClickedSlot("");
+      } else {
+        setLastClickTime(now);
+        setLastClickedSlot(slotKey);
+      }
+    },
+    [lastClickTime, lastClickedSlot, setSelectedDates, setShowTaskAddModal]
+  );
 
   /**
-   * 키보드 단축키 처리
-   * - ESC: 모달 닫기
-   * - Ctrl/Cmd + N: 새 작업 추가 (오늘 날짜)
-   * - Arrow Left/Right: 달/주/일 이동
+   * Task 추가 성공 핸들러
+   */
+  const handleTaskAddSuccess = useCallback(
+    async (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
+      await onCreateTask?.(taskData);
+      setShowTaskAddModal(false);
+      setSelectedDates(null);
+      onTaskCreated?.();
+    },
+    [onCreateTask, onTaskCreated, setShowTaskAddModal, setSelectedDates]
+  );
+
+  /**
+   * 이벤트 선택 핸들러
+   */
+  const handleSelectEvent = useCallback(
+    (event: any) => {
+      setSelectedTask(event.task);
+      setShowTaskDetailModal(true);
+      onSelectTask?.(event.task);
+    },
+    [onSelectTask, setSelectedTask, setShowTaskDetailModal]
+  );
+
+  /**
+   * 🎯 키보드 단축키 (ESC, Ctrl+N, 방향키)
    */
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -151,20 +202,17 @@ export default function CalendarView({
         return;
       }
 
-      // 모달이 이미 열려있으면 다른 단축키 무시
-      if (showTaskAddModal || showTaskDetailModal) {
-        return;
-      }
-
-      // input/textarea에 포커스가 있으면 무시
+      // 모달이 열려있거나 input/textarea에 포커스가 있으면 무시
       if (
+        showTaskAddModal ||
+        showTaskDetailModal ||
         document.activeElement?.tagName === "INPUT" ||
         document.activeElement?.tagName === "TEXTAREA"
       ) {
         return;
       }
 
-      // Ctrl/Cmd + N: 새 작업 추가 (e.code로 한글 입력 모드 대응)
+      // Ctrl/Cmd + N: 새 작업 추가
       if (
         e.code === "KeyN" &&
         (e.ctrlKey || e.metaKey) &&
@@ -172,40 +220,29 @@ export default function CalendarView({
         !e.altKey
       ) {
         e.preventDefault();
-        e.stopPropagation();
         const today = new Date();
         setSelectedDates({
           started_at: format(today, "yyyy-MM-dd"),
           ended_at: format(today, "yyyy-MM-dd"),
         });
         setShowTaskAddModal(true);
+        return;
       }
 
-      // Arrow Left: 이전 달/주/일로 이동
-      if (e.key === "ArrowLeft") {
+      // Arrow Left/Right: 날짜 이동
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         e.preventDefault();
         const newDate = new Date(currentDate);
-        if (currentView === "month") {
-          newDate.setMonth(newDate.getMonth() - 1);
-        } else if (currentView === "week") {
-          newDate.setDate(newDate.getDate() - 7);
-        } else if (currentView === "day") {
-          newDate.setDate(newDate.getDate() - 1);
-        }
-        setCurrentDate(newDate);
-      }
+        const direction = e.key === "ArrowLeft" ? -1 : 1;
 
-      // Arrow Right: 다음 달/주/일로 이동
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        const newDate = new Date(currentDate);
         if (currentView === "month") {
-          newDate.setMonth(newDate.getMonth() + 1);
+          newDate.setMonth(newDate.getMonth() + direction);
         } else if (currentView === "week") {
-          newDate.setDate(newDate.getDate() + 7);
+          newDate.setDate(newDate.getDate() + 7 * direction);
         } else if (currentView === "day") {
-          newDate.setDate(newDate.getDate() + 1);
+          newDate.setDate(newDate.getDate() + direction);
         }
+
         setCurrentDate(newDate);
       }
     };
@@ -214,104 +251,163 @@ export default function CalendarView({
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [showTaskAddModal, showTaskDetailModal, currentDate, currentView]);
 
-  const events = (tasks ?? [])
-    .filter((t) => t.started_at || t.ended_at)
-    .map((t) => {
-      const start = t.started_at ? new Date(t.started_at) : new Date();
-      const end = t.ended_at ? new Date(t.ended_at) : start;
+  /**
+   * 🎯 [발표4] Tasks → Calendar Events 변환 (시간 vs 종일) - 리얼타임 업데이트 대응
+   *
+   * 🔄 useMemo 사용 이유:
+   * - tasks prop이 변경될 때마다 events 재계산
+   * - 리얼타임 업데이트 시 캘린더 뷰 자동 갱신
+   * - 불필요한 재계산 방지로 성능 최적화
+   */
+  const events: CalendarEvent[] = useMemo(() => {
+    return tasks
+      .filter((t) => t.started_at || t.ended_at)
+      .map((t) => {
+        let start: Date;
+        let end: Date;
 
-      end.setHours(23, 59, 59, 999);
+        if (t.use_time && (t.start_time || t.end_time)) {
+          // 시간 지정된 이벤트
+          const startDateStr =
+            t.started_at?.split("T")[0] || format(new Date(), "yyyy-MM-dd");
+          const endDateStr = t.ended_at?.split("T")[0] || startDateStr;
 
-      return {
-        id: t.id,
-        title: t.title,
-        start,
-        end,
-        task: t,
-      };
-    });
+          start = new Date(`${startDateStr}T${t.start_time || "00:00"}:00`);
+          end = t.end_time
+            ? new Date(`${endDateStr}T${t.end_time}:00`)
+            : new Date(start.getTime() + 60 * 60 * 1000); // 1시간 후
+        } else {
+          // 종일 이벤트
+          start = t.started_at ? new Date(t.started_at) : new Date();
+          end = t.ended_at ? new Date(t.ended_at) : start;
+          start.setHours(0, 0, 0, 0);
+          end.setHours(23, 59, 59, 999);
+        }
+
+        // 담당자 정보를 포함한 제목 구성 (안전하게 처리)
+        // assignee 정보가 완전히 로드된 경우에만 표시
+        const assigneeInfo = t.assignee?.name ? ` (👤${t.assignee.name})` : "";
+        const title = `${t.title}${assigneeInfo}`;
+
+        return {
+          id: t.id,
+          title,
+          start,
+          end,
+          task: t,
+          allDay: !t.use_time,
+        };
+      });
+  }, [tasks]); // tasks가 변경될 때마다 재계산
+
+  /**
+   * 🎯 [발표5] 이벤트 스타일링 (상태별 색상 + 우선순위)
+   */
+  const eventStyleGetter = useCallback((event: CalendarEvent) => {
+    const isDark = document.documentElement.classList.contains("dark");
+    const backgroundColor = getCalendarEventColor(event.task.status, isDark);
+    const isHighPriority = event.task.priority === "high";
+
+    return {
+      style: {
+        backgroundColor,
+        color: isDark ? "#f3f4f6" : "#ffffff",
+        border: `1px solid ${backgroundColor}`,
+        borderLeft: `4px solid ${backgroundColor}`,
+        borderRadius: "6px",
+        fontWeight: isHighPriority ? "600" : "500",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
+      },
+    };
+  }, []);
+
+  /**
+   * 🎯 [발표6] 주간 뷰 헤더 커스텀 (오늘 날짜 강조)
+   */
+  const WeekHeader = useCallback(({ date, localizer }: any) => {
+    const isToday =
+      format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+
+    return (
+      <div
+        className={`text-center py-2 ${
+          isToday
+            ? "bg-blue-50 dark:bg-blue-900/20 font-bold text-blue-600 dark:text-blue-400"
+            : ""
+        }`}
+      >
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          {localizer.format(date, "E", "ko")}
+        </div>
+        <div
+          className={`text-lg ${
+            isToday
+              ? "bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mx-auto"
+              : ""
+          }`}
+        >
+          {localizer.format(date, "d")}
+        </div>
+      </div>
+    );
+  }, []);
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden relative">
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden">
         <Calendar
           localizer={localizer}
           events={events}
           selectable
-          messages={messages}
+          messages={CALENDAR_MESSAGES}
           culture="ko"
           date={currentDate}
           view={currentView}
-          onNavigate={(date) => {
-            setCurrentDate(date);
-          }}
-          onView={(view) => {
-            setCurrentView(view);
-          }}
+          onNavigate={setCurrentDate}
+          onView={setCurrentView}
           onSelectSlot={handleSelectSlot}
-          onSelectEvent={(event) => {
-            setSelectedTask(event.task);
-            setShowTaskDetailModal(true);
-            onSelectTask?.(event.task);
-          }}
-          startAccessor="start"
-          endAccessor="end"
+          onSelectEvent={handleSelectEvent}
+          min={CALENDAR_CONFIG.minTime}
+          max={CALENDAR_CONFIG.maxTime}
+          step={CALENDAR_CONFIG.step}
+          timeslots={CALENDAR_CONFIG.timeslots}
+          scrollToTime={CALENDAR_CONFIG.scrollToTime}
+          dayLayoutAlgorithm="overlap"
+          popup
+          popupOffset={{ x: 10, y: 10 }}
+          showMultiDayTimes
+          views={["month", "week", "day", "agenda"]}
+          getNow={() => currentTime}
           style={{ height: "100%" }}
-          // 이벤트 상태별 색상 설정
-          eventPropGetter={(event) => {
-            const isDark =
-              typeof window !== "undefined" &&
-              document.documentElement.classList.contains("dark");
-            const backgroundColor = getCalendarEventColor(
-              event.task.status,
-              isDark
-            );
-
-            return {
-              style: {
-                backgroundColor,
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                padding: "2px 4px",
-              },
-            };
-          }}
-          // 커스텀 이벤트 컴포넌트: 우선순위 아이콘 표시
+          eventPropGetter={eventStyleGetter}
           components={{
-            event: ({ event }) => {
-              const isDark =
-                typeof window !== "undefined" &&
-                document.documentElement.classList.contains("dark");
-              const priorityColors = event.task.priority
-                ? getTaskPriorityColor(event.task.priority, isDark)
-                : null;
-
-              return (
-                <div className="flex items-center gap-1">
-                  {event.task.priority && priorityColors && (
-                    <Icon
-                      type="circleCheckFilled"
-                      size={12}
-                      className={priorityColors.icon}
-                    />
-                  )}
-                  <span className="truncate text-xs">{event.title}</span>
-                </div>
-              );
-            },
+            week: { header: WeekHeader },
+            timeGutterHeader: () => (
+              <div className="text-xs text-gray-500 dark:text-gray-400 text-center py-1">
+                시간
+              </div>
+            ),
           }}
         />
       </div>
 
       {/* TaskAdd 모달 */}
       {showTaskAddModal && selectedDates && (
-        <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
+        <Modal
+          isOpen
+          onClose={() => {
+            setShowTaskAddModal(false);
+            setSelectedDates(null);
+          }}
+        >
           <TaskAdd
             boardId={boardId}
             projectId={projectId}
             onSuccess={handleTaskAddSuccess}
-            onCancel={() => setShowTaskAddModal(false)}
+            onCancel={() => {
+              setShowTaskAddModal(false);
+              setSelectedDates(null);
+            }}
             initialStartDate={selectedDates.started_at}
             initialEndDate={selectedDates.ended_at}
           />
@@ -328,7 +424,10 @@ export default function CalendarView({
           }}
         >
           <TaskDetail
-            task={selectedTask}
+            task={{
+              ...selectedTask,
+              project_id: selectedTask.project_id || projectId, // project_id 보장
+            }}
             onUpdate={(taskId, updates) => {
               onUpdateTask?.(taskId, updates);
               onTaskCreated?.();
