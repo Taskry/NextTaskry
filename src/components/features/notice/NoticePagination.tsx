@@ -10,14 +10,6 @@ export default function NoticePagination({
 }: NoticePaginationProps) {
   if (totalPages === 0) return null;
 
-  const generatePages = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
-
   return (
     <nav className="flex justify-center mt-10">
       <ul className="inline-flex items-center space-x-2">
@@ -32,8 +24,13 @@ export default function NoticePagination({
           </button>
         </li>
 
-        {/* 페이지 번호 */}
-        {generatePages().map((page) => (
+        {/* 
+          페이지 번호
+          251128 기존 generatePages 함수 내 totalPages 만큼 for문을 돌려서 페이지 번호를 생성했었음
+          -> 굳이 짧은 코드 함수로 map 돌릴 필요 없이 Array.from 으로 배열 생성해서 페이지 번호 생성
+         */}
+
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
           <li key={page}>
             <button
               className={`px-3 py-1 border border-border rounded cursor-pointer ${
