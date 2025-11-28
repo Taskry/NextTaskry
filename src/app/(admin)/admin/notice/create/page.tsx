@@ -99,7 +99,7 @@ export default function AdminNoticeCreatePage() {
         onSubmit={handleSubmit}
         className="px-5 py-7 lg:p-7 space-y-10 bg-[#FAFAFA] dark:bg-[#1A1A1A] rounded-xl"
       >
-        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg">
+        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-background">
           <legend className="text-lg font-bold px-2 mb-0">기본 정보</legend>
 
           <div className="flex flex-col space-y-2">
@@ -139,7 +139,7 @@ export default function AdminNoticeCreatePage() {
           </div>
         </fieldset>
 
-        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
+        <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-background">
           <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
           <div className="flex flex-col space-y-2">
