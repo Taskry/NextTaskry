@@ -1,3 +1,4 @@
+// src/components/features/task/add/TaskAdd.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,6 +23,9 @@ interface TaskAddProps {
   onCancel: () => void;
   initialStartDate?: string;
   initialEndDate?: string;
+  initialStartTime?: string;
+  initialEndTime?: string;
+  initialUseTime?: boolean;
 }
 
 type FormData = {
@@ -83,11 +87,17 @@ export default function TaskAdd({
   onCancel,
   initialStartDate,
   initialEndDate,
+  initialStartTime,
+  initialEndTime,
+  initialUseTime,
 }: TaskAddProps) {
   const [formData, setFormData] = useState<FormData>({
     ...INITIAL_FORM_DATA,
     started_at: initialStartDate || "",
     ended_at: initialEndDate || "",
+    start_time: initialStartTime || "",
+    end_time: initialEndTime || "",
+    use_time: initialUseTime || false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,6 +133,38 @@ export default function TaskAdd({
     console.log(`TaskAdd - handleChange: ${field} = ${value}`);
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
+
+      // "시간 지정" 체크 시 기본 시간값 자동 설정
+      if (field === "use_time" && value === true) {
+        console.log("⏰ 시간 지정 체크됨, 기본 시간값 설정");
+        if (!newData.start_time) {
+          newData.start_time = "09:00";
+        }
+        if (!newData.end_time) {
+          newData.end_time = "18:00";
+        }
+      }
+
+      // "시간 지정" 해제 시 시간값 초기화
+      if (field === "use_time" && value === false) {
+        console.log("⏰ 시간 지정 해제됨, 시간값 초기화");
+        newData.start_time = "";
+        newData.end_time = "";
+      }
+
+      // 시간을 모두 지우면 use_time을 false로 설정
+      if (
+        (field === "start_time" || field === "end_time") &&
+        (!value || !value.trim())
+      ) {
+        const otherTimeField =
+          field === "start_time" ? newData.end_time : newData.start_time;
+        if (!otherTimeField || !otherTimeField.trim()) {
+          console.log(`⏰ 시간 모두 삭제됨, use_time을 false로 설정`);
+          newData.use_time = false;
+        }
+      }
+
       console.log("TaskAdd - Updated formData:", newData);
       return newData;
     });
@@ -150,8 +192,9 @@ export default function TaskAdd({
           ? new Date(`${formData.ended_at}T${formData.end_time}:00`)
           : new Date(formData.ended_at);
 
-      if (startDateTime >= endDateTime) {
-        newErrors.ended_at = "종료 시간은 시작 시간보다 늦어야 합니다.";
+      // ✅ 수정: 시작과 종료가 같아도 허용 (> 사용으로 변경)
+      if (startDateTime > endDateTime) {
+        newErrors.ended_at = "종료 시간은 시작 시간보다 이전일 수 없습니다.";
       }
     }
 
@@ -196,16 +239,14 @@ export default function TaskAdd({
         return utcDate.toISOString();
       };
 
+      // ✅ 날짜는 항상 자정(00:00:00)으로 저장
+      // ✅ 실제 시간은 start_time/end_time 컬럼에 별도 저장
       const startedAtISO = formData.started_at
-        ? formData.use_time && formData.start_time
-          ? toUTCString(formData.started_at, formData.start_time)
-          : toUTCString(formData.started_at, "00:00:00") // 종일이면 자정
+        ? `${formData.started_at}T00:00:00`
         : undefined;
 
       const endedAtISO = formData.ended_at
-        ? formData.use_time && formData.end_time
-          ? toUTCString(formData.ended_at, formData.end_time)
-          : toUTCString(formData.ended_at, "23:59:59") // 종일이면 하루 끝
+        ? `${formData.ended_at}T00:00:00`
         : undefined;
 
       // 데이터베이스 저장용 payload (UI 전용 필드 제외)
