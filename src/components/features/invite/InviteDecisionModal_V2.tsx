@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/supabase";
 import { showToast } from "@/lib/utils/toast";
 import { Invitation } from "@/types/invite";  // 새로 만든 타입
 import { useEffect, useRef } from "react";
+import Button from "@/components/ui/Button";
 
 export default function InviteDecisionModal_V2({ invite, onCloseModal }: { invite: Invitation ,onCloseModal:()=>void}) {
 
@@ -167,27 +168,29 @@ export default function InviteDecisionModal_V2({ invite, onCloseModal }: { invit
   //  invitation_type === "project" 인 경우만 모달 렌더링
   // -----------------------------------------
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white dark:bg-gray-900 p-6 rounded-xl w-[380px]">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center ">
+      <div className="bg-white dark:bg-black  p-6 rounded-xl w-[380px] border border-gray-200 dark:border-gray-600">
         <h2 className="text-lg font-semibold mb-3">프로젝트 초대가 도착했습니다</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
           이 프로젝트에 참여하시겠습니까?
         </p>
 
-        <div className="flex justify-end gap-2">
-          <button
-            className="px-4 py-2 border rounded-md"
+        <div className="flex justify-end gap-2 ">
+          <Button
+            className="px-4 py-2 border rounded-md dark:bg-black"
             onClick={handleReject}
           >
             거절하기
-          </button>
+          </Button>
 
-          <button
+          <Button
+            btnType="basic"
+            variant="primary"
             className="px-4 py-2 bg-main-500 text-white rounded-md"
             onClick={handleAccept}
           >
             참여하기
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -14,5 +14,6 @@ export type UserInfoRow = {
 email: string; 
 user_name: string; 
 global_role: "user" | "admin"
+user_id: string;
 
 }

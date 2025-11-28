@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { showToast } from "@/lib/utils/toast";
 import { useSession } from "next-auth/react";
 import type { AdminInviteModalProps, Invitation } from "@/types/invite";
+import Button from "@/components/ui/Button";
 
 type InvitationWithProject = Invitation & {
   project_name: string | null;
@@ -231,17 +232,19 @@ export default function AdminInviteModal({
 
         {/* BUTTONS */}
         <div className="flex justify-end gap-2 mt-4">
-          <button className="px-4 py-2 rounded-md border" onClick={onClose}>
-            취소
-          </button>
+       
+          <Button className="px-4 py-2 rounded-md border bg-white dark:bg-black" onClick={onClose}>취소</Button>
 
-          <button
-            className="px-4 py-2 rounded-md bg-main-500 text-white"
+          <Button
+            btnType="basic"
+            variant="primary"
+            className="h-12 px-4 rounded-md"
             onClick={handleSubmit}
             disabled={isLoading}
-          >
+            >
             {isLoading ? "초대 중..." : "초대하기"}
-          </button>
+          </Button>
+
         </div>
       </div>
     </div>
