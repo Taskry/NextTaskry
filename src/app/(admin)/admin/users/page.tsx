@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
 import { UserInfoRow } from "@/types/adminUser";
 import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
+import { Icon } from "@/components/shared/Icon";
 
 
 export default function AdminUsersPage() {
@@ -204,9 +205,9 @@ export default function AdminUsersPage() {
             <button
               onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-1 border rounded disabled:opacity-40"
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
             >
-              이전
+              <Icon type="arrowDown" className="rotate-90" size={17} />
             </button>
 
 
@@ -225,9 +226,9 @@ export default function AdminUsersPage() {
           <button
             onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded disabled:opacity-40"
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
           >
-            다음
+            <Icon type="arrowDown" className="rotate-270" size={16} />
           </button>
 
         </div>
