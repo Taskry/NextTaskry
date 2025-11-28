@@ -17,7 +17,6 @@ import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
-import InviteMemberModal from "../project/InviteMemberModal";
 
 interface KanbanBoardProps {
   projectName: string;
@@ -222,28 +221,7 @@ function Header({
       </h2>
 
       <div className="flex items-center gap-3">
-        {userRole === "leader" && (
-          <button
-            onClick={() => setInviteOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-200 dark:border-gray-600
-                  hover:bg-main-300 hover:border-main-300 dark:hover:bg-main-400 dark:hover:border-main-400 hover:text-white transition-all text-sm font-medium shadow-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            초대
-          </button>
-        )}
+        
         <button
           onClick={onAddClick}
           className="px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all font-medium shadow-sm"
@@ -252,12 +230,7 @@ function Header({
         </button>
       </div>
 
-      {inviteOpen && (
-        <InviteMemberModal
-          projectId={projectId}
-          onClose={() => setInviteOpen(false)}
-        />
-      )}
+    
     </div>
   );
 }

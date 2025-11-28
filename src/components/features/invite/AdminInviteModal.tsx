@@ -10,7 +10,7 @@ type InvitationWithProject = Invitation & {
 };
 
 export default function AdminInviteModal({
-  projects,
+  projects, //프로젝트 목록 page로 부터
   onClose,
 }: AdminInviteModalProps) {
   const { data: session } = useSession();
@@ -37,7 +37,10 @@ export default function AdminInviteModal({
   };
 
   useEffect(() => {
-    loadInvitations();
+   async function loadData(){
+     await loadInvitations();
+    }
+    loadData();
   }, []);
 
   // 초대 로직 실행

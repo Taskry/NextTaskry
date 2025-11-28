@@ -5,7 +5,6 @@ import { primaryBgColor } from "@/app/sample/color/page";
 import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
 import { UserInfoRow } from "@/types/adminUser";
-import { updateUserRole } from "@/lib/api/adminUsers";
 import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
 
 
