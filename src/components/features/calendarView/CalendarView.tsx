@@ -104,6 +104,9 @@ export default function CalendarView({
     ended_at: string;
   } | null>(null);
 
+  // UI 상태 관리
+  const [showHelp, setShowHelp] = useState(false);
+
   // 더블클릭 감지 상태
   const [lastClickTime, setLastClickTime] = useState<number>(0);
   const [lastClickedSlot, setLastClickedSlot] = useState<string>("");
@@ -286,7 +289,7 @@ export default function CalendarView({
 
         // 담당자 정보를 포함한 제목 구성 (안전하게 처리)
         // assignee 정보가 완전히 로드된 경우에만 표시
-        const assigneeInfo = t.assignee?.name ? ` (👤${t.assignee.name})` : "";
+        const assigneeInfo = (t as any).assignee?.name ? ` (👤${(t as any).assignee.name})` : "";
         const title = `${t.title}${assigneeInfo}`;
 
         return {
@@ -354,8 +357,137 @@ export default function CalendarView({
 
   return (
     <>
-      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 overflow-hidden">
-        <Calendar
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+        {/* 캘린더 헤더 */}
+        <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 mb-2 sm:mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 shadow-sm">
+          <h2 className="text-lg sm:text-xl font-bold text-white dark:text-gray-100">
+            캘린더
+          </h2>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="text-sm font-medium text-white/90 dark:text-gray-200 text-right">
+              <div>{events.length}개 일정</div>
+              <div className="text-xs text-white/70 dark:text-gray-300">
+                {format(currentDate, "yyyy년 M월", { locale: ko })}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowHelp(!showHelp)}
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+              title={showHelp ? "도움말 닫기" : "도움말 열기"}
+            >
+              <svg
+                className={`w-4 h-4 text-white transition-transform duration-300 ${
+                  showHelp ? "scale-110" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* 도움말 영역 */}
+        {showHelp && (
+          <div className="mx-4 mb-4 px-4 py-3 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm space-y-3">
+            {/* 기본 사용법 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  📅 기본 사용법
+                </h4>
+                <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                    <span>날짜 더블클릭: 새 일정 추가</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                    <span>드래그: 기간 선택하여 추가</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
+                    <span>일정 클릭: 상세보기/수정</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  ⌨️ 키보드 단축키
+                </h4>
+                <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
+                        Ctrl
+                      </kbd>
+                      <span>+</span>
+                      <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
+                        N
+                      </kbd>
+                    </div>
+                    <span>새 일정 추가</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
+                      ESC
+                    </kbd>
+                    <span>모달 닫기</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
+                        ←
+                      </kbd>
+                      <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
+                        →
+                      </kbd>
+                    </div>
+                    <span>날짜 이동</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 일정 색상 가이드 */}
+            <div className="pt-2 border-t border-gray-200 dark:border-gray-600">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                🎨 일정 상태별 색상
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded border"></div>
+                  <span className="text-gray-600 dark:text-gray-400">할일</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-yellow-500 rounded border"></div>
+                  <span className="text-gray-600 dark:text-gray-400">진행중</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-green-500 rounded border"></div>
+                  <span className="text-gray-600 dark:text-gray-400">완료</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-500 rounded border"></div>
+                  <span className="text-gray-600 dark:text-gray-400">보류</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 캘린더 본체 */}
+        <div className="flex-1 p-4 overflow-hidden">
+          <Calendar
           localizer={localizer}
           events={events}
           selectable
@@ -389,6 +521,7 @@ export default function CalendarView({
             ),
           }}
         />
+        </div>
       </div>
 
       {/* TaskAdd 모달 */}
