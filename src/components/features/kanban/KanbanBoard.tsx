@@ -11,7 +11,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
-import { ProjectRole, Task, TaskStatus } from "@/types";
+import {  Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
@@ -27,7 +27,7 @@ interface KanbanBoardProps {
   onCreateTask: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
-  userRole: ProjectRole | null;
+  
   projectId: string;
 }
 
@@ -38,7 +38,7 @@ const KanbanBoard = ({
   onUpdateTask,
   onDeleteTask,
   onCreateTask,
-  userRole,
+
   projectId,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -139,7 +139,7 @@ const KanbanBoard = ({
       <Header
         projectName={projectName}
         onAddClick={() => setShowTaskAddModal(true)}
-        userRole={userRole}
+       
         projectId={projectId}
       />
 
@@ -204,15 +204,13 @@ const KanbanBoard = ({
 function Header({
   projectName,
   onAddClick,
-  userRole,
-  projectId,
+
 }: {
   projectName: string;
   onAddClick: () => void;
-  userRole: ProjectRole | null;
+ 
   projectId: string;
 }) {
-  const [inviteOpen, setInviteOpen] = useState(false);
 
   return (
     <div className="flex justify-between items-center px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-lg shadow-sm">
