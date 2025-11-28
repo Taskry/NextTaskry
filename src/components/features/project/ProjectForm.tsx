@@ -51,12 +51,11 @@ export default function ProjectForm() {
     description: "",
   });
   const [user, setUser] = useState<Item | null>(null);
-  const [manager, setManager] = useState<Item | null>(null);
   const [userList, setUserList] = useState<Item[]>([]);
   const [projectMember, setProjectMember] = useState<any[]>([]);
 
   useEffect(() => {
-    const storedProjectId = sessionStorage.getItem("current_project_id");
+    const storedProjectId = sessionStorage.getItem("current_Project_Id");
 
     if (storedProjectId) {
       setProjectId(storedProjectId);
@@ -320,10 +319,8 @@ export default function ProjectForm() {
             onChange={handleChange}
           />
         </div>
-
         <div className="py-3">
           <Label className="mb-4 font-bold text-lg">프로젝트 구성원</Label>
-
           <div className="pb-4">
             <ComboBox
               items={userList}

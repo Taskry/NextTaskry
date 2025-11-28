@@ -1,8 +1,17 @@
+"use client"
+
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import Button from "@/components/ui/Button";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-export default function ProjectCardHeader() {
+export default function ProjectBoardHeader() {
+  const router = useRouter();
+
+  const handleAddProject = () => {
+    sessionStorage.removeItem("current_Project_Id");
+    router.push('/project/create');
+  };
+  
   return (
     <div className="flex justify-between mb-7">
       <SectionHeader
@@ -11,11 +20,9 @@ export default function ProjectCardHeader() {
         className="!mb-0"
       />
       <div className="p-1 content-center">
-        <Link href={"/project/create"}>
-          <Button btnType="basic" icon="plus" variant="primary" size={18}>
-            새 프로젝트
-          </Button>
-        </Link>
+        <Button btnType="basic" icon="plus" variant="primary" size={18} onClick={handleAddProject}>
+          새 프로젝트
+        </Button>
       </div>
     </div>
   );

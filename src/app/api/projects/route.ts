@@ -6,8 +6,6 @@ export async function GET(request: Request) {
   const ids = searchParams.get("ids");
   const page = searchParams.get("page");
 
-  
-
   // 사용자 인증
   // const session = await getServerSession(authOptions);
 
