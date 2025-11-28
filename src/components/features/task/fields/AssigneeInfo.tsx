@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 
 /**
  * AssigneeInfo: 프로젝트 담당자 정보를 표시하는 컴포넌트
@@ -25,7 +25,6 @@ interface UserInfo {
 const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     /**
@@ -70,21 +69,16 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
     fetchUserInfo();
   }, [userId, projectId]);
 
-  /**
-   * 유효한 프로필 이미지 URL인지 검사
-   */
-  const isValidImageUrl = (url?: string) => {
-    if (!url) return false;
-    if (url.includes("default-user") || url.includes("placeholder"))
-      return false;
-    return true;
-  };
-
   // 로딩 상태
   if (isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+        <UserAvatar
+          userName=""
+          profileImage={null}
+          size={24}
+          className="animate-pulse"
+        />
         <span className="text-xs text-gray-400">불러오는 중...</span>
       </div>
     );
@@ -94,9 +88,7 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   if (!userInfo) {
     return (
       <div className="flex items-center gap-2">
-        <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-          <span className="text-xs text-gray-400 dark:text-gray-400">?</span>
-        </div>
+        <UserAvatar userName="?" profileImage={null} size={24} />
         <span className="text-xs text-gray-400 dark:text-gray-400">
           담당자 없음
         </span>
@@ -107,22 +99,11 @@ const AssigneeInfo = ({ userId, projectId }: AssigneeInfoProps) => {
   // 담당자 정보 표시
   return (
     <div className="flex items-center gap-2">
-      <div className="w-6 h-6 rounded-full bg-main-200 dark:bg-main-700 flex items-center justify-center overflow-hidden">
-        {isValidImageUrl(userInfo.profile_image) && !imageError ? (
-          <Image
-            src={userInfo.profile_image!}
-            alt={userInfo.user_name}
-            width={24}
-            height={24}
-            className="w-full h-full object-cover rounded-full"
-            onError={() => setImageError(true)}
-          />
-        ) : (
-          <span className="text-xs font-medium text-main-600 dark:text-white">
-            {userInfo.user_name.charAt(0).toUpperCase()}
-          </span>
-        )}
-      </div>
+      <UserAvatar
+        userName={userInfo.user_name}
+        profileImage={userInfo.profile_image}
+        size={24}
+      />
       <span className="text-xs text-gray-600 dark:text-gray-400">
         {userInfo.user_name}
       </span>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { updateNotice, deleteNotice } from "@/lib/api/notices";
+import { updateNotice } from "@/lib/api/notices";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { showToast } from "@/lib/utils/toast";
 import { useNoticeDetail } from "@/hooks/useNoticeDetail";
@@ -11,6 +11,7 @@ import { NoticeViewMode } from "@/components/features/notice/NoticeViewMode";
 import { NoticeEditMode } from "@/components/features/notice/NoticeEditMode";
 import { NoticeNavigation } from "@/components/features/notice/NoticeNavigation";
 import { NoticeActionButtons } from "@/components/features/notice/NoticeActionButtons";
+import { useNoticeDelete } from "@/hooks/useNoticeDelete";
 import { NoticeEditState } from "@/types/notice";
 import { isAdmin } from "@/lib/utils/auth";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
@@ -19,20 +20,23 @@ import Container from "@/components/shared/Container";
 import Button from "@/components/ui/Button";
 
 export default function NoticeDetail() {
-  const params = useParams();
+  const params = useParams(); // notice/123
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // notice/123?edit=true
 
-  // ID 추출 및 타입 안정성 확보
+  // ------------------ ID 추출 및 타입 안정성 확보
   const { data: session } = useSession();
   const noticeId = (Array.isArray(params.id) ? params.id[0] : params.id) ?? "";
   const admin = isAdmin(session);
 
-  // 공지사항 데이터 로드
+  // ------------------ 공지사항 데이터 로드
   const { notice, nextNotice, prevNotice, isLoading, error, reload } =
+    // 게시판 목록에서 -> 상세로 접근하는데, 이때 notice id는 알고 있음?
+    // prop으로 정보를 받으면 되지 않을까? -> 지금은 전체 공지사항 목록 불러다가 아이디를 찾고 있음
+    // -> 찾아보고 수정해볼 것
     useNoticeDetail(noticeId);
 
-  // 수정 모드 상태 관리
+  // ------------------ 수정 모드 상태 관리
   const [isEditing, setIsEditing] = useState(
     searchParams.get("edit") === "true"
   );
@@ -42,8 +46,22 @@ export default function NoticeDetail() {
     isImportant: false,
   });
 
-  // 공지사항 로드 시 수정 상태 초기화
-  useEffect(() => {
+  // ------------------ 공지사항 로드 시 수정 상태 초기화
+  // 251128 기존에 notice가 바뀔 때마다 상태를 업데이트해서 에러린트 발생
+  // -> editState는 수정 모드에서만 사용되므로 수정 모드 진입 시에만 초기화하도록 수정
+  const handleEdit = useCallback(() => {
+    if (notice) {
+      setEditState({
+        title: notice.title,
+        content: notice.content,
+        isImportant: notice.is_important,
+      });
+    }
+    setIsEditing(true);
+  }, [notice]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
     if (notice) {
       setEditState({
         title: notice.title,
@@ -52,9 +70,9 @@ export default function NoticeDetail() {
       });
     }
   }, [notice]);
+  // ------------------ END 공지사항 로드 시 수정 상태 초기화
 
-  const handleEdit = useCallback(() => setIsEditing(true), []);
-  const handleCancel = useCallback(() => setIsEditing(false), []);
+  // ------------------ 수정 시 저장 핸들러
   const handleSave = useCallback(async () => {
     if (!notice) return;
 
@@ -74,20 +92,10 @@ export default function NoticeDetail() {
     }
   }, [notice, editState, reload, router]);
 
-  const handleDelete = useCallback(async () => {
-    if (!notice) return;
-    if (!confirm(NOTICE_MESSAGES.DELETE_CONFIRM)) return;
-
-    try {
-      await deleteNotice(notice.announcement_id);
-      showToast(NOTICE_MESSAGES.DELETE_SUCCESS, "success");
-      router.refresh();
-      router.push("/notice");
-    } catch (error) {
-      console.error("삭제 오류:", error);
-      showToast(NOTICE_MESSAGES.DELETE_ERROR, "error");
-    }
-  }, [notice, router]);
+  // 251128 기존 삭제 핸들러 작성 -> hooks로 따로 빼서 호출
+  const handleDelete = useNoticeDelete({
+    redirectTo: "/notice",
+  });
 
   if (isLoading) {
     return (
@@ -112,16 +120,15 @@ export default function NoticeDetail() {
     );
   }
 
-  return (
-    <Container>
+  const content = (
+    <>
       <SectionHeader
         title="공지사항"
         description="공지사항을 안내합니다."
-        className="mb-10"
+        className="mb-10 "
       />
 
-      <article className="mx-auto border-t border-t-gray-600">
-        {/* // ---------------------------- 상세, 수정 모드 토글 */}
+      <article className="mx-auto">
         {isEditing ? (
           <NoticeEditMode
             editState={editState}
@@ -140,18 +147,22 @@ export default function NoticeDetail() {
         )}
       </article>
 
-      {/* // ---------------------------- 이전, 다음글 */}
       <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
 
-      {/* // ---------------------------- 수정, 삭제, 저장 버튼 */}
       <NoticeActionButtons
         admin={admin}
         isEditing={isEditing}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={() => notice && handleDelete(notice.announcement_id)}
         onCancel={handleCancel}
         onSave={handleSave}
       />
-    </Container>
+    </>
+  );
+
+  return isEditing ? (
+    <div className="max-w-4xl m-auto py-25">{content}</div>
+  ) : (
+    <Container>{content}</Container>
   );
 }

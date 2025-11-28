@@ -153,21 +153,19 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
     };
 
     const ToolbarButton = ({ format, children, shortcut }: any) => (
-      <Button
-        type="button"
-        btnType="basic"
+      <button
         onClick={() => applyFormat(format)}
-        className={`text-sm transition-all`}
+        className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
         title={shortcut}
       >
         {children}
-      </Button>
+      </button>
     );
 
     return (
-      <div className={`rounded-lg shadow-inner`}>
+      <div className={`rounded-lg `}>
         {/* 툴바 */}
-        <div className="flex flex-wrap justify-end gap-3 items-center justify-between p-2 border border-b-0 border-gray-100 rounded-t-lg">
+        <div className="flex flex-wrap justify-end gap-3 items-center justify-between p-2 border border-b-0 border-border rounded-t-lg">
           <div className="flex gap-1 flex-wrap w-full">
             <ToolbarButton format="bold" shortcut="Ctrl+B">
               <strong>B</strong> (굵게)
@@ -182,14 +180,12 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
           </div>
 
           {/* 프리뷰 토글 */}
-          <Button
-            type="button"
-            btnType="basic"
+          <button
             onClick={() => setShowPreview(!showPreview)}
-            className="text-sm"
+            className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
           >
             {showPreview ? "편집" : "미리보기"}
-          </Button>
+          </button>
         </div>
 
         {/* 에디터/프리뷰 영역 */}
@@ -208,10 +204,8 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
             onSelect={detectActiveFormats}
             placeholder={placeholder}
             rows={rows}
-            className={`p-4 border resize-y  ${
-              showPreview
-                ? "w-1/2 border border-gray-200"
-                : "w-full border-gray-100"
+            className={`p-4 border border-border resize-y  ${
+              showPreview ? "w-1/2 " : "w-full"
             } ${className || ""}`}
             style={{ minHeight: `${rows * 1.5}rem` }}
           />

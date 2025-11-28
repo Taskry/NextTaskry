@@ -6,6 +6,8 @@ import Button from "@/components/ui/Button";
 import { Icon } from "@/components/shared/Icon";
 import { showToast } from "@/lib/utils/toast";
 import { TASK_MESSAGES } from "@/lib/constants/messages";
+import { useModal } from "@/hooks/useModal";
+import Modal from "@/components/ui/Modal";
 
 // 공용 컴포넌트
 import { FormSection } from "@/components/features/task/shared/FormSection";
@@ -53,25 +55,46 @@ export default function TaskDetail({
   const [editingField, setEditingField] = useState<string | null>(null);
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [members, setMembers] = useState<ProjectMember[] | null>(null);
+  const { openModal, modalProps } = useModal();
 
   useEffect(() => {
     const fetchMember = async () => {
+      if (!task.project_id) {
+        console.warn("프로젝트 ID가 없습니다.");
+        return;
+      }
+
       setIsLoadingMembers(true);
       try {
         const response = await fetch(
           `/api/projectMembers/forAssignment?projectId=${task.project_id}`
         );
+
         if (!response.ok) {
-          throw new Error("프로젝트 멤버를 불러오는 데 실패했습니다.");
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(
+            errorData.error ||
+              `HTTP ${response.status}: 프로젝트 멤버를 불러오는 데 실패했습니다.`
+          );
         }
+
         const result = await response.json();
-        setMembers(result.data || []);
+
+        if (result.data) {
+          setMembers(result.data);
+        } else {
+          console.warn("프로젝트 멤버 데이터가 없습니다:", result);
+          setMembers([]);
+        }
       } catch (error) {
-        console.error(error);
+        console.error("프로젝트 멤버 조회 에러:", error);
+        // 에러가 발생해도 빈 배열로 설정하여 UI가 깨지지 않도록 처리
+        setMembers([]);
       } finally {
         setIsLoadingMembers(false);
       }
     };
+
     fetchMember();
   }, [task.project_id]);
 
@@ -105,15 +128,31 @@ export default function TaskDetail({
     }, 500);
   };
 
+  // 작업 삭제 확인 모달 열기
   const handleDelete = () => {
-    if (!confirm(TASK_MESSAGES.DELETE_CONFIRM)) return;
-    onDelete?.(task.id);
-    showToast("작업이 삭제되었습니다.", "deleted");
+    openModal("delete", "작업 삭제", TASK_MESSAGES.DELETE_CONFIRM);
+  };
 
-    // 삭제 후 모달 닫기
-    setTimeout(() => {
-      onClose?.();
-    }, 500);
+  // 작업 삭제 실행
+  const confirmDelete = async () => {
+    try {
+      await onDelete?.(task.id);
+
+      // 삭제 성공 모달 표시
+      openModal(
+        "deleteSuccess",
+        "작업 삭제 완료",
+        "선택한 작업이 삭제되었습니다."
+      );
+
+      // 5초 후 자동으로 모달 닫기 (deleteSuccess 모달은 자동 닫힘)
+      setTimeout(() => {
+        onClose?.();
+      }, 5000);
+    } catch (error) {
+      console.error("작업 삭제 중 오류:", error);
+      openModal("error", "삭제 실패", "작업 삭제 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -210,6 +249,9 @@ export default function TaskDetail({
         onSave={handleSave}
         onDelete={handleDelete}
       />
+
+      {/* 삭제 확인 모달 */}
+      <Modal {...modalProps} onConfirm={confirmDelete} />
     </div>
   );
 }

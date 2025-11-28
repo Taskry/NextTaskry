@@ -8,15 +8,17 @@ import { supabase } from "@/lib/supabase/supabase";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import InviteDecisionModal_V2 from "@/components/features/invite/InviteDecisionModal_V2";
-
-
+import Container from "@/components/shared/Container";
 
 const Home = () => {
   const router = useRouter();
-  
-  //초대 확인 절차
+  console.log("프로젝트 목록페이지");
+
   const handleSelectProject = (projectId: string) => {
-    router.push(`/project/${projectId}`);
+    // 세션 스토리지에 선택한 프로젝트 ID 저장
+    sessionStorage.setItem("current_Project_Id", projectId);
+    // URL에 ID 노출없이 프로젝트 페이지로 이동
+    router.push(`/project/workspace`);
   };
 
   const [inviteData, setInviteData] = useState(null);
@@ -46,15 +48,12 @@ const Home = () => {
     checkInvite();
   }, []);
 
-
-
-
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 overflow-auto">
+      <Container className="h-full">
         <ProjectCardHeader />
         <ProjectCard onSelectProject={handleSelectProject} />
-      </div>
+      </Container>
 
 
        {/* 초대 모달 표시 */}

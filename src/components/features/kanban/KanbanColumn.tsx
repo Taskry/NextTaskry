@@ -6,6 +6,8 @@ import {
 
 import TaskCard from "@/components/features/task/card/TaskCard";
 import { Task, TaskStatus } from "@/types";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { getTaskStatusColor } from "@/lib/utils/taskUtils";
 
 interface KanbanColumnProps {
   id: string;
@@ -22,43 +24,20 @@ const KanbanColumn = ({
   projectId,
   onTaskClick,
 }: KanbanColumnProps) => {
-  // 이 컬럼을 드롭 가능하게 만들기
   const { setNodeRef } = useDroppable({
-    id: id, // 컬럼 id (예: 'todo', 'inprogress', 'done')
+    id: id,
   });
 
-  // 칸반 컬럼별 색상 반환
-  const getColumnColor = (status: TaskStatus) => {
-    const colors = {
-      todo: "bg-gray-400 dark:bg-gray-600",
-      inprogress: "bg-blue-400 dark:bg-blue-600",
-      done: "bg-green-400 dark:bg-green-600",
-    };
-    return colors[status];
-  };
+  // 다크 모드는 CSS 클래스로 처리하도록 변경
+  const statusColors = getTaskStatusColor(id as TaskStatus);
 
   return (
-    <div className="flex flex-col w-80 shrink-0 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-500 shadow-sm">
+    <div className="flex flex-col shrink-0 w-[calc(100vw-4rem)] min-w-[280px] sm:w-96 sm:min-w-[320px] lg:w-80 lg:min-w-[320px] bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-500 shadow-sm">
       {/* 컬럼 헤더 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-500 rounded-t-lg bg-white dark:bg-gray-600">
         <div className="flex items-center gap-2">
-          {/* 상태별 컬러 동그라미 */}
-          <span
-            className={`w-3 h-3 rounded-full ${getColumnColor(
-              id as TaskStatus
-            )}`}
-          />
-
-          {/* 컬럼명에 컬러 적용 */}
-          <h3
-            className={`font-semibold text-base ${
-              id === "todo"
-                ? "text-gray-700 dark:text-gray-200"
-                : id === "inprogress"
-                ? "text-blue-700 dark:text-blue-300"
-                : "text-green-700 dark:text-green-300"
-            }`}
-          >
+          <span className={`w-3 h-3 rounded-full ${statusColors.bg}`} />
+          <h3 className={`font-semibold text-base ${statusColors.text}`}>
             {title}
           </h3>
         </div>
@@ -67,13 +46,13 @@ const KanbanColumn = ({
         </span>
       </div>
 
-      {/* Task Cards - SortableContext로 감싸기 */}
+      {/* Task Cards */}
       <SortableContext
         items={tasks.map((task) => task.id)}
         strategy={verticalListSortingStrategy}
       >
         <div
-          ref={setNodeRef} // 드롭 영역 연결
+          ref={setNodeRef}
           className="p-3 flex flex-col gap-3 overflow-y-auto flex-1"
         >
           {tasks.length > 0 ? (
@@ -86,9 +65,12 @@ const KanbanColumn = ({
               />
             ))
           ) : (
-            <div className="py-10 text-center text-sm text-gray-300 dark:text-gray-400">
-              작업이 없습니다.
-            </div>
+            <EmptyState
+              icon="clipboard"
+              title="작업이 없어요"
+              variant="minimal"
+              className="py-10"
+            />
           )}
         </div>
       </SortableContext>

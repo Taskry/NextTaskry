@@ -46,7 +46,7 @@ export default function Modal({
 
   // 성공 타입은 5초 자동 닫힘
   useEffect(() => {
-    if (type === "success") {
+    if (type === "success" || type === "deleteSuccess") {
       const timer = setTimeout(() => {
         onClose();
       }, 5000);
@@ -127,7 +127,9 @@ export default function Modal({
 
               {config?.info && (
                 <p
-                  className={`text-sm font-medium mt-5 text-gray-600 dark:text-gray-400`}
+                  className={`text-sm font-medium mt-5 ${
+                    config.infoColor || "text-gray-600 dark:text-gray-400"
+                  }`}
                 >
                   {config.info}
                 </p>

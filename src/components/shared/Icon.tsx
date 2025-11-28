@@ -54,6 +54,11 @@ import {
   TbChevronLeft,
   TbBellFilled,
   TbSpeakerphone,
+  TbInbox,
+  TbClipboard,
+  TbLoader,
+  TbList,
+  TbDeviceFloppy,
 } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
@@ -129,6 +134,11 @@ const ICON_MAP: Record<string, IconType> = {
   description: GrTextAlignFull,
   bellFilled: TbBellFilled,
   speakerphone: TbSpeakerphone,
+  inbox: TbInbox,
+  clipboard: TbClipboard,
+  loading: TbLoader,
+  list: TbList,
+  deviceFloppy: TbDeviceFloppy,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
@@ -146,6 +156,14 @@ interface IconProps extends React.HTMLAttributes<HTMLDivElement> {
 const Icon = ({ type, size = 24, color, className = "" }: IconProps) => {
   const iconType = type ? type : "x";
   const IconComponent = ICON_MAP[iconType];
+
+  // 아이콘이 정의되지 않은 경우 기본 아이콘 반환
+  if (!IconComponent) {
+    console.warn(
+      `Icon "${iconType}" not found in ICON_MAP. Using default "x" icon.`
+    );
+    return <TbX size={size} color={color} className={className} />;
+  }
 
   return <IconComponent size={size} color={color} className={className} />;
 };

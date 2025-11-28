@@ -1,14 +1,16 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import Link from "next/link";
 import NoticePagination from "@/components/features/notice/NoticePagination";
-import { useEffect, useState } from "react";
-import { getNotices, deleteNotice, ITEM_PER_PAGE } from "@/lib/api/notices";
+import { useCallback, useEffect, useState } from "react";
+import { getNotices, ITEM_PER_PAGE } from "@/lib/api/notices";
 import { showToast } from "@/lib/utils/toast";
 import { Notice } from "@/types/notice";
 import { formatDate } from "@/lib/utils/utils";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { primaryBorderColor } from "@/app/sample/color/page";
+import { useNoticeDelete } from "@/hooks/useNoticeDelete";
 
 export default function AdminNoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -16,7 +18,11 @@ export default function AdminNoticesPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchNotices = async () => {
+  // 251128 기존 fetchNotices 함수가 매 렌더링마다 새로 생성되게 작성돼있었음
+  // 의존성 배열에 포함되지 않아서 에러린트 발생
+  // -> useCallback으로 함수 메모이제이션, 의존성 배열에 currentPage 추가
+  // -> useEffect 의존성 배열에 fetchNotices 추가
+  const fetchNotices = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await getNotices(currentPage, ITEM_PER_PAGE);
@@ -28,33 +34,27 @@ export default function AdminNoticesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage]);
 
   useEffect(() => {
     fetchNotices();
-  }, [currentPage]);
+  }, [fetchNotices]);
 
-  const handleDelete = async (id: number) => {
-    if (confirm(NOTICE_MESSAGES.DELETE_CONFIRM)) {
-      try {
-        await deleteNotice(id);
-        showToast(NOTICE_MESSAGES.DELETE_SUCCESS, "success");
+  // 251128 기존 삭제 핸들러 작성 -> hooks로 따로 빼서 호출
+  // + 추가 로직
+  const handleDelete = useNoticeDelete({
+    onSuccess: async () => {
+      // 마지막 항목 삭제 시 이전 페이지로 이동
+      const remainingItems = totalItems - 1;
+      const totalPages = Math.ceil(remainingItems / ITEM_PER_PAGE);
 
-        // 삭제 후 현재 페이지에 데이터가 없으면 이전 페이지로 이동
-        const remainingItems = totalItems - 1;
-        const totalPages = Math.ceil(remainingItems / ITEM_PER_PAGE);
-
-        if (currentPage > totalPages && totalPages > 0) {
-          setCurrentPage(totalPages);
-        } else {
-          fetchNotices();
-        }
-      } catch (error) {
-        console.error("삭제 오류:", error);
-        showToast(NOTICE_MESSAGES.DELETE_ERROR, "error");
+      if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(totalPages);
+      } else {
+        await fetchNotices();
       }
-    }
-  };
+    },
+  });
 
   const totalPages = Math.ceil(totalItems / ITEM_PER_PAGE);
 
@@ -75,7 +75,7 @@ export default function AdminNoticesPage() {
     >
       {!isLoading && notices.length > 0 && (
         <div className="mb-4">
-          <p className="text-base font-bold">총 {totalItems}개</p>
+          <p className="text-base font-medium">총 {totalItems}개</p>
         </div>
       )}
 
@@ -86,7 +86,7 @@ export default function AdminNoticesPage() {
           {notices.map((notice, index) => (
             <div
               key={notice.announcement_id || index}
-              className={`border ${primaryBorderColor.Color2[0]} py-7 px-5 rounded-xl mb-4 dark:border-gray-100/40`}
+              className={`border border-border py-7 px-5 rounded-xl mb-4`}
             >
               <div className="flex flex-col items-start lg:flex-row lg:justify-between lg:items-center  ">
                 <Link
@@ -94,13 +94,13 @@ export default function AdminNoticesPage() {
                   className="flex-1"
                 >
                   <div>
-                    <h3 className="text-lg font-bold">
+                    <h3 className="text-lg font-bold text-foreground">
                       {notice.is_important && "[중요 공지] "}
                       {notice.title}
                     </h3>
                     <ul className="flex gap-5 mt-3">
-                      <li className="font-normal text-sm">
-                        작성일 | {formatDate(notice.created_at)}
+                      <li className="text-sm text-muted-foreground">
+                        작성일: {formatDate(notice.created_at)}
                       </li>
                     </ul>
                   </div>
@@ -118,7 +118,7 @@ export default function AdminNoticesPage() {
                     btnType="icon"
                     icon="trash"
                     size={16}
-                    variant="white"
+                    variant="basic"
                     onClick={() => handleDelete(notice.announcement_id)}
                   />
                 </div>
