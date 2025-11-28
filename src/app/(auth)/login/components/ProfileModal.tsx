@@ -54,7 +54,7 @@ export default function ProfileModal({ onClose, user }: ProfileModalProps) {
           <Button
             btnType="basic"
             variant="basic"
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={onClose}
           >
             닫기
           </Button>

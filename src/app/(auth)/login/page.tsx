@@ -16,6 +16,8 @@ export default function LoginPage() {
     if (inviteId) {
       localStorage.setItem("invite_id", inviteId);
     }
+
+    console.log(inviteId,"inviteId")
   }, [searchParams]);
 
   return (

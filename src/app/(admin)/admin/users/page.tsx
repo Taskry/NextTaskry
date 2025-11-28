@@ -1,57 +1,88 @@
-import Badge from "@/components/ui/Badge";
+"Use Client"
 import Button from "@/components/ui/Button";
 import AdminPageWrapper from "@/components/features/admin/AdminPageWrapper";
 import { primaryBgColor } from "@/app/sample/color/page";
-import { Icon } from "@/components/shared/Icon";
 import { useEffect, useState } from "react";
 import { fetchAdminUsers } from "@/lib/api/adminUsers";
-import { AdminUserRow } from "@/types/adminUser";
-import { updateUserRole } from "@/lib/api/adminUsers";
+import { UserInfoRow } from "@/types/adminUser";
+import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
+import { Icon } from "@/components/shared/Icon";
 
 
 export default function AdminUsersPage() {
 
-  const[users, setUsers]= useState<AdminUserRow[]>([])
+  const[users, setUsers]= useState<UserInfoRow[]>([])
   const[searchName, setSearchName] = useState("");
   const[filterRole, setFilterRole] = useState("all"); // all | leader | member
+  const [isInviteOpen, setIsInviteOpen] = useState(false); //초대버튼
+  const [projects, setProjects] = useState<{ project_id: string; project_name: string }[]>([]);
+  const [currentPage, setCurrentPage] = useState(1); //현재 페이지
 
-  
 
-  async function handleRoleChange(memberId: string, newRole: string) {
-  try {
-    // 서버에 반영
-    await updateUserRole(memberId, newRole);
 
-    // UI 즉시 변경
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.member_id === memberId ? { ...u, role: newRole }as AdminUserRow : u
-      )
-    );
-    } catch (err) {
-      console.error(err);
+ const filteredUsers = users.filter((user) => {
+  // 1) 이름 검색
+  const matchName = user.user_name
+    .toLowerCase()
+    .includes(searchName.toLowerCase());
+
+  // 2) 역할 필터 (전체면 모두 포함)
+  const matchRole =
+    filterRole === "all" ? true : user.global_role === filterRole;
+
+  return matchName && matchRole;
+  });
+
+
+
+  const rowsPerPage = 10; //한페이지에 몇명을 보여줄지
+  //slice(포함, 불포함) => 새로운 배열 반환
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage); //전체유저 / 한페이지보여줄유저
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+
+  const paginatedUsers = filteredUsers.slice(
+  (currentPage - 1) * rowsPerPage,
+  (currentPage - 1) * rowsPerPage + rowsPerPage
+  );
+
+  useEffect(() => {
+    async function load() {
+      //1) 유저 목록 가져오기
+      const data = await fetchAdminUsers();
+      setUsers(data);
+
+      //2) 프로젝트 목록 가져오기
+      const res = await fetch("/api/admin/projects");
+      const projectsData = await res.json();
+      
+      setProjects(projectsData);
+    }
+    
+    load();
+  }, []);
+
+ 
+
+  async function updateUserRole(userId: string, newRole: string) {
+    const res = await fetch("/api/admin/users/role", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_id: userId, newRole }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      console.error("역할 변경 실패:", data);
+      alert("역할 변경에 실패했습니다.");
+    } else {
+      alert("역할이 성공적으로 변경되었습니다!");
     }
   }
 
-  const filteredUsers = users.filter((u) =>
-  u.user_name.toLowerCase().includes(searchName.toLowerCase().trim())
-  ).filter((u) =>
-  filterRole === "all" ? true : u.role === filterRole
-  );
-
-
-
-    
-
-  useEffect(() => {
-    async function getData() {
-      const data = await fetchAdminUsers();
-      setUsers(data);
-    }
-    getData();
-  }, []); 
-
- 
+  
 
   return (
     <>
@@ -64,26 +95,34 @@ export default function AdminUsersPage() {
               type="text"
               placeholder="유저 검색"
               value={searchName}
-              onChange={(e) => setSearchName(e.target.value)}
+              onChange={(e) => {
+                setSearchName(e.target.value)
+                setCurrentPage(1);
+              } }
               className="h-12 text-sm font-normal w-2xs border px-3 rounded-md"
             />
-
-
-            {/* <div className="h-12 flex items-center gap-1 rounded-md border border-gray-100 px-3 cursor-pointer"> */}
-              {/* <Icon type="filter" size={18} />
-              <span className="inline-block">필터</span> */}
-
-
                 <select
                   value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
+                  onChange={(e) => {
+                    setFilterRole(e.target.value)
+                    setCurrentPage(1);
+                  }}
                   className="h-12 border px-3 rounded-md text-sm"
                 >
                   <option value="all">전체</option>
-                  <option value="leader">leader</option>
-                  <option value="member">member</option>
+                  <option value="admin">admin</option>
+                  <option value="user">user</option>
                 </select>
-            {/* </div> */}
+              <Button
+              btnType="basic"
+              variant="primary"
+              className="h-12 px-4 rounded-md"
+              onClick={() => setIsInviteOpen(true)}
+            >
+              초대하기
+            </Button>
+
+
           </div>
         }
       >
@@ -95,13 +134,12 @@ export default function AdminUsersPage() {
               <th className="py-3 px-4 text-center text-sm">이름</th>
               <th className="py-3 px-4 text-center text-sm">이메일</th>
               <th className="py-3 px-4 text-center text-sm">권한</th>
-              <th className="py-3 px-4 text-center text-sm">프로젝트</th>
               <th className="py-3 px-4 text-center text-sm">삭제</th>
             </tr>
           </thead>
           <tbody className="divide-y text-sm bg-white dark:text-gray-100  dark:bg-black">
-            {filteredUsers.map((user) => (
-              <tr key={user.member_id}>
+            {paginatedUsers.map((user,index) => (
+              <tr key={index}>
                 {/* 이름 */}
                 <td className="py-3 px-4 text-center">{user.user_name}</td>
 
@@ -111,43 +149,91 @@ export default function AdminUsersPage() {
                 {/* 권한 */}
                 <td className="py-3 px-4 text-center">
                   <select
-                    value={user.role}
-                      onChange={(e) => {
-                        const newRole = e.target.value;
-
+                    value={user.global_role}
+                      onChange={ async (e) => {
+                        const newRole = e.target.value as "admin" | "user";
                         // 확인창 띄우기
                         const ok = window.confirm(`정말 ${user.user_name} 님의 권한을 '${newRole}' 로 변경하시겠습니까?`);
                         if (!ok) return; 
 
-                        handleRoleChange(user.member_id, newRole);
+                        await updateUserRole(user.user_id, newRole);
+                        setUsers((prev) =>
+                            prev.map((prevUser) =>
+                              prevUser.user_id === user.user_id ? { ...prevUser, global_role: newRole } : prevUser
+                            )
+                        );
                       }}
                     className="border rounded px-2 py-1 text-sm dark:bg-black"
                   >
-                    <option value="leader">leader</option>
-                    <option value="member">member</option>
+                    <option value="admin">admin</option>
+                    <option value="user">user</option>
                   </select>
                 </td>
 
-                {/* 프로젝트명 */}
-                <td className="py-3 px-4 text-center">
-                  {user.project_name}
-                </td>
+            
 
                 {/* 삭제 버튼 */}
-                <td className="p-4 text-gray-700">
-                  {" "}
+                <td className="p-4 text-gray-700 pl-18">
                   <Button
                     btnType="icon"
                     icon="trash"
                     size={16}
                     variant="warning"
+                  
                   />
                 </td>
               </tr>
             ))}
+
+
+                 
           </tbody>
-          
         </table>
+           {isInviteOpen && (
+              <AdminInviteModal
+                projects={projects} 
+                onClose={() => setIsInviteOpen(false)}
+              />
+              ) 
+            }
+
+
+        <div className="flex gap-2 justify-center mt-4">
+
+
+            {/* 이전 버튼 */}
+            <button
+              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
+            >
+              <Icon type="arrowDown" className="rotate-90" size={17} />
+            </button>
+
+
+          {pageNumbers.map((num) => (
+            <button
+              key={num}
+              onClick={() => setCurrentPage(num)}
+              className={`px-3 py-1 rounded border 
+                ${currentPage === num ? "bg-main-500 text-white" : "bg-white dark:bg-black"}`}
+            >
+              {num}
+            </button>
+          ))}
+
+            {/* 다음 버튼 */}
+          <button
+            onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
+          >
+            <Icon type="arrowDown" className="rotate-270" size={16} />
+          </button>
+
+        </div>
+
+
       </AdminPageWrapper>
     </>
   );
