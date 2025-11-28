@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getNotices, deleteNotice, ITEM_PER_PAGE } from "@/lib/api/notices";
+import { useCallback, useEffect, useState } from "react";
+import { getNotices, ITEM_PER_PAGE } from "@/lib/api/notices";
 import { showToast } from "@/lib/utils/toast";
 import { SectionHeader } from "@/components/shared/SectionHeader";
-import { Notice } from "@/types/notice";
+import { NoticeWithNumber } from "@/types/notice";
 import { useSession } from "next-auth/react";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
 import { isAdmin } from "@/lib/utils/auth";
+import { useNoticeDelete } from "@/hooks/useNoticeDelete";
 import Link from "next/link";
 import EmptyNotice from "@/components/features/notice/EmptyNotice";
 import NoticeList from "@/components/features/notice/NoticeList";
@@ -19,16 +20,28 @@ export default function NoticePage() {
   const { data: session } = useSession();
   const admin = isAdmin(session);
 
-  const [notices, setNotices] = useState<Notice[]>([]);
+  const [notices, setNotices] = useState<NoticeWithNumber[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchNotices = async () => {
+  // 251128 기존 fetchNotices 함수가 매 렌더링마다 새로 생성되게 작성돼있었음
+  // 의존성 배열에 포함되지 않아서 에러린트 발생
+  // -> useCallback으로 함수 메모이제이션, 의존성 배열에 currentPage 추가
+  // -> useEffect 의존성 배열에 fetchNotices 추가
+  const fetchNotices = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await getNotices(currentPage, ITEM_PER_PAGE);
-      setNotices(res.data);
+
+      // 251128 NoticeList에서 게시글 넘버를 계산하지 않고 해당 컴포넌트에서 계산하기
+      const noticesNumber = res.data.map((notice, index) => ({
+        ...notice,
+        displayNumber:
+          res.totalCount - ((currentPage - 1) * ITEM_PER_PAGE + index),
+      }));
+
+      setNotices(noticesNumber);
       setTotalItems(res.totalCount);
     } catch (error) {
       console.error("공지사항 로드 오류:", error);
@@ -36,25 +49,18 @@ export default function NoticePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage]);
 
   useEffect(() => {
     fetchNotices();
-  }, [currentPage]);
+  }, [fetchNotices]);
 
-  const handleDelete = async (id: number) => {
-    if (confirm(NOTICE_MESSAGES.DELETE_CONFIRM)) {
-      try {
-        await deleteNotice(id);
-        showToast(NOTICE_MESSAGES.DELETE_SUCCESS, "success");
-        fetchNotices();
-      } catch (error) {
-        console.error("삭제 오류:", error);
-        showToast(NOTICE_MESSAGES.DELETE_ERROR, "error");
-      }
-    }
-  };
+  // 251128 기존 삭제 핸들러 작성 -> hooks로 따로 빼서 호출
+  const handleDelete = useNoticeDelete({
+    onSuccess: fetchNotices,
+  });
 
+  // 총 페이지수 계산
   const finalTotalPages = Math.ceil(totalItems / ITEM_PER_PAGE);
 
   return (
@@ -68,6 +74,7 @@ export default function NoticePage() {
       {isLoading ? (
         <p className="text-center">{NOTICE_MESSAGES.LOADING}</p>
       ) : notices.length > 0 ? (
+        // 공지사항 있을 때
         <>
           <div className="flex justify-between items-center mb-5">
             <p className="text-base font-bold">총 {totalItems}개</p>
@@ -79,14 +86,11 @@ export default function NoticePage() {
               </Link>
             )}
           </div>
-          <NoticeList
-            notices={notices}
-            currentPage={currentPage}
-            itemsPerPage={ITEM_PER_PAGE}
-            totalCount={totalItems}
-            admin={admin}
-            onDelete={handleDelete}
-          />
+
+          {/* 공지사항 리스트 */}
+          <NoticeList notices={notices} admin={admin} onDelete={handleDelete} />
+
+          {/* 공지사항 페이지네이션 */}
           <NoticePagination
             currentPage={currentPage}
             totalPages={finalTotalPages}
@@ -94,6 +98,7 @@ export default function NoticePage() {
           />
         </>
       ) : (
+        // 공지사항 없을 때
         <div className="flex flex-col items-center">
           <EmptyNotice />
           {admin && (
