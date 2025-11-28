@@ -49,7 +49,7 @@ export default function Page() {
   }, []);
 
   return (
-    <section className="max-w-4xl m-auto py-25">
+    <section className="max-w-4xl m-auto py-25 px-5 lg:px-0">
       <SectionHeader
         title="관리자 대시보드"
         description="사이트 운영을 관리합니다."
