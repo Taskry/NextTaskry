@@ -126,10 +126,14 @@ export default function InviteDecisionModal_V2({ invite, onCloseModal }: { invit
       // 3) invite_id 제거
       localStorage.removeItem("invite_id");
 
+      sessionStorage.setItem("current_Project_Id", project_id!); //null 타입 절대 아님을 선언
+
       showToast("프로젝트에 참여했습니다!", "success");
 
       // 4) 프로젝트 페이지 이동
-      router.push(`/project/${project_id}`);
+      setTimeout(() => {
+      router.push("/project/workspace");
+      }, 0.3);
     } catch (err) {
       console.error("초대 수락 오류:", err);
       showToast("처리 중 오류가 발생했습니다.", "error");
