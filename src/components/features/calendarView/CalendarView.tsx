@@ -463,7 +463,7 @@ export default function CalendarView({
               <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                 🎨 일정 상태별 색상
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-500 rounded border"></div>
                   <span className="text-gray-600 dark:text-gray-400">할일</span>
@@ -475,10 +475,6 @@ export default function CalendarView({
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-green-500 rounded border"></div>
                   <span className="text-gray-600 dark:text-gray-400">완료</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-gray-500 rounded border"></div>
-                  <span className="text-gray-600 dark:text-gray-400">보류</span>
                 </div>
               </div>
             </div>
