@@ -14,27 +14,22 @@ export const buttonCommonStyles = clsx(
 export const buttonVariants = cva(buttonCommonStyles, {
   variants: {
     btnType: {
-      basic: "",
+      basic: "text-foreground px-7 py-3 rounded-lg font-semibold",
       nav: "rounded-md px-3.5 py-2 text-sm",
       tab: "px-4 py-2 text-sm font-medium rounded-sm",
       form: "",
-      icon: "",
-      form_s: "",
+      icon: "w-8 h-8 block rounded-full border bg-transparent",
+      form_s: "text-sm px-3 py-1.5 rounded-sm",
     },
 
     variant: {
-      basic:
-        "bg-gray-100 hover:bg-gray-200 text-txtMain600 dark:hover:bg-gray-600 dark:text-gray-200",
-      warning:
-        "bg-red-500 dark:bg-red-600 text-white hover:bg-red-600 dark:hover:bg-red-700",
-      success:
-        "bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700",
-      new: "bg-main-300 dark:bg-main-600 text-white hover:bg-main-400 dark:hover:bg-main-700",
-      list: "bg-main-100 dark:bg-main-900/30 text-black dark:text-gray-200 hover:bg-main-200 dark:hover:bg-main-800/40",
-      white:
-        "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700",
-      primary:
-        "bg-main-500 dark:bg-main-600 text-white hover:bg-main-600 dark:hover:bg-main-700",
+      basic: "",
+      warning: "",
+      success: "",
+      new: "",
+      list: "",
+      white: "",
+      primary: "",
     },
 
     isActive: {
@@ -54,9 +49,23 @@ export const buttonVariants = cva(buttonCommonStyles, {
     // ------------------------------------------------------------------
     {
       btnType: "basic",
-      className: "rounded-lg px-7 py-3 text-base font-semibold",
+      variant: "basic",
+      className: `
+      text-foreground bg-gray-100 hover:bg-gray-200/60
+      dark:text-black dark:hover:bg-gray-100/80`,
     },
-
+    {
+      btnType: "basic",
+      variant: "primary",
+      className: "text-white bg-main-500 hover:bg-main-600",
+    },
+    {
+      btnType: "basic",
+      variant: "warning",
+      className: `
+      text-white bg-destructive/80 hover:bg-destructive
+      `,
+    },
     // ------------------------------------------------------------------
     // 네비게이션 버튼
     // ------------------------------------------------------------------
@@ -99,8 +108,9 @@ export const buttonVariants = cva(buttonCommonStyles, {
     },
     {
       btnType: "form_s",
-      className:
-        "text-sm bg-main-300 dark:bg-main-600 text-white px-3 py-1.5 rounded-sm hover:bg-main-200 dark:hover:bg-main-700",
+      className: `text-white 
+        bg-main-300 hover:bg-main-400 
+        dark:bg-main-600 dark:hover:bg-main-600/40`,
     },
 
     // ------------------------------------------------------------------
@@ -108,15 +118,18 @@ export const buttonVariants = cva(buttonCommonStyles, {
     // ------------------------------------------------------------------
     {
       btnType: "icon",
+      variant: "warning",
+      className:
+        "border border-destructive/40 hover:bg-destructive/20 text-destructive",
+    },
+    {
+      btnType: "icon",
+      variant: "primary",
       className: `
-          w-8 h-8 
-          block 
-          rounded-full border border-gray-200 dark:border-gray-700 
-          font-medium 
-          bg-white dark:bg-gray-700 
-          text-gray-900 dark:text-gray-100 
-          hover:bg-gray-50 dark:hover:bg-gray-700"
-        `,
+      border border-main-200 
+      hover:bg-main-200/40
+      text-main-300
+      dark:border-main-200/40`,
     },
   ],
 
