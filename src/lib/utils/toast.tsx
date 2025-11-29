@@ -19,7 +19,7 @@ import {
   ICON_MAP,
 } from "./toast-style";
 
-type ToastType = "success" | "error" | "deleted" | "alert";
+type ToastType = "success" | "error" | "deleted" | "alert" | "warning";
 
 export const showToast = (message: string, type: ToastType = "success") => {
   const toastColors = TOAST_COLORS[type];
@@ -38,6 +38,8 @@ export const showToast = (message: string, type: ToastType = "success") => {
     toast.success(message, options);
   } else if (type === "error" || type === "deleted") {
     toast.error(message, options);
+  } else if (type === "warning") {
+    toast(message, options);
   } else {
     toast(message, options);
   }

@@ -27,6 +27,9 @@ export const TOAST_COLORS = {
   alert: {
     background: "#F26969",
   },
+  warning: {
+    background: "#F59E0B", // 에러는 아니지만 경고 성격의 메시지
+  },
 };
 
 export const ICON_MAP = {
