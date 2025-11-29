@@ -84,7 +84,7 @@ export default function NoticeList({
                       btnType="icon"
                       icon="edit"
                       size={16}
-                      variant="basic"
+                      variant="primary"
                       aria-label="공지사항 수정"
                     />
                   </Link>
@@ -94,7 +94,7 @@ export default function NoticeList({
                     btnType="icon"
                     icon="trash"
                     size={16}
-                    variant="basic"
+                    variant="warning"
                     aria-label="공지사항 삭제"
                   />
                 </div>

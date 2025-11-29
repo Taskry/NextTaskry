@@ -80,7 +80,13 @@ export default function NoticePage() {
             <p className="text-base font-bold">총 {totalItems}개</p>
             {admin && (
               <Link href="/admin/notice/create">
-                <Button btnType="form_s" icon="plus" size={18} hasIcon={true}>
+                <Button
+                  btnType="form_s"
+                  variant="primary"
+                  icon="plus"
+                  size={18}
+                  hasIcon={true}
+                >
                   새 공지사항
                 </Button>
               </Link>
