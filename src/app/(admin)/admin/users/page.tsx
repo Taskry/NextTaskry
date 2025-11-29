@@ -8,6 +8,15 @@ import { UserInfoRow } from "@/types/adminUser";
 import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
 import { Icon } from "@/components/shared/Icon";
 import CommonPagination from "@/components/ui/CommonPagination";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/shadcn/Select";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserInfoRow[]>([]);
@@ -91,24 +100,29 @@ export default function AdminUsersPage() {
                 setSearchName(e.target.value);
                 setCurrentPage(1);
               }}
-              className="h-12 text-sm font-normal w-2xs border px-3 rounded-md"
+              className="h-9 text-sm font-normal w-3xs border px-3 rounded-md"
             />
-            <select
+            <Select
               value={filterRole}
-              onChange={(e) => {
-                setFilterRole(e.target.value);
+              onValueChange={(value) => {
+                setFilterRole(value);
                 setCurrentPage(1);
               }}
-              className="h-12 border px-3 rounded-md text-sm"
             >
-              <option value="all">전체</option>
-              <option value="admin">admin</option>
-              <option value="user">user</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="역할 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체</SelectItem>
+                <SelectItem value="admin">admin</SelectItem>
+                <SelectItem value="user">user</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
-              btnType="basic"
-              variant="primary"
-              className="h-12 px-4 rounded-md"
+              btnType="form_s"
+              icon="plus"
+              size={18}
+              hasIcon={true}
               onClick={() => setIsInviteOpen(true)}
             >
               초대하기
@@ -138,10 +152,9 @@ export default function AdminUsersPage() {
 
                 {/* 권한 */}
                 <td className="py-3 px-4 text-center">
-                  <select
+                  <Select
                     value={user.global_role}
-                    onChange={async (e) => {
-                      const newRole = e.target.value as "admin" | "user";
+                    onValueChange={async (newRole: "admin" | "user") => {
                       // 확인창 띄우기
                       const ok = window.confirm(
                         `정말 ${user.user_name} 님의 권한을 '${newRole}' 로 변경하시겠습니까?`
@@ -157,11 +170,15 @@ export default function AdminUsersPage() {
                         )
                       );
                     }}
-                    className="border rounded px-2 py-1 text-sm dark:bg-black"
                   >
-                    <option value="admin">admin</option>
-                    <option value="user">user</option>
-                  </select>
+                    <SelectTrigger className="h-9 text-sm mx-auto">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">admin</SelectItem>
+                      <SelectItem value="user">user</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </td>
 
                 {/* 삭제 버튼 */}

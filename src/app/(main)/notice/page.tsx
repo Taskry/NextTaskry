@@ -13,7 +13,6 @@ import Link from "next/link";
 import EmptyNotice from "@/components/features/notice/EmptyNotice";
 import NoticeList from "@/components/features/notice/NoticeList";
 import Container from "@/components/shared/Container";
-import NoticePagination from "@/components/features/notice/NoticePagination";
 import Button from "@/components/ui/Button";
 import CommonPagination from "@/components/ui/CommonPagination";
 

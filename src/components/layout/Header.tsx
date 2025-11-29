@@ -59,6 +59,26 @@ export function Header() {
               onClick={handleLoginModal}
             ></Button>
 
+            <Link href="/notice">
+              <Button
+                btnType="icon"
+                icon="speakerphone"
+                size={20}
+                className="w-10 h-10"
+              ></Button>
+            </Link>
+
+            {admin && (
+              <Link href="/admin?tabs=users">
+                <Button
+                  btnType="icon"
+                  icon="crown"
+                  size={20}
+                  className="w-10 h-10"
+                ></Button>
+              </Link>
+            )}
+
             <Button
               btnType="icon"
               size={20}
@@ -85,26 +105,6 @@ export function Header() {
                 />
               )}
             </Button>
-
-            <Link href="/notice">
-              <Button
-                btnType="icon"
-                icon="speakerphone"
-                size={20}
-                className="w-10 h-10"
-              ></Button>
-            </Link>
-
-            {admin && (
-              <Link href="/admin?tabs=users">
-                <Button
-                  btnType="icon"
-                  icon="crown"
-                  size={20}
-                  className="w-10 h-10"
-                ></Button>
-              </Link>
-            )}
           </div>
         </div>
       </header>
