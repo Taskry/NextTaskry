@@ -5,6 +5,14 @@ import { NoticeListProps } from "@/types/notice";
 import { formatDate } from "@/lib/utils/utils";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/shadcn/Table";
 
 export default function NoticeList({
   notices,
@@ -15,36 +23,36 @@ export default function NoticeList({
     { label: "NO", className: "w-[150px] min-w-[150px]" },
     { label: "제목", className: "w-full max-w-0" },
     { label: "작성일", className: "w-[150px] min-w-[150px]" },
-    // 관리자 admin 일 때만 관리 컬럼 추가
     ...(admin ? [{ label: "관리", className: "w-[150px] min-w-[150px]" }] : []),
   ];
 
   return (
-    <table className="w-full border-t border-border border-collapse">
-      <thead className="hidden lg:table-header-group border-b border-border text-sm uppercase">
-        <tr>
+    <Table className="border-t">
+      <TableHeader className="hidden lg:table-header-group">
+        <TableRow className="hover:bg-transparent">
           {tableHeaders.map((header) => (
-            <th
-              className={`py-3 px-4 text-center text-base ${
+            <TableHead
+              key={header.label}
+              className={`text-center text-base font-semibold py-3 uppercase ${
                 header.className || ""
               }`}
-              key={header.label}
             >
               {header.label}
-            </th>
+            </TableHead>
           ))}
-        </tr>
-      </thead>
+        </TableRow>
+      </TableHeader>
 
-      <tbody className="divide-y text-sm border-b border-border">
+      <TableBody>
         {notices.map((notice) => (
-          <tr
+          <TableRow
             key={notice.announcement_id}
-            className={`transition-colors text-center text-base ${
+            className={`text-center text-base py-6 ${
               notice.is_important ? "bg-[#FAFAFA] dark:bg-[#141414]" : ""
             }`}
           >
-            <td className="hidden lg:table-cell py-6 px-4 font-regular ">
+            {/* NO */}
+            <TableCell className="hidden lg:table-cell font-regular py-5">
               {notice.is_important ? (
                 <span className="flex items-center justify-center gap-1 font-semibold">
                   <Icon type="bellFilled" size={18} />
@@ -53,10 +61,10 @@ export default function NoticeList({
               ) : (
                 notice.displayNumber
               )}
-            </td>
+            </TableCell>
 
-            {/* 제목 + 모바일 작성일 */}
-            <td className="py-6 px-4 text-left w-full max-w-0 overflow-hidden">
+            {/* 타이틀 */}
+            <TableCell className="text-left w-full max-w-0 overflow-hidden">
               <div>
                 <Link
                   href={`/notice/${notice.announcement_id}`}
@@ -64,20 +72,21 @@ export default function NoticeList({
                 >
                   {notice.title}
                 </Link>
-                {/* 작성일 - MO 반응형 처리 */}
+                {/* 작성일 - MO에서 노출 */}
                 <div className="text-muted-foreground text-base mt-1 lg:hidden">
                   {formatDate(notice.created_at)}
                 </div>
               </div>
-            </td>
+            </TableCell>
 
-            {/* 작성일 - PC 반응형 처리 */}
-            <td className="hidden lg:table-cell py-6 px-4 text-base text-foreground">
+            {/* 작성일 - PC 노출 */}
+            <TableCell className="hidden lg:table-cell text-base text-foreground">
               {formatDate(notice.created_at)}
-            </td>
+            </TableCell>
 
+            {/* 관리 컬럼 액션 버튼 */}
             {admin && (
-              <td className="y-6 px-4 text-sm">
+              <TableCell className="text-sm">
                 <div className="flex items-center justify-center gap-2">
                   <Link href={`/notice/${notice.announcement_id}?edit=true`}>
                     <Button
@@ -98,11 +107,11 @@ export default function NoticeList({
                     aria-label="공지사항 삭제"
                   />
                 </div>
-              </td>
+              </TableCell>
             )}
-          </tr>
+          </TableRow>
         ))}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }
