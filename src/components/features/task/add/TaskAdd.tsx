@@ -19,6 +19,8 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 interface TaskAddProps {
   boardId: string;
   projectId: string;
+  projectStartedAt?: string;
+  projectEndedAt?: string;
   onSuccess?: (task: Omit<Task, "id" | "created_at" | "updated_at">) => void;
   onCancel: () => void;
   initialStartDate?: string;
@@ -83,6 +85,8 @@ const cleanValue = (value: string) => value.trim() || undefined;
 export default function TaskAdd({
   boardId,
   projectId,
+  projectStartedAt,
+  projectEndedAt,
   onSuccess,
   onCancel,
   initialStartDate,
@@ -351,7 +355,8 @@ export default function TaskAdd({
           startTime={formData.start_time}
           endTime={formData.end_time}
           useTime={formData.use_time}
-          error={errors.ended_at}
+          projectStartedAt={projectStartedAt}
+          projectEndedAt={projectEndedAt}
           disabled={isSubmitting}
           onStartDateChange={(v: string) => handleChange("started_at", v)}
           onEndDateChange={(v: string) => handleChange("ended_at", v)}

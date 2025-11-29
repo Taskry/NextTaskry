@@ -48,6 +48,13 @@ export interface Task {
   // 자동 생성 (생성, 수정 기록)
   created_at: string; // 생성일시
   updated_at: string; // 수정일시
+
+  assignee?: {
+    user_id: string;
+    name: string;
+    email: string;
+    avatar_url?: string | null;
+  } | null; // 담당자 정보 (조인된 데이터)
 }
 
 // ============================================

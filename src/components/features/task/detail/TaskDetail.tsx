@@ -66,6 +66,8 @@ const dateTimeUtils = {
  */
 interface TaskDetailProps {
   task: Task; // 🎯 편집할 Task 데이터 (모든 필드 포함)
+  projectStartedAt?: string;
+  projectEndedAt?: string;
   onUpdate?: (taskId: string, updates: Partial<Task>) => void; // 📝 Task 업데이트 콜백
   onDelete?: (taskId: string) => void; // 🗑️ Task 삭제 콜백
   onClose?: () => void; // ❌ 모달 닫기 콜백
@@ -107,6 +109,8 @@ type ProjectMember = {
  */
 export default function TaskDetail({
   task,
+  projectStartedAt,
+  projectEndedAt,
   onUpdate,
   onDelete,
   onClose,
@@ -455,6 +459,8 @@ export default function TaskDetail({
           startTime={editedTask.start_time || ""}
           endTime={editedTask.end_time || ""}
           useTime={editedTask.use_time || false}
+          projectStartedAt={projectStartedAt}
+          projectEndedAt={projectEndedAt}
           onStartDateChange={(v: string) => handleChange("started_at", v)}
           onEndDateChange={(v: string) => handleChange("ended_at", v)}
           onStartTimeChange={(v: string) => handleChange("start_time", v)}

@@ -511,6 +511,7 @@ export default function ProjectPage() {
                 userRole={userRole} // 권한 기반 UI 제어
 >>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
                 projectId={projectId}
+                project={project}
               />
             )}
 
