@@ -9,7 +9,6 @@ import { NOTICE_CONSTANS, NOTICE_MESSAGES } from "@/lib/constants/notices";
 import Button from "@/components/ui/Button";
 import RichTextEditor from "@/components/features/notice/RichTextEditor";
 import Checkbox from "@/components/ui/Checkbox";
-import Container from "@/components/shared/Container";
 
 export default function AdminNoticeCreatePage() {
   const router = useRouter();
