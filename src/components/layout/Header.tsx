@@ -31,7 +31,7 @@ export function Header() {
       <header
         className="
       fixed top-0 left-0 right-0 z-50 
-      w-full h-14 
+      w-full py-3 
       border-b border-border 
       flex items-center justify-between 
       

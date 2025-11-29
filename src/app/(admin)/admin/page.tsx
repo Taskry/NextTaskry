@@ -1,22 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import Container from "@/components/shared/Container";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/shadcn/Tabs";
+
 import AdminProjectsPage from "./projects/page";
 import AdminNoticesPage from "./notice/page";
 import AdminUsersPage from "./users/page";
-import Button from "@/components/ui/Button";
 
 export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "projects";
+  const activeTab = searchParams.get("tab") || "users";
 
   const tabsData = [
-    { key: "projects", label: "프로젝트 관리" },
+    // { key: "projects", label: "프로젝트 관리" },
     { key: "users", label: "유저 관리" },
     { key: "notices", label: "공지사항 관리" },
   ];
@@ -54,22 +54,15 @@ export default function Page() {
         title="관리자 대시보드"
         description="사이트 운영을 관리합니다."
       />
-      <nav className="flex gap-3 mb-8">
-        {tabsData.map((tab) => {
-          const isActive = tab.key === activeTab;
-          return (
-            <Button
-              key={tab.key}
-              btnType="tab"
-              isActive={isActive}
-              onClick={() => handleTabChange(tab.key)}
-              className="bg-transparent"
-            >
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-8">
+        <TabsList>
+          {tabsData.map((tab) => (
+            <TabsTrigger key={tab.key} value={tab.key}>
               {tab.label}
-            </Button>
-          );
-        })}
-      </nav>
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
       {renderContent()}
     </section>
   );

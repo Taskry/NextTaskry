@@ -20,9 +20,9 @@ import Container from "@/components/shared/Container";
 import Button from "@/components/ui/Button";
 
 export default function NoticeDetail() {
-  const params = useParams(); // notice/123
+  const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams(); // notice/123?edit=true
+  const searchParams = useSearchParams();
 
   // ------------------ ID 추출 및 타입 안정성 확보
   const { data: session } = useSession();
@@ -31,9 +31,6 @@ export default function NoticeDetail() {
 
   // ------------------ 공지사항 데이터 로드
   const { notice, nextNotice, prevNotice, isLoading, error, reload } =
-    // 게시판 목록에서 -> 상세로 접근하는데, 이때 notice id는 알고 있음?
-    // prop으로 정보를 받으면 되지 않을까? -> 지금은 전체 공지사항 목록 불러다가 아이디를 찾고 있음
-    // -> 찾아보고 수정해볼 것
     useNoticeDetail(noticeId);
 
   // ------------------ 수정 모드 상태 관리
@@ -46,9 +43,19 @@ export default function NoticeDetail() {
     isImportant: false,
   });
 
-  // ------------------ 공지사항 로드 시 수정 상태 초기화
-  // 251128 기존에 notice가 바뀔 때마다 상태를 업데이트해서 에러린트 발생
-  // -> editState는 수정 모드에서만 사용되므로 수정 모드 진입 시에만 초기화하도록 수정
+  // ------------------ notice 데이터가 처음 로드되었을 때만 editState 초기화
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  if (notice && isEditing && !isInitialized) {
+    setEditState({
+      title: notice.title,
+      content: notice.content,
+      isImportant: notice.is_important,
+    });
+    setIsInitialized(true);
+  }
+
+  // ------------------ 수정 모드 진입
   const handleEdit = useCallback(() => {
     if (notice) {
       setEditState({
@@ -60,8 +67,10 @@ export default function NoticeDetail() {
     setIsEditing(true);
   }, [notice]);
 
+  // ------------------ 수정 취소
   const handleCancel = useCallback(() => {
     setIsEditing(false);
+    setIsInitialized(false); // 취소 시 초기화 플래그 리셋
     if (notice) {
       setEditState({
         title: notice.title,
@@ -70,7 +79,6 @@ export default function NoticeDetail() {
       });
     }
   }, [notice]);
-  // ------------------ END 공지사항 로드 시 수정 상태 초기화
 
   // ------------------ 수정 시 저장 핸들러
   const handleSave = useCallback(async () => {
@@ -84,6 +92,7 @@ export default function NoticeDetail() {
       });
       showToast(NOTICE_MESSAGES.UPDATE_SUCCESS, "success");
       setIsEditing(false);
+      setIsInitialized(false); // 저장 후 초기화 플래그 리셋
       await reload();
       router.refresh();
     } catch (error) {
@@ -92,7 +101,7 @@ export default function NoticeDetail() {
     }
   }, [notice, editState, reload, router]);
 
-  // 251128 기존 삭제 핸들러 작성 -> hooks로 따로 빼서 호출
+  // ------------------ 삭제 핸들러
   const handleDelete = useNoticeDelete({
     redirectTo: "/notice",
   });
