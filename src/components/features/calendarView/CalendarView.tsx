@@ -3,8 +3,8 @@
 // React 및 라이브러리
 import { useCallback, useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay } from "date-fns";
-import { ko } from "date-fns/locale";
+import { format, parse, startOfWeek, getDay, min, max } from "date-fns";
+import { is, ko } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 // 타입
@@ -31,6 +31,7 @@ import { useCalendarKeyboard } from "@/hooks/calendar/useCalendarKeyboard";
 // 유틸
 import { getDaysDiff } from "@/lib/utils/dateUtils";
 import { getCalendarEventColor } from "@/lib/utils/taskUtils";
+import { showToast } from "@/lib/utils/toast";
 
 // 상수
 import {
@@ -146,6 +147,61 @@ export default function CalendarView({
   );
 
   /**
+   * 네비게이션 핸들러 (날짜 이동 제한 포함)
+   */
+  const handleNavigate = useCallback(
+    (newDate: Date) => {
+      console.log(
+        "handleNavigate:",
+        newDate,
+        currentView,
+        projectStartedAt,
+        projectEndedAt
+      );
+      // 프로젝트 기간이 설정되지 않은 경우 제한 없음
+      if (!projectStartedAt && !projectEndedAt) {
+        console.log("프로젝트 기간 미설정 - 날짜 이동 허용");
+        setCurrentDate(newDate);
+        return;
+      }
+
+      const minDate = new Date(projectStartedAt!);
+      const maxDate = new Date(projectEndedAt!);
+
+      // 뷰에 따라 다르게 체크
+      if (currentView === "month") {
+        // 월 뷰: 해당 월의 1일 기준
+        const checkDate = new Date(
+          newDate.getFullYear(),
+          newDate.getMonth(),
+          1
+        );
+        const minMonth = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+        const maxMonth = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+
+        console.log("월 뷰 - 날짜 이동 체크:", {
+          minDate,
+          maxDate,
+          newDate,
+        });
+
+        if (checkDate < minMonth || checkDate > maxMonth) {
+          showToast("프로젝트 기간을 확인하세요.", "warning");
+          return;
+        }
+      } else {
+        // 주, 일, 일정 뷰: 해당 날짜 기준
+        if (newDate < minDate || newDate > maxDate) {
+          showToast("프로젝트 기간을 확인하세요.", "warning");
+          return;
+        }
+      }
+      setCurrentDate(newDate);
+    },
+    [projectStartedAt, projectEndedAt, currentView, setCurrentDate]
+  );
+
+  /**
    * 슬롯 선택 핸들러 (더블클릭 또는 드래그)
    */
   const handleSelectSlot = useCallback(
@@ -156,8 +212,10 @@ export default function CalendarView({
 
       // 프로젝트 범위 밖 날짜 체크
       if (isOutsideProjectRange(startDate) || isOutsideProjectRange(endDate)) {
-        // 여기에 토스트 메시지 추가할 수 있음
-        console.warn("프로젝트 기간 밖의 날짜는 선택할 수 없습니다.");
+        showToast(
+          "프로젝트 기간 내에서만 일정을 추가할 수 있습니다.",
+          "warning"
+        );
         return;
       }
 
@@ -295,7 +353,7 @@ export default function CalendarView({
               culture="ko"
               date={currentDate}
               view={currentView}
-              onNavigate={setCurrentDate}
+              onNavigate={handleNavigate}
               onView={setCurrentView}
               onSelectSlot={handleSelectSlot}
               onSelectEvent={handleSelectEvent}
