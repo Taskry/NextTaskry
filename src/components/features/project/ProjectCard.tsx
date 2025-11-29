@@ -9,10 +9,7 @@ import {
   CardTitle,
 } from "@/components/features/project/Card";
 import { DeleteDialog } from "./DeleteDialog";
-import {
-  deleteProject,
-  deleteProjectMember,
-} from "@/lib/api/projects";
+import { deleteProject, deleteProjectMember } from "@/lib/api/projects";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/utils/toast";
 
@@ -22,14 +19,18 @@ interface ProjectCardProps {
   projectMember: any;
 }
 
-export default function ProjectCard({project, setProjectList, projectMember}: ProjectCardProps) {
+export default function ProjectCard({
+  project,
+  setProjectList,
+  projectMember,
+}: ProjectCardProps) {
   const router = useRouter();
 
   const handleSelectProject = (projectId: string) => {
     // 세션 스토리지에 선택한 프로젝트 ID 저장
     sessionStorage.setItem("current_Project_Id", projectId);
     // URL에 ID 노출없이 프로젝트 페이지로 이동
-    router.push('/project/workspace');
+    router.push("/project/workspace");
   };
 
   const handleEditProject = (projectId: string) => {
@@ -37,7 +38,7 @@ export default function ProjectCard({project, setProjectList, projectMember}: Pr
     sessionStorage.setItem("current_Project_Id", projectId);
 
     // URL에 ID 노출없이 프로젝트 페이지로 이동
-    router.push('/project/update/');
+    router.push("/project/update/");
   };
 
   async function handleDeleteProject(id: string) {
@@ -52,58 +53,53 @@ export default function ProjectCard({project, setProjectList, projectMember}: Pr
 
     showToast("삭제되었습니다.", "deleted");
   }
-  
+
   return (
     <>
-    <Card onClick={() => {handleSelectProject(project.project_id)}}>
-      <div>
-        <CardHeader className="flex w-full mb-2">
-          <CardTitle>{project.projectName}</CardTitle>
-        </CardHeader>
-        <CardDescription className="flex">
-          <div className="flex gap-2 text-sm text-dark-description">
-            {project.description}
+      <Card
+        onClick={() => {
+          handleSelectProject(project.project_id);
+        }}
+      >
+        <div>
+          <CardHeader className="flex w-full mb-2">
+            <CardTitle>{project.projectName}</CardTitle>
+          </CardHeader>
+          <CardDescription className="flex">
+            <div className="flex gap-2 text-sm text-dark-description">
+              {project.description}
+            </div>
+          </CardDescription>
+        </div>
+        <CardContent className="flex justify-end">
+          <div className="flex gap-2 font-medium text-main-400 dark:text-main-200 ">
+            <Icon
+              type="users"
+              size={18}
+              className="text-main-400 dark:text-main-200 "
+            />
+            <div className="text-sm">
+              {projectMember ? projectMember[project.project_id] : 1}팀원
+            </div>
           </div>
-        </CardDescription>
-      </div>
-      <CardContent className="flex justify-end">
-        <div className="flex gap-2 font-medium text-main-400 dark:text-main-200 ">
-          <Icon
-            type="users"
-            size={18}
-            className="text-main-400 dark:text-main-200 "
-          />
-          <div className="text-sm">
-            {projectMember ? projectMember[project.project_id] : 1}팀원
+        </CardContent>
+        <CardFooter className="flex justify-end gap-2">
+          <div onClick={(e: any) => e.stopPropagation()}>
+            <Button
+              btnType="icon"
+              icon="edit"
+              size={16}
+              variant="primary"
+              onClick={() => handleEditProject(project.projectId)}
+            />
           </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-        <div onClick={(e: any) => e.stopPropagation()}>
-          <Button
-            btnType="icon"
-            icon="edit"
-            size={16}
-            variant="white"
-            color="primary"
-            className="
-              hover:bg-main-100/40 
-              hover:border-main-100/40 
-              text-main-400 
-              dark:text-main-200!
-              dark:bg-gray-700!
-              dark:border-gray-500!
-              dark:hover:bg-gray-100/40!"
-            onClick={() => handleEditProject(project.projectId)}
-          />
-        </div>
-        <div onClick={(e: any) => e.stopPropagation()}>
-          <DeleteDialog
-            onClick={() => handleDeleteProject(project.projectId)}
-          />
-        </div>
-      </CardFooter>
-    </Card>
+          <div onClick={(e: any) => e.stopPropagation()}>
+            <DeleteDialog
+              onClick={() => handleDeleteProject(project.projectId)}
+            />
+          </div>
+        </CardFooter>
+      </Card>
     </>
   );
 }
