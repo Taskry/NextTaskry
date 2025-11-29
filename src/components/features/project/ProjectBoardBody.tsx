@@ -13,6 +13,7 @@ import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
 import ProjectPagination from "./ProjectPagination";
+import CommonPagination from "@/components/ui/CommonPagination";
 
 export default function ProjectBoard() {
   const { data: session, status } = useSession();
@@ -54,14 +55,14 @@ export default function ProjectBoard() {
       } else {
         projectResult = await getProject(currentPage);
       }
-      
-      const {data, totalCount} = projectResult;
-      
+
+      const { data, totalCount } = projectResult;
+
       if (totalCount) {
-        const totalPages = Math.ceil(totalCount/ITEMS_PER_PAGE)
+        const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
         setTotalPage(totalPages);
       }
-      
+
       if (!data) return;
 
       // 프로젝트 목록 가공
@@ -86,11 +87,11 @@ export default function ProjectBoard() {
       showApiError("데이터를 불러오는 중 오류가 발생했습니다.");
     }
     setIsLoading(false);
-}, [filter.view, status, currentPage, session?.user?.user_id]);
+  }, [filter.view, status, currentPage, session?.user?.user_id]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter.view])
+  }, [filter.view]);
 
   useEffect(() => {
     fetchAllData();
@@ -126,7 +127,9 @@ export default function ProjectBoard() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-400px)]">
-        <span className="text-lg text-gray-500">프로젝트를 불러오는 중입니다...</span>
+        <span className="text-lg text-gray-500">
+          프로젝트를 불러오는 중입니다...
+        </span>
       </div>
     );
   }
@@ -153,7 +156,7 @@ export default function ProjectBoard() {
         >
           {sortedProjectList.map((project, index) => {
             return (
-              <ProjectCard 
+              <ProjectCard
                 key={index}
                 project={project}
                 setProjectList={setProjectList}
@@ -164,12 +167,18 @@ export default function ProjectBoard() {
         </div>
       </div>
       <div>
-        <ProjectPagination 
-            currentPage={currentPage}
-            totalPage={totalPage}
-            onPageChange={handlePageChange} 
-          />
-        </div>
+        {/* <ProjectPagination
+          currentPage={currentPage}
+          totalPage={totalPage}
+          onPageChange={handlePageChange}
+        /> */}
+        <CommonPagination
+          currentPage={currentPage}
+          totalPages={totalPage}
+          onPageChange={handlePageChange}
+          buttonStyle="arrow"
+        />
+      </div>
     </div>
   );
 }
