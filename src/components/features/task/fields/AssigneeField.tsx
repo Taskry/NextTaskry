@@ -77,7 +77,7 @@ export function AssigneeField({
 
   const handleImageError = (userId?: string) => {
     // 이미지 로드 실패시 처리 (옵션)
-    console.log("Image load failed for user:", userId);
+    // console.log("Image load failed for user:", userId);
   };
 
   // 편집 모드 렌더링 (TaskDetail용)

@@ -69,7 +69,7 @@ export async function createTask(
       throw new Error("kanban_board_id와 title은 필수 필드입니다.");
     }
 
-    console.log("🔥 Creating task with:", cleanData);
+    // console.log("🔥 Creating task with:", cleanData);
 
     const { data, error } = await supabase
       .from("tasks")
@@ -82,7 +82,6 @@ export async function createTask(
       throw error;
     }
 
-    console.log("✅ Task created:", data);
     return { data: data as Task, error: null };
   } catch (error) {
     return handleApiError("Task 생성", error);
@@ -123,7 +122,6 @@ export async function getTasksByBoardId(
       };
     });
 
-    console.log("✅ Tasks retrieved:", tasksWithProjectId.length);
     return { data: tasksWithProjectId as Task[], error: null };
   } catch (error) {
     return handleApiError("Task 조회", error);
@@ -157,7 +155,6 @@ export async function updateTask(
 
     if (error) throw error;
 
-    console.log("✅ Task updated:", data);
     return { data: data as Task, error: null };
   } catch (error) {
     return handleApiError("Task 업데이트", error);
@@ -177,7 +174,6 @@ export async function deleteTask(taskId: string): Promise<ApiResponse<void>> {
 
     if (error) throw error;
 
-    console.log("✅ Task deleted:", taskId);
     return { data: null, error: null };
   } catch (error) {
     return handleApiError("Task 삭제", error);

@@ -309,7 +309,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { is_pinned } = body;
 
-    console.log("🔧 서버 수신 데이터:", { memoId, body, is_pinned });
+    // console.log("🔧 서버 수신 데이터:", { memoId, body, is_pinned });
 
     if (!memoId) {
       return Response.json({ error: "메모 ID가 필수입니다" }, { status: 400 });
@@ -327,7 +327,7 @@ export async function PATCH(request: Request) {
       pinned_at: is_pinned ? new Date().toISOString() : null,
     };
 
-    console.log("💾 DB 업데이트 데이터:", updateData);
+    // console.log("💾 DB 업데이트 데이터:", updateData);
 
     const { data, error } = await supabase
       .from("project_memos")
@@ -336,7 +336,7 @@ export async function PATCH(request: Request) {
       .select()
       .single();
 
-    console.log("📊 DB 업데이트 결과:", { data, error });
+    // console.log("📊 DB 업데이트 결과:", { data, error });
 
     if (error) throw error;
 

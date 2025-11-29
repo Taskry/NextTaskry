@@ -130,13 +130,12 @@ export default function TaskAdd({
   }, [projectId]);
 
   const handleChange = (field: keyof FormData, value: any) => {
-    console.log(`TaskAdd - handleChange: ${field} = ${value}`);
     setFormData((prev) => {
       const newData = { ...prev, [field]: value };
 
       // "시간 지정" 체크 시 기본 시간값 자동 설정
       if (field === "use_time" && value === true) {
-        console.log("⏰ 시간 지정 체크됨, 기본 시간값 설정");
+        // console.log("⏰ 시간 지정 체크됨, 기본 시간값 설정");
         if (!newData.start_time) {
           newData.start_time = "09:00";
         }
@@ -147,7 +146,7 @@ export default function TaskAdd({
 
       // "시간 지정" 해제 시 시간값 초기화
       if (field === "use_time" && value === false) {
-        console.log("⏰ 시간 지정 해제됨, 시간값 초기화");
+        // console.log("⏰ 시간 지정 해제됨, 시간값 초기화");
         newData.start_time = "";
         newData.end_time = "";
       }
@@ -160,12 +159,12 @@ export default function TaskAdd({
         const otherTimeField =
           field === "start_time" ? newData.end_time : newData.start_time;
         if (!otherTimeField || !otherTimeField.trim()) {
-          console.log(`⏰ 시간 모두 삭제됨, use_time을 false로 설정`);
+          // console.log(`⏰ 시간 모두 삭제됨, use_time을 false로 설정`);
           newData.use_time = false;
         }
       }
 
-      console.log("TaskAdd - Updated formData:", newData);
+      // console.log("TaskAdd - Updated formData:", newData);
       return newData;
     });
     if (errors[field]) {
