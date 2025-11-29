@@ -110,7 +110,10 @@ export default function CalendarView({
     currentView,
     setCurrentView,
     currentTime,
-  } = useCalendarState();
+  } = useCalendarState({
+    projectStartedAt,
+    projectEndedAt,
+  });
 
   // 이벤트 변환
   const events = useCalendarEvents(tasks);
@@ -206,17 +209,43 @@ export default function CalendarView({
    */
   const handleSelectSlot = useCallback(
     (slot: any) => {
+      // 프로젝트 종료 체크
+      if (projectEndedAt) {
+        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
+        if (today > projectEndedAt) {
+          showToast("종료된 프로젝트입니다.", "warning");
+          return;
+        }
+      }
+
       const startDate = new Date(slot.start);
       const endDate = new Date(slot.end);
-      endDate.setDate(endDate.getDate() - 1);
 
-      // 프로젝트 범위 밖 날짜 체크
-      if (isOutsideProjectRange(startDate) || isOutsideProjectRange(endDate)) {
-        showToast(
-          "프로젝트 기간 내에서만 일정을 추가할 수 있습니다.",
-          "warning"
-        );
-        return;
+      // 월간뷰에서 종료일 조정 (하루 빼기)
+      if (currentView === "month") {
+        endDate.setDate(endDate.getDate() - 1);
+      }
+
+      console.log("날짜 범위:", {
+        start: startDate,
+        end: endDate,
+        currentView,
+        projectStartedAt,
+        projectEndedAt,
+      });
+
+      // 프로젝트 범위 밖 날짜 체크 (프로젝트 기간이 설정된 경우만)
+      if (projectStartedAt && projectEndedAt) {
+        if (
+          isOutsideProjectRange(startDate) ||
+          isOutsideProjectRange(endDate)
+        ) {
+          showToast(
+            "프로젝트 기간 내에서만 일정을 추가할 수 있습니다.",
+            "warning"
+          );
+          return;
+        }
       }
 
       const slotKey = `${slot.start.getTime()}-${slot.end.getTime()}`;
@@ -224,10 +253,25 @@ export default function CalendarView({
       const timeDiff = now - lastClickTime;
       const daysDiff = getDaysDiff(slot.start, slot.end);
 
+      console.log("클릭 감지 정보:", {
+        slotKey,
+        lastClickedSlot,
+        timeDiff,
+        daysDiff,
+        threshold: CALENDAR_INTERACTION_CONFIG.doubleClickThreshold,
+      });
+
+      // 모달 열기 조건:
+      // 1. 드래그로 여러 날짜 선택 (daysDiff > 1)
+      // 2. 같은 슬롯 더블클릭 (300ms 이내)
+      // 3. 주간/일간 뷰에서 첫 클릭 (즉시 모달 열기)
       const shouldOpenModal =
         daysDiff > 1 ||
         (slotKey === lastClickedSlot &&
-          timeDiff < CALENDAR_INTERACTION_CONFIG.doubleClickThreshold);
+          timeDiff < CALENDAR_INTERACTION_CONFIG.doubleClickThreshold) ||
+        currentView !== "month";
+
+      console.log("모달 열기 결정:", shouldOpenModal);
 
       if (shouldOpenModal) {
         setSelectedDates({
@@ -237,12 +281,17 @@ export default function CalendarView({
         setShowTaskAddModal(true);
         setLastClickTime(0);
         setLastClickedSlot("");
+        console.log("태스크 추가 모달 열림");
       } else {
         setLastClickTime(now);
         setLastClickedSlot(slotKey);
+        console.log("더블클릭 대기 상태");
       }
     },
     [
+      currentView,
+      projectStartedAt,
+      projectEndedAt,
       lastClickTime,
       lastClickedSlot,
       setSelectedDates,
@@ -426,6 +475,8 @@ export default function CalendarView({
           <TaskAdd
             boardId={boardId}
             projectId={projectId}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
             onSuccess={handleTaskAddSuccess}
             onCancel={() => {
               setShowTaskAddModal(false);
@@ -451,6 +502,8 @@ export default function CalendarView({
               ...selectedTask,
               project_id: selectedTask.project_id || projectId,
             }}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
             onUpdate={(taskId, updates) => {
               onUpdateTask?.(taskId, updates);
               onTaskCreated?.();

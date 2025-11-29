@@ -8,6 +8,8 @@ export function DateFields({
   endDate,
   startTime,
   endTime,
+  projectStartedAt,
+  projectEndedAt,
   useTime = false,
   error,
   disabled,
@@ -22,6 +24,8 @@ export function DateFields({
   startTime: string;
   endTime: string;
   useTime: boolean;
+  projectStartedAt?: string;
+  projectEndedAt?: string;
   error?: string;
   disabled?: boolean;
   onStartDateChange: (v: string) => void;
@@ -30,6 +34,17 @@ export function DateFields({
   onEndTimeChange: (v: string) => void;
   onUseTimeChange: (v: boolean) => void;
 }) {
+  // 프로젝트 상태에 따른 비활성화 여부 결정
+  const isProjectEnded = (() => {
+    if (!projectEndedAt) return false;
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
+    return today > projectEndedAt;
+  })();
+
+  // 3️⃣ 종료 후 상태에서는 일정 추가 불가 (읽기 전용)
+  const isReadOnly = isProjectEnded;
+  const finalDisabled = disabled || isReadOnly;
+
   return (
     <div className="space-y-4">
       {/* 날짜 선택 */}
@@ -39,7 +54,9 @@ export function DateFields({
           icon="calendarPlus"
           value={startDate}
           onChange={onStartDateChange}
-          disabled={disabled}
+          minDate={projectStartedAt}
+          maxDate={endDate || projectEndedAt}
+          disabled={finalDisabled}
         />
 
         <DatePicker
@@ -47,19 +64,33 @@ export function DateFields({
           icon="calendarCheck"
           value={endDate}
           onChange={onEndDateChange}
-          minDate={startDate}
+          minDate={startDate || projectStartedAt}
+          maxDate={projectEndedAt}
           error={error}
-          disabled={disabled}
+          disabled={finalDisabled}
         />
       </div>
 
+      {/* 프로젝트 종료 후 읽기전용 안내 */}
+      {isReadOnly && (
+        <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <p className="text-amber-600 dark:text-amber-400 text-sm font-medium">
+            ⚠️ 프로젝트가 종료되어 일정을 추가할 수 없습니다 (읽기 전용)
+          </p>
+        </div>
+      )}
+
       {/* 시간 지정 토글 */}
-      <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+      <label
+        className={`flex items-center gap-2 text-sm select-none ${
+          finalDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+        }`}
+      >
         <input
           type="checkbox"
           checked={useTime}
           onChange={(e) => onUseTimeChange(e.target.checked)}
-          disabled={disabled}
+          disabled={finalDisabled}
           className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 
             text-main-600 focus:ring-main-500 dark:bg-gray-700
             disabled:cursor-not-allowed"
@@ -76,13 +107,13 @@ export function DateFields({
             label="시작 시간"
             value={startTime}
             onChange={onStartTimeChange}
-            disabled={disabled}
+            disabled={finalDisabled}
           />
           <TimePicker
             label="종료 시간"
             value={endTime}
             onChange={onEndTimeChange}
-            disabled={disabled}
+            disabled={finalDisabled}
           />
         </div>
       )}

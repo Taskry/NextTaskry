@@ -13,7 +13,13 @@ import { useState, useEffect } from "react";
 import { View } from "react-big-calendar";
 import { Task } from "@/types/kanban";
 
-export function useCalendarState() {
+interface UseCalendarStateProps {
+  projectStartedAt?: string;
+  projectEndedAt?: string;
+}
+
+export function useCalendarState(props?: UseCalendarStateProps) {
+  const { projectStartedAt, projectEndedAt } = props || {};
   // 모달 상태
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
   const [showTaskDetailModal, setShowTaskDetailModal] = useState(false);
@@ -31,7 +37,19 @@ export function useCalendarState() {
   const [showHelp, setShowHelp] = useState(false);
 
   // 캘린더 뷰 상태
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (projectStartedAt && projectEndedAt) {
+      const now = new Date();
+      const startDate = new Date(projectStartedAt);
+      const endDate = new Date(projectEndedAt);
+
+      // 오늘이 프로젝트 기간 밖이면 프로젝트 시작일로
+      if (now < startDate || now > endDate) {
+        return startDate;
+      }
+    }
+    return new Date();
+  });
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 

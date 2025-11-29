@@ -487,6 +487,7 @@ export default function ProjectPage() {
                 onDeleteTask={handleDeleteTask}
                 userRole={userRole} // 권한 기반 UI 제어
                 projectId={projectId}
+                project={project}
               />
             )}
 
