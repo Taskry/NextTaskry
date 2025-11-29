@@ -137,6 +137,13 @@ export default function TaskDetail({
   const [members, setMembers] = useState<ProjectMember[] | null>(null); // 프로젝트 멤버 목록
   const { openModal, modalProps } = useModal(); // 삭제 확인 모달 관리
 
+  // 프로젝트 종료 상태 체크
+  const isProjectEnded = (() => {
+    if (!projectEndedAt) return false;
+    const today = new Date().toISOString().split("T")[0];
+    return today > projectEndedAt;
+  })();
+
   // 🚀 컴포넌트 마운트 시 프로젝트 멤버 데이터 조회
   useEffect(() => {
     /**
@@ -494,6 +501,7 @@ export default function TaskDetail({
       {/* Action Buttons */}
       <ActionButtons
         hasChanges={hasChanges()}
+        isProjectEnded={isProjectEnded}
         onCancel={() => setEditedTask(task)}
         onSave={handleSave}
         onDelete={handleDelete}
@@ -713,12 +721,23 @@ function MemoField({
   );
 }
 
-function ActionButtons({ hasChanges, onCancel, onSave, onDelete }: any) {
+function ActionButtons({
+  hasChanges,
+  isProjectEnded,
+  onCancel,
+  onSave,
+  onDelete,
+}: any) {
   return (
     <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
       {/* 삭제 */}
-      <Button btnType="form_s" variant="warning" onClick={onDelete}>
-        삭제
+      <Button
+        btnType="form_s"
+        variant="warning"
+        onClick={onDelete}
+        disabled={isProjectEnded}
+      >
+        {isProjectEnded ? "프로젝트 종료됨" : "삭제"}
       </Button>
 
       {/* 취소/저장 */}
@@ -727,8 +746,13 @@ function ActionButtons({ hasChanges, onCancel, onSave, onDelete }: any) {
           <Button btnType="basic" variant="basic" onClick={onCancel}>
             취소
           </Button>
-          <Button btnType="form" variant="primary" onClick={onSave}>
-            저장
+          <Button
+            btnType="form"
+            variant="primary"
+            onClick={onSave}
+            disabled={isProjectEnded}
+          >
+            {isProjectEnded ? "프로젝트 종료됨" : "저장"}
           </Button>
         </div>
       )}

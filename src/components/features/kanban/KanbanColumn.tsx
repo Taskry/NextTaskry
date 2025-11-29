@@ -53,7 +53,7 @@ const KanbanColumn = ({
       >
         <div
           ref={setNodeRef}
-          className="p-3 flex flex-col gap-3 overflow-y-auto flex-1"
+          className="p-3 flex flex-col gap-3 overflow-y-auto flex-1 transition-all duration-200"
         >
           {tasks.length > 0 ? (
             tasks.map((task) => (

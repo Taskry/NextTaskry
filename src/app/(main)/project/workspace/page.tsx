@@ -490,6 +490,12 @@ export default function ProjectPage() {
                 onDeleteTask={handleDeleteTask}
                 userRole={userRole} // 권한 기반 UI 제어
                 projectId={projectId}
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
               />
             )}
 
@@ -498,10 +504,12 @@ export default function ProjectPage() {
               <CalendarView
                 tasks={tasks}
                 boardId={kanbanBoardId}
-                projectId={projectId}
-                projectName={projectName}
-                projectStartDate={projectStartDate}
-                projectEndDate={projectEndDate}
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
@@ -512,7 +520,7 @@ export default function ProjectPage() {
           </div>
         </div>
 
-        {/* 📝 메모 패널 - 슬라이드 애니메이션 */}
+        {/* 📝 메모 패널 - 사이드바 방식 */}
         <div
           className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 ${
             showMemoPanel

@@ -108,6 +108,13 @@ export default function TaskAdd({
   const [isLoadingMembers, setIsLoadingMembers] = useState(false);
   const [members, setMembers] = useState<ProjectMember[] | null>(null);
 
+  // 프로젝트 종료 상태 체크
+  const isProjectEnded = (() => {
+    if (!projectEndedAt) return false;
+    const today = new Date().toISOString().split("T")[0];
+    return today > projectEndedAt;
+  })();
+
   useEffect(() => {
     const fetchMember = async () => {
       setIsLoadingMembers(true);
@@ -398,9 +405,13 @@ export default function TaskAdd({
           btnType="form"
           variant="primary"
           onClick={handleSubmit}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isProjectEnded}
         >
-          {isSubmitting ? "생성 중..." : "작업 추가"}
+          {isSubmitting
+            ? "생성 중..."
+            : isProjectEnded
+            ? "프로젝트 종료됨"
+            : "작업 추가"}
         </Button>
       </div>
     </div>

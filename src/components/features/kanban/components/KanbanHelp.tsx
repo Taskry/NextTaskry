@@ -1,11 +1,11 @@
 /**
- * 캘린더 도움말 컴포넌트
+ * 칸반 도움말 컴포넌트
  *
- * 사용 위치: CalendarView 상단 (헤더 아래)
- * 표시 내용: 사용법, 키보드 단축키, 뷰별 특징, 상태별 색상 가이드
+ * 사용 위치: KanbanBoard 상단 (헤더 아래)
+ * 표시 내용: 사용법, 드래그앤드롭, 필터 기능, 상태별 색상 가이드
  */
 
-export default function CalendarHelp() {
+export default function KanbanHelp() {
   return (
     <div className="mx-4 mb-4 px-4 py-3 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
       {/* 도움말 메시지 */}
@@ -18,12 +18,12 @@ export default function CalendarHelp() {
               clipRule="evenodd"
             />
           </svg>
-          <span className="font-medium text-xs">더블클릭으로 일정 추가</span>
+          <span className="font-medium text-xs">드래그로 상태 변경</span>
         </div>
 
         <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
           <span>•</span>
-          <span>필터로 일정 검색</span>
+          <span>필터로 작업 검색</span>
         </div>
 
         {/* 상태별 색상 가이드 */}

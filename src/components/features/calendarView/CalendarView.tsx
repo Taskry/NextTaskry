@@ -1,14 +1,15 @@
 "use client";
 
 // React 및 라이브러리
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
+import { useSession } from "next-auth/react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, min, max } from "date-fns";
-import { is, ko } from "date-fns/locale";
+import { format, parse, startOfWeek, getDay } from "date-fns";
+import { ko } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 // 타입
-import { Task } from "@/types/kanban";
+import { Task, TaskPriority } from "@/types/kanban";
 
 // 컴포넌트
 import Modal from "@/components/ui/Modal";
@@ -16,6 +17,7 @@ import TaskAdd from "@/components/features/task/add/TaskAdd";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import CalendarHeader from "@/components/features/calendarView/components/CalendarHeader";
 import CalendarHelp from "@/components/features/calendarView/components/CalendarHelp";
+import CalendarFilter from "@/components/features/calendarView/components/CalendarFilter";
 import WeekHeader from "@/components/features/calendarView/components/WeekHeader";
 import DayHeader from "@/components/features/calendarView/components/DayHeader";
 import MonthHeader from "@/components/features/calendarView/components/MonthHeader";
@@ -49,6 +51,13 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
+
+// 필터 인터페이스
+interface CalendarFilter {
+  priority: TaskPriority | "all";
+  assignee: "all" | "assigned" | "unassigned" | "me";
+  date: "all" | "today" | "thisWeek" | "overdue";
+}
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -115,9 +124,6 @@ export default function CalendarView({
     projectEndedAt,
   });
 
-  // 이벤트 변환
-  const events = useCalendarEvents(tasks);
-
   // 키보드 단축키
   useCalendarKeyboard({
     showTaskAddModal,
@@ -135,6 +141,97 @@ export default function CalendarView({
   // 더블클릭 감지 상태 (로컬)
   const [lastClickTime, setLastClickTime] = useState<number>(0);
   const [lastClickedSlot, setLastClickedSlot] = useState<string>("");
+
+  // 필터 상태
+  const [showFilter, setShowFilter] = useState(false);
+  const [filter, setFilter] = useState<CalendarFilter>({
+    priority: "all",
+    assignee: "all",
+    date: "all",
+  });
+
+  // 세션 정보
+  const { data: session } = useSession();
+
+  /**
+   * 필터링된 태스크 목록
+   */
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      // 우선순위 필터
+      if (filter.priority !== "all" && task.priority !== filter.priority) {
+        return false;
+      }
+
+      // 담당자 필터
+      if (filter.assignee !== "all") {
+        switch (filter.assignee) {
+          case "assigned":
+            if (!task.assigned_user_id) return false;
+            break;
+          case "unassigned":
+            if (task.assigned_user_id) return false;
+            break;
+          case "me":
+            if (
+              !session?.user?.user_id ||
+              task.assigned_user_id !== session.user.user_id
+            )
+              return false;
+            break;
+        }
+      }
+
+      // 날짜 필터
+      if (filter.date !== "all") {
+        const today = new Date();
+        const todayStr = format(today, "yyyy-MM-dd");
+
+        switch (filter.date) {
+          case "today":
+            if (task.started_at !== todayStr && task.ended_at !== todayStr)
+              return false;
+            break;
+          case "thisWeek":
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+
+            if (task.started_at && task.ended_at) {
+              const taskStart = new Date(task.started_at);
+              const taskEnd = new Date(task.ended_at);
+
+              if (taskEnd < weekStart || taskStart > weekEnd) return false;
+            }
+            break;
+          case "overdue":
+            if (
+              task.status === "done" ||
+              !task.ended_at ||
+              task.ended_at >= todayStr
+            )
+              return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [tasks, filter, session]);
+
+  /**
+   * 필터 변경 핸들러
+   */
+  const handleFilterChange = useCallback(
+    (newFilter: Partial<CalendarFilter>) => {
+      setFilter((prev) => ({ ...prev, ...newFilter }));
+    },
+    []
+  );
+
+  // 필터링된 태스크로 이벤트 변환
+  const events = useCalendarEvents(filteredTasks);
 
   /**
    * 프로젝트 기간 범위 체크 함수
@@ -360,11 +457,33 @@ export default function CalendarView({
           currentDate={currentDate}
           eventsCount={events.length}
           showHelp={showHelp}
+          showFilter={showFilter}
           onToggleHelp={() => setShowHelp(!showHelp)}
+          onToggleFilter={() => setShowFilter(!showFilter)}
+          onAddTask={() => {
+            const today = new Date();
+            setSelectedDates({
+              started_at: format(today, "yyyy-MM-dd"),
+              ended_at: format(today, "yyyy-MM-dd"),
+            });
+            setShowTaskAddModal(true);
+          }}
         />
 
         {/* 도움말 */}
         {showHelp && <CalendarHelp />}
+
+        {/* 필터 */}
+        {showFilter && (
+          <div className="px-4">
+            <CalendarFilter
+              filter={filter}
+              onFilterChange={handleFilterChange}
+              taskCount={filteredTasks.length}
+              totalCount={tasks.length}
+            />
+          </div>
+        )}
 
         {/* 캘린더 본체 */}
         <div className="flex-1 p-4 overflow-hidden">
