@@ -15,6 +15,7 @@ import NoticeList from "@/components/features/notice/NoticeList";
 import Container from "@/components/shared/Container";
 import NoticePagination from "@/components/features/notice/NoticePagination";
 import Button from "@/components/ui/Button";
+import CommonPagination from "@/components/ui/CommonPagination";
 
 export default function NoticePage() {
   const { data: session } = useSession();
@@ -97,7 +98,7 @@ export default function NoticePage() {
           <NoticeList notices={notices} admin={admin} onDelete={handleDelete} />
 
           {/* 공지사항 페이지네이션 */}
-          <NoticePagination
+          <CommonPagination
             currentPage={currentPage}
             totalPages={finalTotalPages}
             onPageChange={setCurrentPage}
