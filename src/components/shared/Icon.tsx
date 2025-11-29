@@ -59,6 +59,7 @@ import {
   TbLoader,
   TbList,
   TbDeviceFloppy,
+  TbCrown,
 } from "react-icons/tb";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoEye } from "react-icons/io5";
@@ -139,6 +140,7 @@ const ICON_MAP: Record<string, IconType> = {
   loading: TbLoader,
   list: TbList,
   deviceFloppy: TbDeviceFloppy,
+  crown: TbCrown,
 };
 
 type IconTypeKeys = keyof typeof ICON_MAP;
