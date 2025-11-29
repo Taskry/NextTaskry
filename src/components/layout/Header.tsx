@@ -34,7 +34,7 @@ export function Header() {
       w-full h-14 
       border-b border-border 
       flex items-center justify-between 
-      px-6 
+      
       bg-bakground backdrop-blur-md"
       >
         <div className="w-full max-w-[1280px] px-10 mx-auto flex justify-between">
