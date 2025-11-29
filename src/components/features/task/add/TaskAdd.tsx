@@ -1,3 +1,4 @@
+// src/components/features/task/add/TaskAdd.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -18,10 +19,15 @@ import { AssigneeField } from "@/components/features/task/fields/AssigneeField";
 interface TaskAddProps {
   boardId: string;
   projectId: string;
+  projectStartedAt?: string;
+  projectEndedAt?: string;
   onSuccess?: (task: Omit<Task, "id" | "created_at" | "updated_at">) => void;
   onCancel: () => void;
   initialStartDate?: string;
   initialEndDate?: string;
+  initialStartTime?: string;
+  initialEndTime?: string;
+  initialUseTime?: boolean;
 }
 
 type FormData = {
@@ -32,6 +38,9 @@ type FormData = {
   assigned_user_id: string;
   started_at: string;
   ended_at: string;
+  start_time: string; // 추가
+  end_time: string; // 추가
+  use_time: boolean; // 추가
   memo: string;
   subtasks: Subtask[];
 };
@@ -56,6 +65,9 @@ const INITIAL_FORM_DATA: FormData = {
   assigned_user_id: "",
   started_at: "",
   ended_at: "",
+  start_time: "", // 비워둠 (사용자가 선택)
+  end_time: "", // 비워둠 (사용자가 선택)
+  use_time: false, // 기본적으로 날짜만
   memo: "",
   subtasks: [],
 };
@@ -73,15 +85,23 @@ const cleanValue = (value: string) => value.trim() || undefined;
 export default function TaskAdd({
   boardId,
   projectId,
+  projectStartedAt,
+  projectEndedAt,
   onSuccess,
   onCancel,
   initialStartDate,
   initialEndDate,
+  initialStartTime,
+  initialEndTime,
+  initialUseTime,
 }: TaskAddProps) {
   const [formData, setFormData] = useState<FormData>({
     ...INITIAL_FORM_DATA,
     started_at: initialStartDate || "",
     ended_at: initialEndDate || "",
+    start_time: initialStartTime || "",
+    end_time: initialEndTime || "",
+    use_time: initialUseTime || false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,7 +134,43 @@ export default function TaskAdd({
   }, [projectId]);
 
   const handleChange = (field: keyof FormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+
+      // "시간 지정" 체크 시 기본 시간값 자동 설정
+      if (field === "use_time" && value === true) {
+        // console.log("⏰ 시간 지정 체크됨, 기본 시간값 설정");
+        if (!newData.start_time) {
+          newData.start_time = "09:00";
+        }
+        if (!newData.end_time) {
+          newData.end_time = "18:00";
+        }
+      }
+
+      // "시간 지정" 해제 시 시간값 초기화
+      if (field === "use_time" && value === false) {
+        // console.log("⏰ 시간 지정 해제됨, 시간값 초기화");
+        newData.start_time = "";
+        newData.end_time = "";
+      }
+
+      // 시간을 모두 지우면 use_time을 false로 설정
+      if (
+        (field === "start_time" || field === "end_time") &&
+        (!value || !value.trim())
+      ) {
+        const otherTimeField =
+          field === "start_time" ? newData.end_time : newData.start_time;
+        if (!otherTimeField || !otherTimeField.trim()) {
+          // console.log(`⏰ 시간 모두 삭제됨, use_time을 false로 설정`);
+          newData.use_time = false;
+        }
+      }
+
+      // console.log("TaskAdd - Updated formData:", newData);
+      return newData;
+    });
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
@@ -123,13 +179,35 @@ export default function TaskAdd({
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.title.trim()) newErrors.title = "제목은 필수입니다.";
+    if (!formData.title.trim()) {
+      newErrors.title = "제목은 필수입니다.";
+    }
 
     if (formData.started_at && formData.ended_at) {
-      const start = new Date(formData.started_at);
-      const end = new Date(formData.ended_at);
-      if (start > end) {
-        newErrors.ended_at = "종료일은 시작일보다 늦어야 합니다.";
+      // 시간까지 고려한 검증
+      const startDateTime =
+        formData.use_time && formData.start_time
+          ? new Date(`${formData.started_at}T${formData.start_time}:00`)
+          : new Date(formData.started_at);
+
+      const endDateTime =
+        formData.use_time && formData.end_time
+          ? new Date(`${formData.ended_at}T${formData.end_time}:00`)
+          : new Date(formData.ended_at);
+
+      // ✅ 수정: 시작과 종료가 같아도 허용 (> 사용으로 변경)
+      if (startDateTime > endDateTime) {
+        newErrors.ended_at = "종료 시간은 시작 시간보다 이전일 수 없습니다.";
+      }
+    }
+
+    // 시간 지정 시 시간 입력 확인
+    if (formData.use_time) {
+      if (formData.started_at && !formData.start_time) {
+        newErrors.start_time = "시작 시간을 입력하세요.";
+      }
+      if (formData.ended_at && !formData.end_time) {
+        newErrors.end_time = "종료 시간을 입력하세요.";
       }
     }
 
@@ -143,16 +221,51 @@ export default function TaskAdd({
     setIsSubmitting(true);
 
     try {
+      // 입력된 날짜+시간을 UTC 기준으로 저장
+      const toUTCString = (dateStr: string, timeStr?: string) => {
+        // 사용자 입력 시간을 UTC로 직접 변환 (시간대 보정 없이)
+        const [year, month, day] = dateStr.split("-");
+        const [hour, minute] = (timeStr || "00:00").split(":");
+
+        const utcDate = new Date(
+          Date.UTC(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day),
+            parseInt(hour),
+            parseInt(minute),
+            0,
+            0
+          )
+        );
+
+        return utcDate.toISOString();
+      };
+
+      // ✅ 날짜는 항상 자정(00:00:00)으로 저장
+      // ✅ 실제 시간은 start_time/end_time 컬럼에 별도 저장
+      const startedAtISO = formData.started_at
+        ? `${formData.started_at}T00:00:00`
+        : undefined;
+
+      const endedAtISO = formData.ended_at
+        ? `${formData.ended_at}T00:00:00`
+        : undefined;
+
+      // 데이터베이스 저장용 payload (UI 전용 필드 제외)
       const payload: Omit<Task, "id" | "created_at" | "updated_at"> = {
         kanban_board_id: boardId,
-        project_id: boardId,
+        project_id: projectId,
         title: formData.title.trim(),
         description: cleanValue(formData.description),
         status: formData.status,
         priority: formData.priority,
         assigned_user_id: cleanValue(formData.assigned_user_id),
-        started_at: formData.started_at || undefined,
-        ended_at: formData.ended_at || undefined,
+        started_at: startedAtISO,
+        ended_at: endedAtISO,
+        start_time: formData.use_time ? formData.start_time : null,
+        end_time: formData.use_time ? formData.end_time : null,
+        use_time: formData.use_time,
         memo: cleanValue(formData.memo),
         subtasks: formData.subtasks.length > 0 ? formData.subtasks : undefined,
       };
@@ -239,10 +352,17 @@ export default function TaskAdd({
         <DateFields
           startDate={formData.started_at}
           endDate={formData.ended_at}
-          error={errors.ended_at}
+          startTime={formData.start_time}
+          endTime={formData.end_time}
+          useTime={formData.use_time}
+          projectStartedAt={projectStartedAt}
+          projectEndedAt={projectEndedAt}
           disabled={isSubmitting}
-          onStartDateChange={(value) => handleChange("started_at", value)}
-          onEndDateChange={(value) => handleChange("ended_at", value)}
+          onStartDateChange={(v: string) => handleChange("started_at", v)}
+          onEndDateChange={(v: string) => handleChange("ended_at", v)}
+          onStartTimeChange={(v: string) => handleChange("start_time", v)}
+          onEndTimeChange={(v: string) => handleChange("end_time", v)}
+          onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
         />
       </FormSection>
 

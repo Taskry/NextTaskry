@@ -8,7 +8,6 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    console.log("📌 Fetching project with ID:", id);
 
     if (!id) {
       return NextResponse.json(
@@ -31,7 +30,6 @@ export async function GET(
       );
     }
 
-    console.log("✅ Project fetched:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.error("❌ API error:", error);

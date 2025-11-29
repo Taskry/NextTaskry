@@ -77,7 +77,7 @@ export function AssigneeField({
 
   const handleImageError = (userId?: string) => {
     // 이미지 로드 실패시 처리 (옵션)
-    console.log("Image load failed for user:", userId);
+    // console.log("Image load failed for user:", userId);
   };
 
   // 편집 모드 렌더링 (TaskDetail용)
@@ -92,7 +92,12 @@ export function AssigneeField({
           />
           담당자
         </h3>
-        {value ? (
+        {isLoading ? (
+          <div className="p-2 flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <Icon type="loading" size={16} className="animate-spin" />
+            <span className="text-sm">담당자 정보를 불러오는 중...</span>
+          </div>
+        ) : value ? (
           <div
             onClick={onEdit}
             className="cursor-pointer rounded transition-colors hover:bg-gray-50 dark:hover:bg-gray-600"

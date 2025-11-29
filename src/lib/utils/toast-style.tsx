@@ -27,6 +27,9 @@ export const TOAST_COLORS = {
   alert: {
     background: "#F26969",
   },
+  warning: {
+    background: "#F59E0B", // 에러는 아니지만 경고 성격의 메시지
+  },
 };
 
 export const ICON_MAP = {
@@ -34,4 +37,5 @@ export const ICON_MAP = {
   error: <Icon type="alertTriangle" size={32} />,
   deleted: <Icon type="trash" size={32} />,
   alert: <Icon type="alertCircleFilled" size={32} />,
+  warning: <Icon type="alertTriangle" size={32} />,
 };

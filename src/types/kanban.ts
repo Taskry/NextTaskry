@@ -38,13 +38,23 @@ export interface Task {
   // 추가 정보
   memo?: string | null; // 메모
 
-  // 날짜
-  started_at?: string | null; // 시작일
-  ended_at?: string | null; // 마감일
+  // 날짜 및 시간 정보
+  started_at?: string | null; // 시작일시
+  ended_at?: string | null; // 마감일시
+  use_time?: boolean; // 시간 사용 여부
+  start_time?: string | null; // 시작 시간 (HH:mm)
+  end_time?: string | null; // 종료 시간 (HH:mm)
 
   // 자동 생성 (생성, 수정 기록)
   created_at: string; // 생성일시
   updated_at: string; // 수정일시
+
+  assignee?: {
+    user_id: string;
+    name: string;
+    email: string;
+    avatar_url?: string | null;
+  } | null; // 담당자 정보 (조인된 데이터)
 }
 
 // ============================================
