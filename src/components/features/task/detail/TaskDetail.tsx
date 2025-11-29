@@ -223,7 +223,6 @@ export default function TaskDetail({
               ...prev,
               assignee: assigneeInfo,
             }));
-
           }
         } catch (error) {
           console.error("TaskDetail assignee 정보 로드 실패:", error);
@@ -283,7 +282,6 @@ export default function TaskDetail({
 
       // "시간 지정" 체크 시 기본 시간값 자동 설정
       if (field === "use_time" && value === true) {
-        console.log("⏰ TaskDetail 시간 지정 체크됨, 기본 시간값 설정");
         if (!newData.start_time) {
           newData.start_time = "09:00";
         }
@@ -294,7 +292,6 @@ export default function TaskDetail({
 
       // "시간 지정" 해제 시 시간값 초기화
       if (field === "use_time" && value === false) {
-        console.log("⏰ TaskDetail 시간 지정 해제됨, 시간값 초기화");
         newData.start_time = "";
         newData.end_time = "";
       }
@@ -354,7 +351,6 @@ export default function TaskDetail({
       delete (filteredUpdates as any).created_at;
       delete (filteredUpdates as any).kanban_boards;
 
-      console.log("TaskDetail - Saving updates:", filteredUpdates);
       await onUpdate?.(task.id, filteredUpdates);
       showToast("작업이 저장되었습니다.", "success");
 

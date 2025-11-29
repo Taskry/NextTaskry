@@ -38,6 +38,7 @@ import { ProjectRole } from "@/types";
 
 // 메모 기능 컴포넌트 - 실시간 협업 메모
 import MemoView from "@/components/features/kanban/MemoView";
+import { set } from "date-fns";
 
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용
 type NavItem = "calendar" | "kanban" | "memo" | "project";
@@ -145,6 +146,13 @@ export default function ProjectPage() {
   }, [projectId, session?.user?.user_id]);
 >>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
 
+  // 프로젝트 정보 state 추가
+  const [project, setProject] = useState<{
+    project_id?: string; // optional
+    project_name: string; // 항상 필요한 값
+    started_at?: string;
+    ended_at?: string;
+  } | null>(null);
   /**
    * 📊 프로젝트 데이터 통합 로딩 + 칸반보드 자동 생성
    *
@@ -165,7 +173,6 @@ export default function ProjectPage() {
       try {
         // projectId 유효성 검사
         if (!projectId || projectId === "undefined" || projectId === "null") {
-          console.warn("⚠️ Invalid projectId:", projectId);
           setLoading(false);
           return;
         }
@@ -175,11 +182,17 @@ export default function ProjectPage() {
 
         if (projectRes.ok) {
           const projectData = await projectRes.json();
-          setProjectName(projectData.project_name || "이름 없는 프로젝트");
+          setProject({
+            project_id: projectData.project_id,
+            project_name: projectData.project_name,
+            started_at: projectData.started_at,
+            ended_at: projectData.ended_at,
+          });
         } else {
-          setProjectName("알 수 없는 프로젝트");
+          setProject({
+            project_name: "알 수 없는 프로젝트",
+          });
         }
-
         // 2. 칸반보드 ID 가져오기 (또는 생성) - API Route 사용
         let boardId = null;
 
@@ -203,7 +216,6 @@ export default function ProjectPage() {
              * - 사용자가 처음 워크스페이스 접속 시 자동으로 생성
              * - 표준 워크플로우 강제: todo → inprogress → done
              */
-            console.log("⚠️ 칸반보드가 없어서 새로 생성합니다.");
 
             const createRes = await fetch("/api/kanban/boards", {
               method: "POST",
@@ -262,7 +274,6 @@ export default function ProjectPage() {
    */
   useEffect(() => {
     if (!projectId || !kanbanBoardId) return;
-    console.log("리얼타임 업데이트 설정 실행");
 
     // 칸반보드별 채널 생성 (네임스페이스 분리)
     const channel = supabase
@@ -276,8 +287,6 @@ export default function ProjectPage() {
           filter: `kanban_board_id=eq.${kanbanBoardId}`, // 현재 보드의 태스크만
         },
         (payload) => {
-          console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
-
           if (payload.eventType === "INSERT") {
             const newTaskRaw = payload.new as any;
 
@@ -309,10 +318,8 @@ export default function ProjectPage() {
               setTasks((prev) => {
                 // 🛡️ 중복 추가 방지 (방어적 프로그래밍)
                 if (prev.some((t) => t.id === enrichedTask.id)) {
-                  console.log("이미 존재하는 Task");
                   return prev;
                 }
-                console.log("새로운 Task 추가:", enrichedTask.title);
                 return [...prev, enrichedTask];
               });
             };
@@ -355,17 +362,13 @@ export default function ProjectPage() {
           } else if (payload.eventType === "DELETE") {
             const deletedTask = payload.old as Task;
             setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
-            console.log("Task 삭제:", deletedTask.title);
           }
         }
       )
-      .subscribe((status) => {
-        console.log("Supabase 채널 상태:", status);
-      });
+      .subscribe();
 
     // 🧹 컴포넌트 언마운트 시 채널 정리 (메모리 누수 방지)
     return () => {
-      console.log("Supabase 채널 해제");
       supabase.removeChannel(channel);
     };
   }, [projectId, kanbanBoardId]);
@@ -496,7 +499,7 @@ export default function ProjectPage() {
             {/* 📋 칸반보드 뷰 - dnd-kit 드래그앤드롭 */}
             {currentView === "kanban" && (
               <KanbanBoard
-                projectName={projectName}
+                projectName={project?.project_name || "이름 없는 프로젝트"}
                 boardId={kanbanBoardId}
                 tasks={tasks}
                 onCreateTask={handleCreateTask}
@@ -516,7 +519,7 @@ export default function ProjectPage() {
               <CalendarView
                 tasks={tasks}
                 boardId={kanbanBoardId}
-                projectId={projectId}
+                project={project}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
