@@ -12,21 +12,16 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
-<<<<<<< HEAD
-import {  Task, TaskStatus } from "@/types";
-=======
 import { ProjectRole, Task, TaskStatus, TaskPriority } from "@/types";
->>>>>>> 7a009e4 (feat: KanbanBoard 필터링 및 정렬 시스템 구현)
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
-<<<<<<< HEAD
-=======
-import InviteMemberModal from "../project/InviteMemberModal";
+// 없는 파일
+//import InviteMemberModal from "../project/InviteMemberModal";
+import AdminInviteModal from "@/components/features/invite/AdminInviteModal";
 import { cn } from "@/lib/utils/utils";
->>>>>>> 7a009e4 (feat: KanbanBoard 필터링 및 정렬 시스템 구현)
 
 interface KanbanBoardProps {
   projectName: string;
@@ -37,8 +32,14 @@ interface KanbanBoardProps {
   onCreateTask: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
-  
+  userRole: ProjectRole | null;
   projectId: string;
+  project?: {
+    project_id?: string;
+    project_name: string;
+    started_at?: string;
+    ended_at?: string;
+  } | null;
 }
 
 interface KanbanFilter {
@@ -56,14 +57,15 @@ const KanbanBoard = ({
   onUpdateTask,
   onDeleteTask,
   onCreateTask,
-
+  userRole,
   projectId,
+  project,
 }: KanbanBoardProps) => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
   const [activeTask, setActiveTask] = useState<Task | null>(null); // 드래그 중인 Task
   const [showFilter, setShowFilter] = useState(false);
-  const [sortOption, setSortOption] = useState<TaskSortOption>("default");
+
   const [filter, setFilter] = useState<KanbanFilter>({
     priority: "all",
     assignee: "all",
@@ -242,7 +244,7 @@ const KanbanBoard = ({
     const columnTasks = filteredTasks.filter(
       (task) => task.status === column.id
     );
-    acc[column.id] = sortTasks(columnTasks, sortOption);
+    acc[column.id] = sortTasks(columnTasks, "default");
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
@@ -333,11 +335,10 @@ const KanbanBoard = ({
       <Header
         projectName={projectName}
         onAddClick={() => setShowTaskAddModal(true)}
-       
+        userRole={userRole}
         projectId={projectId}
         onToggleFilter={() => setShowFilter(!showFilter)}
-        sortOption={sortOption}
-        onSortChange={setSortOption}
+        project={project}
       />
 
       {/* 필터 */}
@@ -414,32 +415,60 @@ const KanbanBoard = ({
 function Header({
   projectName,
   onAddClick,
-<<<<<<< HEAD
-
-=======
   userRole,
   projectId,
   onToggleFilter,
-  sortOption,
-  onSortChange,
->>>>>>> 7a009e4 (feat: KanbanBoard 필터링 및 정렬 시스템 구현)
+  project,
 }: {
   projectName: string;
   onAddClick: () => void;
- 
+  userRole: ProjectRole | null;
   projectId: string;
   onToggleFilter: () => void;
-  sortOption: TaskSortOption;
-  onSortChange: (option: TaskSortOption) => void;
+  project?: {
+    project_id?: string;
+    project_name: string;
+    started_at?: string;
+    ended_at?: string;
+  } | null;
 }) {
-<<<<<<< HEAD
-=======
   const [inviteOpen, setInviteOpen] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
+  // 프로젝트 기간 정보 계산
+  const getProjectPeriodInfo = () => {
+    if (!project?.started_at || !project?.ended_at) return null;
+
+    const startDate = new Date(project.started_at);
+    const endDate = new Date(project.ended_at);
+    const today = new Date();
+
+    // 날짜 포맷
+    const startStr = startDate.toLocaleDateString("ko-KR", {
+      month: "short",
+      day: "numeric",
+    });
+    const endStr = endDate.toLocaleDateString("ko-KR", {
+      month: "short",
+      day: "numeric",
+    });
+
+    // 남은 일수 계산
+    const timeDiff = endDate.getTime() - today.getTime();
+    const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return {
+      startStr,
+      endStr,
+      remainingDays,
+    };
+  };
+
+  const projectPeriod = getProjectPeriodInfo();
+
   // 드롭다운 외부 클릭 시 닫기
   useEffect(() => {
-    const handleClickOutside = (_event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (showSortDropdown) {
         setShowSortDropdown(false);
       }
@@ -453,18 +482,28 @@ function Header({
       document.removeEventListener("click", handleClickOutside);
     };
   }, [showSortDropdown]);
->>>>>>> 7a009e4 (feat: KanbanBoard 필터링 및 정렬 시스템 구현)
 
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center px-4 sm:px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-lg shadow-sm gap-3 sm:gap-0">
-      <h2 className="text-xl sm:text-2xl font-bold text-white dark:text-gray-100">
-        {projectName}
-      </h2>
+      {/* 왼쪽: 프로젝트명 + 기간 정보 */}
+      <div className="flex flex-col gap-1">
+        <h2 className="text-xl sm:text-2xl font-bold text-white dark:text-gray-100">
+          {projectName}
+        </h2>
+        {/* 프로젝트 기간 정보 */}
+        {projectPeriod && (
+          <div className="flex items-center gap-2 text-xs text-white/80 dark:text-gray-200">
+            <span>|</span>
+            <span>
+              {projectPeriod.startStr} ~ {projectPeriod.endStr}
+            </span>
+            <span className="px-2 py-0.5 bg-white/20 rounded-full font-medium">
+              D-{projectPeriod.remainingDays}
+            </span>
+          </div>
+        )}
+      </div>
 
-<<<<<<< HEAD
-      <div className="flex items-center gap-3">
-        
-=======
       <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         {userRole === "leader" && (
           <button
@@ -488,7 +527,6 @@ function Header({
             초대
           </button>
         )}
->>>>>>> 7a009e4 (feat: KanbanBoard 필터링 및 정렬 시스템 구현)
         <button
           onClick={onAddClick}
           className="px-3 sm:px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all text-xs sm:text-sm font-medium shadow-sm"
@@ -569,7 +607,12 @@ function Header({
         </button>
       </div>
 
-    
+      {inviteOpen && (
+        <AdminInviteModal
+          projects={[{ project_id: projectId, project_name: projectName }]}
+          onClose={() => setInviteOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -607,7 +650,6 @@ function KanbanFilter({
   filter,
   onFilterChange,
   showFilter,
-  onToggleFilter: _onToggleFilter,
   taskCount,
   totalCount,
 }: {
