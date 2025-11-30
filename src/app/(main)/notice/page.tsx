@@ -1,3 +1,21 @@
+// --------------------------------------------------------
+// notice
+// ├── NoticeList.tsx          # 공지사항 리스트
+// ├── NoticeForm.tsx          # 작성/수정 시 사용
+// ├── NoticeViewMode.tsx      # 상세 내용 확인
+// ├── NoticeNavigation.tsx    # 이전/다음글 공지사항 네비게이션
+// ├── NoticeActionButtons.tsx # 수정/삭제/저장/취소 버튼
+// ├── RichTextEditor.tsx      # 에디터
+// ├── CommonPagination.tsx    # 페이지네이션(공통 컴포넌트 사용)
+// └── EmptyNotice.tsx         # 공지사항 없을 때
+
+// 그 외
+// ├── notice.ts               # 타입 모음
+// ├── useNoticeForm.ts        # 작성/수성 훅
+// ├── useNoticeDelete.ts      # 삭제 훅
+// ├── useNoticeDetail.ts      # 상세 훅
+// --------------------------------------------------------
+
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
@@ -8,7 +26,7 @@ import { NoticeWithNumber } from "@/types/notice";
 import { useSession } from "next-auth/react";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
 import { isAdmin } from "@/lib/utils/auth";
-import { useNoticeDelete } from "@/hooks/useNoticeDelete";
+import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
 import Link from "next/link";
 import EmptyNotice from "@/components/features/notice/EmptyNotice";
 import NoticeList from "@/components/features/notice/NoticeList";

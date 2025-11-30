@@ -10,7 +10,7 @@ import { showToast } from "@/lib/utils/toast";
 import { Notice } from "@/types/notice";
 import { formatDate } from "@/lib/utils/utils";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { useNoticeDelete } from "@/hooks/useNoticeDelete";
+import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
 import CommonPagination from "@/components/ui/CommonPagination";
 
 export default function AdminNoticesPage() {

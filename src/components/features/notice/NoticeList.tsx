@@ -64,7 +64,7 @@ export default function NoticeList({
             </TableCell>
 
             {/* 타이틀 */}
-            <TableCell className="text-left w-full max-w-0 overflow-hidden">
+            <TableCell className="text-left w-full max-w-0 overflow-hidden p-5">
               <div>
                 <Link
                   href={`/notice/${notice.announcement_id}`}
@@ -86,7 +86,7 @@ export default function NoticeList({
 
             {/* 관리 컬럼 액션 버튼 */}
             {admin && (
-              <TableCell className="text-sm">
+              <TableCell className="text-sm p-5 lg:p-0">
                 <div className="flex items-center justify-center gap-2">
                   <Link href={`/notice/${notice.announcement_id}?edit=true`}>
                     <Button
