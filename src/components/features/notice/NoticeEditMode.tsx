@@ -43,7 +43,7 @@ export function NoticeEditMode({
         </div>
       </fieldset>
 
-      <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg ">
+      <fieldset className="p-6 border border-border rounded-xl space-y-6 shadow-lg bg-white dark:bg-transparent">
         <legend className="text-lg font-bold px-2 mb-0">내용 작성</legend>
 
         <div className="flex flex-col space-y-2">
