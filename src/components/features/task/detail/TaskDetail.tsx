@@ -401,94 +401,59 @@ export default function TaskDetail({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Header createdAt={task.created_at} updatedAt={task.updated_at} />
+    <div className="task-form-layout">
+      {/* Header - 고정 */}
+      <div className="shrink-0">
+        <Header createdAt={task.created_at} updatedAt={task.updated_at} />
+      </div>
 
-      {/* Title */}
-      <TitleField
-        value={editedTask.title}
-        isEditing={editingField === "title"}
-        onEdit={() => setEditingField("title")}
-        onChange={(v: string) => handleChange("title", v)}
-        onBlur={() => setEditingField(null)}
-        onCancel={() => {
-          setEditedTask(task);
-          setEditingField(null);
-        }}
-      />
-
-      {/* Status & Priority */}
-      <StatusPrioritySection
-        status={editedTask.status}
-        priority={editedTask.priority || "normal"}
-        onStatusChange={(v) => handleChange("status", v)}
-        onPriorityChange={(v) => handleChange("priority", v)}
-      />
-
-      {/* 📄 설명 필드 섹션 - 인라인 편집 가능 */}
-      <FormSection icon="description" title="설명">
-        <DescriptionField
-          value={editedTask.description} // 현재 설명 내용
-          isEditing={editingField === "description"} // 현재 편집 모드 여부
-          onEdit={() => setEditingField("description")} // 편집 모드 진입
-          onChange={(v: string) => handleChange("description", v)} // 내용 변경 시 업데이트
-          onBlur={() => setEditingField(null)} // 포커스 잃으면 편집 모드 종료
+      {/* 스크롤 가능한 컨텐츠 영역 */}
+      <div className="task-form-content space-y-5 mt-4">
+        {/* Title */}
+        <TitleField
+          value={editedTask.title}
+          isEditing={editingField === "title"}
+          onEdit={() => setEditingField("title")}
+          onChange={(v: string) => handleChange("title", v)}
+          onBlur={() => setEditingField(null)}
           onCancel={() => {
-            // 취소 시 원본 데이터로 복원
             setEditedTask(task);
             setEditingField(null);
           }}
         />
-      </FormSection>
 
-      {/* 👤 담당자 필드 - 프로젝트 멤버 드롭다운 */}
-      <AssigneeField
-        value={editedTask.assigned_user_id} // 현재 할당된 사용자 ID
-        isEditing={editingField === "assigned_user_id"} // 편집 모드 여부
-        isLoading={isLoadingMembers || isLoadingAssignee} // 멤버 또는 assignee 로딩 상태
-        members={members} // 프로젝트 멤버 목록 (API에서 조회)
-        onEdit={() => setEditingField("assigned_user_id")} // 편집 모드 진입
-        onChange={(v) => handleChange("assigned_user_id", v)} // 담당자 변경
-        onBlur={() => setEditingField(null)} // 편집 모드 종료
-        onCancel={() => {
-          // 취소 시 원본 데이터로 복원
-          setEditedTask(task);
-          setEditingField(null);
-        }}
-      />
-
-      {/* Dates → Add와 동일한 UI */}
-      <FormSection icon="calendar" title="기간">
-        <DateFields
-          startDate={editedTask.started_at || ""}
-          endDate={editedTask.ended_at || ""}
-          startTime={editedTask.start_time || ""}
-          endTime={editedTask.end_time || ""}
-          useTime={editedTask.use_time || false}
-          projectStartedAt={projectStartedAt}
-          projectEndedAt={projectEndedAt}
-          onStartDateChange={(v: string) => handleChange("started_at", v)}
-          onEndDateChange={(v: string) => handleChange("ended_at", v)}
-          onStartTimeChange={(v: string) => handleChange("start_time", v)}
-          onEndTimeChange={(v: string) => handleChange("end_time", v)}
-          onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
+        {/* Status & Priority */}
+        <StatusPrioritySection
+          status={editedTask.status}
+          priority={editedTask.priority || "normal"}
+          onStatusChange={(v) => handleChange("status", v)}
+          onPriorityChange={(v) => handleChange("priority", v)}
         />
-      </FormSection>
 
-      {/* Subtasks */}
-      <SubtaskSection
-        subtasks={editedTask.subtasks || []}
-        onUpdate={(list) => handleChange("subtasks", list)}
-      />
+        {/* 📄 설명 필드 섹션 - 인라인 편집 가능 */}
+        <FormSection icon="description" title="설명">
+          <DescriptionField
+            value={editedTask.description} // 현재 설명 내용
+            isEditing={editingField === "description"} // 현재 편집 모드 여부
+            onEdit={() => setEditingField("description")} // 편집 모드 진입
+            onChange={(v: string) => handleChange("description", v)} // 내용 변경 시 업데이트
+            onBlur={() => setEditingField(null)} // 포커스 잃으면 편집 모드 종료
+            onCancel={() => {
+              // 취소 시 원본 데이터로 복원
+              setEditedTask(task);
+              setEditingField(null);
+            }}
+          />
+        </FormSection>
 
-      {/* 📃 메모 섹션 - 인라인 편집 가능한 노트 필드 */}
-      <FormSection icon="notes" title="메모">
-        <MemoField
-          value={editedTask.memo} // 현재 메모 내용
-          isEditing={editingField === "memo"} // 현재 편집 모드 여부
-          onEdit={() => setEditingField("memo")} // 편집 모드 진입
-          onChange={(v: string) => handleChange("memo", v)} // 메모 내용 변경
+        {/* 👤 담당자 필드 - 프로젝트 멤버 드롭다운 */}
+        <AssigneeField
+          value={editedTask.assigned_user_id} // 현재 할당된 사용자 ID
+          isEditing={editingField === "assigned_user_id"} // 편집 모드 여부
+          isLoading={isLoadingMembers || isLoadingAssignee} // 멤버 또는 assignee 로딩 상태
+          members={members} // 프로젝트 멤버 목록 (API에서 조회)
+          onEdit={() => setEditingField("assigned_user_id")} // 편집 모드 진입
+          onChange={(v) => handleChange("assigned_user_id", v)} // 담당자 변경
           onBlur={() => setEditingField(null)} // 편집 모드 종료
           onCancel={() => {
             // 취소 시 원본 데이터로 복원
@@ -496,16 +461,58 @@ export default function TaskDetail({
             setEditingField(null);
           }}
         />
-      </FormSection>
 
-      {/* Action Buttons */}
-      <ActionButtons
-        hasChanges={hasChanges()}
-        isProjectEnded={isProjectEnded}
-        onCancel={() => setEditedTask(task)}
-        onSave={handleSave}
-        onDelete={handleDelete}
-      />
+        {/* Dates → Add와 동일한 UI */}
+        <FormSection icon="calendar" title="기간">
+          <DateFields
+            startDate={editedTask.started_at || ""}
+            endDate={editedTask.ended_at || ""}
+            startTime={editedTask.start_time || ""}
+            endTime={editedTask.end_time || ""}
+            useTime={editedTask.use_time || false}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
+            onStartDateChange={(v: string) => handleChange("started_at", v)}
+            onEndDateChange={(v: string) => handleChange("ended_at", v)}
+            onStartTimeChange={(v: string) => handleChange("start_time", v)}
+            onEndTimeChange={(v: string) => handleChange("end_time", v)}
+            onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
+          />
+        </FormSection>
+
+        {/* Subtasks */}
+        <SubtaskSection
+          subtasks={editedTask.subtasks || []}
+          onUpdate={(list) => handleChange("subtasks", list)}
+        />
+
+        {/* 📃 메모 섹션 - 인라인 편집 가능한 노트 필드 */}
+        <FormSection icon="notes" title="메모">
+          <MemoField
+            value={editedTask.memo} // 현재 메모 내용
+            isEditing={editingField === "memo"} // 현재 편집 모드 여부
+            onEdit={() => setEditingField("memo")} // 편집 모드 진입
+            onChange={(v: string) => handleChange("memo", v)} // 메모 내용 변경
+            onBlur={() => setEditingField(null)} // 편집 모드 종료
+            onCancel={() => {
+              // 취소 시 원본 데이터로 복원
+              setEditedTask(task);
+              setEditingField(null);
+            }}
+          />
+        </FormSection>
+      </div>
+
+      {/* Action Buttons - Sticky Footer */}
+      <div className="task-form-footer bg-white dark:bg-gray-800">
+        <ActionButtons
+          hasChanges={hasChanges()}
+          isProjectEnded={isProjectEnded}
+          onCancel={() => setEditedTask(task)}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      </div>
 
       {/* 삭제 확인 모달 */}
       <Modal {...modalProps} onConfirm={confirmDelete} />
@@ -663,12 +670,12 @@ function DescriptionField({
         if (e.key === "Escape") onCancel();
       }}
       autoFocus
-      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+      className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg input-focus-style min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
     />
   ) : (
     <p
       onClick={onEdit}
-      className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-3 rounded min-h-[60px] transition-colors"
+      className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 p-3 rounded-lg min-h-[60px] transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
     >
       {value || (
         <span className="text-gray-400 dark:text-gray-500">
@@ -697,7 +704,7 @@ function MemoField({
           if (e.key === "Escape") onCancel();
         }}
         autoFocus
-        className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+        className="w-full px-3 py-2.5 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg input-focus-style min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
       />
     );
   }
@@ -714,7 +721,7 @@ function MemoField({
   ) : (
     <p
       onClick={onEdit}
-      className="text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 p-4 border border-dashed border-yellow-200 dark:border-yellow-700/50 rounded-lg transition-colors"
+      className="text-gray-400 dark:text-gray-500 cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 p-4 border border-dashed border-yellow-300 dark:border-yellow-700/50 rounded-lg transition-colors"
     >
       클릭하여 메모 추가
     </p>
@@ -729,7 +736,7 @@ function ActionButtons({
   onDelete,
 }: any) {
   return (
-    <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+    <div className="flex justify-between">
       {/* 삭제 */}
       <Button
         btnType="form_s"

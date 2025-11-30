@@ -287,111 +287,114 @@ export default function TaskAdd({
   };
 
   return (
-    <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+    <div className="task-form-layout">
+      {/* 헤더 - 고정 */}
+      <div className="pb-4 mb-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
           새 작업 추가
         </h2>
       </div>
 
-      {/* 에러 */}
-      {errors.submit && (
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-red-600 dark:text-red-400 text-sm">
-            {errors.submit}
-          </p>
-        </div>
-      )}
-
-      {/* 제목 */}
-      <div>
-        <input
-          type="text"
-          value={formData.title}
-          onChange={(e) => handleChange("title", e.target.value)}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
-            errors.title
-              ? "border-red-500 dark:border-red-600 focus:ring-red-300 dark:focus:ring-red-500"
-              : "border-gray-300 dark:border-gray-600 focus:ring-main-300 dark:focus:ring-main-500"
-          }`}
-          placeholder="작업 제목을 입력하세요"
-          autoFocus
-          disabled={isSubmitting}
-        />
-        {errors.title && (
-          <p className="text-red-500 dark:text-red-400 text-xs mt-1 pl-3">
-            * {errors.title}
-          </p>
+      {/* 스크롤 가능한 컨텐츠 영역 */}
+      <div className="task-form-content space-y-5">
+        {/* 에러 */}
+        {errors.submit && (
+          <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-red-600 dark:text-red-400 text-sm">
+              {errors.submit}
+            </p>
+          </div>
         )}
+
+        {/* 제목 */}
+        <div>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => handleChange("title", e.target.value)}
+            className={`w-full px-3 py-2.5 border rounded-lg input-focus-style bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 ${
+              errors.title
+                ? "border-red-500 dark:border-red-600"
+                : "border-gray-300 dark:border-gray-600"
+            }`}
+            placeholder="작업 제목을 입력하세요"
+            autoFocus
+            disabled={isSubmitting}
+          />
+          {errors.title && (
+            <p className="text-red-500 dark:text-red-400 text-xs mt-1 pl-1">
+              * {errors.title}
+            </p>
+          )}
+        </div>
+
+        {/* 상태 & 우선순위 */}
+        <StatusPrioritySection
+          status={formData.status}
+          priority={formData.priority}
+          onStatusChange={(v) => handleChange("status", v)}
+          onPriorityChange={(v) => handleChange("priority", v)}
+        />
+
+        {/* 설명 */}
+        <FormSection icon="description" title="설명">
+          <textarea
+            value={formData.description}
+            onChange={(e) => handleChange("description", e.target.value)}
+            className="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg input-focus-style min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            placeholder="설명을 입력하세요"
+            disabled={isSubmitting}
+          />
+        </FormSection>
+
+        {/* 담당자 */}
+        <AssigneeField
+          value={formData.assigned_user_id}
+          disabled={isSubmitting}
+          onChange={(value) => handleChange("assigned_user_id", value)}
+          isLoading={isLoadingMembers}
+          members={members}
+        />
+
+        {/* 날짜 */}
+        <FormSection icon="calendar" title="기간">
+          <DateFields
+            startDate={formData.started_at}
+            endDate={formData.ended_at}
+            startTime={formData.start_time}
+            endTime={formData.end_time}
+            useTime={formData.use_time}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
+            disabled={isSubmitting}
+            onStartDateChange={(v: string) => handleChange("started_at", v)}
+            onEndDateChange={(v: string) => handleChange("ended_at", v)}
+            onStartTimeChange={(v: string) => handleChange("start_time", v)}
+            onEndTimeChange={(v: string) => handleChange("end_time", v)}
+            onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
+          />
+        </FormSection>
+
+        {/* 하위 할 일 */}
+        <SubtaskSection
+          subtasks={formData.subtasks}
+          onUpdate={(list) => handleChange("subtasks", list)}
+        />
+
+        {/* 메모 */}
+        <FormSection icon="notes" title="메모">
+          <textarea
+            value={formData.memo}
+            onChange={(e) => handleChange("memo", e.target.value)}
+            className="w-full px-3 py-2.5 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg input-focus-style min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            placeholder="메모를 입력하세요"
+            disabled={isSubmitting}
+          />
+        </FormSection>
       </div>
 
-      {/* 상태 & 우선순위 */}
-      <StatusPrioritySection
-        status={formData.status}
-        priority={formData.priority}
-        onStatusChange={(v) => handleChange("status", v)}
-        onPriorityChange={(v) => handleChange("priority", v)}
-      />
-
-      {/* 설명 */}
-      <FormSection icon="description" title="설명">
-        <textarea
-          value={formData.description}
-          onChange={(e) => handleChange("description", e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-main-300 dark:focus:ring-main-500 min-h-[100px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-          placeholder="설명을 입력하세요 "
-          disabled={isSubmitting}
-        />
-      </FormSection>
-
-      {/* 담당자 */}
-      <AssigneeField
-        value={formData.assigned_user_id}
-        disabled={isSubmitting}
-        onChange={(value) => handleChange("assigned_user_id", value)}
-        isLoading={isLoadingMembers}
-        members={members}
-      />
-
-      {/* 날짜 */}
-      <FormSection icon="calendar" title="기간">
-        <DateFields
-          startDate={formData.started_at}
-          endDate={formData.ended_at}
-          startTime={formData.start_time}
-          endTime={formData.end_time}
-          useTime={formData.use_time}
-          projectStartedAt={projectStartedAt}
-          projectEndedAt={projectEndedAt}
-          disabled={isSubmitting}
-          onStartDateChange={(v: string) => handleChange("started_at", v)}
-          onEndDateChange={(v: string) => handleChange("ended_at", v)}
-          onStartTimeChange={(v: string) => handleChange("start_time", v)}
-          onEndTimeChange={(v: string) => handleChange("end_time", v)}
-          onUseTimeChange={(v: boolean) => handleChange("use_time", v)}
-        />
-      </FormSection>
-
-      {/* 하위 할 일 */}
-      <SubtaskSection
-        subtasks={formData.subtasks}
-        onUpdate={(list) => handleChange("subtasks", list)}
-      />
-
-      {/* 메모 */}
-      <FormSection icon="notes" title="메모">
-        <textarea
-          value={formData.memo}
-          onChange={(e) => handleChange("memo", e.target.value)}
-          className="w-full px-3 py-2 border border-yellow-300 dark:border-yellow-700/50 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg focus:ring-yellow-400 dark:focus:ring-yellow-500 min-h-20 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
-          placeholder="메모를 입력하세요"
-          disabled={isSubmitting}
-        />
-      </FormSection>
-
-      {/* 액션 버튼 */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700 ">
+      {/* 액션 버튼 - Sticky Footer */}
+      <div className="task-form-footer flex justify-end gap-3 pt-4 bg-white dark:bg-gray-800">
         <Button
           btnType="basic"
           variant="basic"
