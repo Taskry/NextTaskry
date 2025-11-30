@@ -13,8 +13,8 @@ export const getTaskStatusColor = (status: TaskStatus) => {
       border: "border-gray-300 dark:border-gray-500",
     },
     inprogress: {
-      bg: "bg-blue-400 dark:bg-blue-600",
-      text: "text-blue-700 dark:text-blue-300",
+      bg: "bg-blue-400 dark:bg-blue-500",
+      text: "text-blue-700 dark:text-blue-200",
       border: "border-blue-300 dark:border-blue-500",
     },
     done: {
@@ -69,14 +69,68 @@ export const getTaskPriorityLabel = (priority: TaskPriority) => {
   return labels[priority];
 };
 
+// Task 우선순위별 삼각형 아이콘 색상
+export const getPriorityIconColor = (priority: TaskPriority) => {
+  const colors = {
+    high: "text-red-500 dark:text-red-400",
+    normal: "text-yellow-500 dark:text-yellow-400",
+    low: "text-green-500 dark:text-green-400",
+  };
+  return colors[priority] || "";
+};
+
 // 캘린더 이벤트용 색상 (react-big-calendar)
 export const getCalendarEventColor = (status: TaskStatus, isDark = false) => {
   const colors = {
     todo: isDark ? "#4B5563" : "#9CA3AF", // 회색
-    inprogress: isDark ? "#2563ebcc" : "#60a5facc", // 파란색
+    inprogress: isDark ? "#3B82F6" : "#60A5FA", // 파란색 (blue-500, blue-400)
     done: isDark ? "#16a34acc" : "#57bc71cc", // 초록색
   };
   return colors[status];
+};
+
+// 캘린더 바(박스) 스타일 - 연한 버전 (칸반보드와 통일)
+export const getTaskStatusBarStyle = (status: TaskStatus) => {
+  const styles = {
+    todo: "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-l-2 border-gray-400 dark:border-gray-500",
+    inprogress:
+      "bg-blue-100/50 dark:bg-blue-700/40 text-blue-700 dark:text-blue-200 border-l-2 border-blue-400 dark:border-blue-500",
+    done: "bg-green-50 dark:bg-green-900/40 text-green-700 dark:text-green-200 border-l-2 border-green-400 dark:border-green-500",
+  };
+  return styles[status] || styles.todo;
+};
+
+// 캘린더 도트 색상 (칸반보드와 통일)
+export const getTaskStatusDotColor = (status: TaskStatus) => {
+  const colors = {
+    todo: "bg-gray-400 dark:bg-gray-500",
+    inprogress: "bg-blue-400 dark:bg-blue-500",
+    done: "bg-green-400 dark:bg-green-500",
+  };
+  return colors[status] || colors.todo;
+};
+
+// 캘린더 호버 리스트용 배경색 (칸반보드와 통일)
+export const getTaskStatusBgColor = (status: TaskStatus) => {
+  const styles = {
+    todo: "bg-gray-50/80 dark:bg-gray-700/50",
+    inprogress: "bg-blue-50/50 dark:bg-blue-900/20",
+    done: "bg-green-50/50 dark:bg-green-900/20",
+  };
+  return styles[status] || styles.todo;
+};
+
+// 태스크가 지연 상태인지 확인 (완료되지 않고 종료일이 지남)
+export const isTaskOverdue = (task: {
+  status?: string;
+  ended_at?: string | null;
+}) => {
+  if (!task.ended_at || task.status === "done") return false;
+
+  const today = new Date().toISOString().split("T")[0];
+  const endDate = task.ended_at.split("T")[0];
+
+  return endDate < today;
 };
 
 // Task 완료율 계산
