@@ -150,7 +150,7 @@ export function AssigneeField({
         />
         담당자
       </h3>
-      <div className="space-y-2">
+      <div className="relative">
         <div className="relative">
           <Icon
             type="search"
@@ -191,15 +191,77 @@ export function AssigneeField({
               }
             }}
             autoFocus={isEditing}
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 focus:outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            className="w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg input-focus-style bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
             placeholder={isLoading ? "불러오는 중..." : placeholder}
             disabled={disabled || isLoading}
           />
         </div>
 
+        {/* 드롭다운 목록 - 절대 위치로 모달 크기에 영향 없음 */}
+        {isOpen && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-50">
+            {/* 로딩 */}
+            {isLoading && (
+              <div className="p-2 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg">
+                불러오는 중...
+              </div>
+            )}
+
+            {/* 멤버가 없는 경우 */}
+            {!isLoading && (members || []).length === 0 && (
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3">
+                <NoMembersState iconSize={16} />
+              </div>
+            )}
+
+            {/* 드롭다운 목록 - 3명부터 스크롤 */}
+            {!isLoading && filteredMembers.length > 0 && (
+              <div className="border border-gray-200 dark:border-gray-600 rounded-lg max-h-[120px] overflow-y-auto bg-white dark:bg-gray-800 shadow-lg">
+                {filteredMembers.map((member: any) => (
+                  <div
+                    key={member.user_id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectMember(
+                        member.user_id,
+                        member.users.user_name
+                      );
+                    }}
+                    className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                  >
+                    <UserAvatar
+                      userName={member.users.user_name}
+                      profileImage={member.users.profile_image}
+                      size={32}
+                    />
+                    <div className="flex-1">
+                      <div className="text-sm text-gray-700 dark:text-gray-300">
+                        {member.users.user_name}
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+                          ({member.role})
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {member.users.email}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 검색 결과 없음 */}
+            {!isLoading && filteredMembers.length === 0 && searchTerm && (
+              <div className="p-2 text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg">
+                &quot;{searchTerm}&quot;와 일치하는 팀원이 없어요
+              </div>
+            )}
+          </div>
+        )}
+
         {/* 선택된 담당자 표시 */}
         {selectedMember && !isOpen && (
-          <div className="border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
+          <div className="mt-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800">
             <div className="flex items-center gap-3 px-3 py-2">
               <UserAvatar
                 userName={selectedMember?.users?.user_name || ""}
@@ -229,58 +291,6 @@ export function AssigneeField({
                 <Icon type="x" size={16} />
               </button>
             </div>
-          </div>
-        )}
-
-        {/* 로딩 */}
-        {isLoading && (
-          <div className="p-2 text-center text-gray-500 dark:text-gray-400">
-            불러오는 중...
-          </div>
-        )}
-
-        {/* 멤버가 없는 경우 */}
-        {!isLoading && isOpen && (members || []).length === 0 && (
-          <NoMembersState />
-        )}
-
-        {/* 드롭다운 목록 */}
-        {isOpen && filteredMembers.length > 0 && (
-          <div className="border border-gray-200 dark:border-gray-600 rounded-lg max-h-48 overflow-y-auto bg-white dark:bg-gray-800">
-            {filteredMembers.map((member: any) => (
-              <div
-                key={member.user_id}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  handleSelectMember(member.user_id, member.users.user_name);
-                }}
-                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-              >
-                <UserAvatar
-                  userName={member.users.user_name}
-                  profileImage={member.users.profile_image}
-                  size={32}
-                />
-                <div className="flex-1">
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
-                    {member.users.user_name}
-                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
-                      ({member.role})
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {member.users.email}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* 검색 결과 없음 */}
-        {isOpen && !isLoading && filteredMembers.length === 0 && searchTerm && (
-          <div className="p-2 text-center text-gray-500 dark:text-gray-400">
-            &quot;{searchTerm}&quot;와 일치하는 팀원이 없어요
           </div>
         )}
       </div>
