@@ -334,6 +334,81 @@
 }
 
 /* ==========================================================================
+   React Big Calendar - 주간/일간 뷰 시간 그리드
+   ========================================================================== */
+
+/* 1. 시간 헤더 - 컴포넌트에서 스타일 처리, CSS는 최소화 */
+.rbc-time-header-gutter {
+  min-width: 70px !important;
+  max-width: 70px !important;
+  padding: 0 !important; /* TimeColumnHeader 컴포넌트가 padding 처리 */
+}
+
+/* 2. 시간 슬롯 그룹 (1시간 = 60px) */
+.rbc-timeslot-group {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  height: 60px !important;
+  flex: none !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* 3. 개별 시간 슬롯 (15분 = 15px) */
+.rbc-time-slot {
+  min-height: 15px !important;
+  max-height: 15px !important;
+  height: 15px !important;
+  flex: 1 1 15px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .rbc-time-slot {
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 4. 시간 라벨 (08:00, 09:00...) */
+.rbc-label {
+  height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding-right: 8px !important;
+  color: var(--muted-foreground) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* 5. 날짜 컬럼 슬롯 */
+.rbc-day-slot .rbc-timeslot-group {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  height: 60px !important;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  min-height: 15px !important;
+  max-height: 15px !important;
+  height: 15px !important;
+}
+
+/* 6. 시간 컬럼 너비 */
+.rbc-time-column {
+  min-width: 70px !important;
+}
+
+/* 7. 전체 컨테이너 */
+.rbc-time-view {
+  border: 1px solid var(--border) !important;
+}
+
+.rbc-time-header {
+  border-bottom: none !important; /* 개별 헤더가 border 처리 */
+}
+
+.rbc-time-content {
+  border-top: 1px solid var(--border) !important;
+}
+/* ==========================================================================
    React Big Calendar (react-big-calendar)
    ========================================================================== */
 
@@ -542,4 +617,14 @@
 .rbc-agenda-event-cell {
   border-color: var(--border);
   color: var(--foreground);
+}
+
+/* 스크롤바 숨김 유틸리티 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
