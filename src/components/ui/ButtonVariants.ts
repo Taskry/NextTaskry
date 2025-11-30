@@ -50,21 +50,20 @@ export const buttonVariants = cva(buttonCommonStyles, {
     {
       btnType: "basic",
       variant: "basic",
-      className: `
-      text-foreground bg-gray-100 hover:bg-gray-200/60
-      dark:text-black dark:hover:bg-gray-100/80`,
+      className:
+        "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600",
     },
     {
       btnType: "basic",
       variant: "primary",
-      className: "text-white bg-main-500 hover:bg-main-600",
+      className:
+        "text-white bg-main-500 hover:bg-main-600 dark:bg-main-600 dark:hover:bg-main-500",
     },
     {
       btnType: "basic",
       variant: "warning",
-      className: `
-      text-white bg-destructive/80 hover:bg-destructive
-      `,
+      className:
+        "text-white bg-destructive/80 hover:bg-destructive dark:bg-destructive/70 dark:hover:bg-destructive/90",
     },
     // ------------------------------------------------------------------
     // 네비게이션 버튼
@@ -73,7 +72,7 @@ export const buttonVariants = cva(buttonCommonStyles, {
       btnType: "nav",
       isActive: false,
       className:
-        "bg-white dark:bg-gray-800 text-black dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700",
+        "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600",
     },
     {
       btnType: "nav",
@@ -89,13 +88,13 @@ export const buttonVariants = cva(buttonCommonStyles, {
       btnType: "tab",
       isActive: false,
       className:
-        "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-white dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700",
+        "bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700",
     },
     {
       btnType: "tab",
       isActive: true,
       className:
-        "bg-white dark:bg-gray-800 text-[#6A929A] dark:text-main-400 border border-main-300 dark:border-main-600",
+        "bg-main-50 dark:bg-gray-800 text-main-600 dark:text-main-400 border border-main-300 dark:border-main-600",
     },
 
     // ------------------------------------------------------------------

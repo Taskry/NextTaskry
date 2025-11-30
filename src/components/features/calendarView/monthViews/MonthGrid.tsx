@@ -144,7 +144,7 @@ export default function MonthGrid({
                       : isOutside
                       ? "bg-gray-100 dark:bg-gray-900 cursor-not-allowed"
                       : isOtherMonth
-                      ? "bg-gray-50 dark:bg-gray-850"
+                      ? "bg-gray-50 dark:bg-gray-800/50"
                       : isSaturday
                       ? "bg-blue-50/30 dark:bg-blue-900/10"
                       : isSunday
