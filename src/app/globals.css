@@ -63,9 +63,8 @@
   --color-blue-100: #60a5fa;
   --color-green-100: #57bc71;
 
-  /*************** 다크모드 전용 색상 추가 ****************/
   --color-dark-title: var(--dark-title);
-  --color-drak-body: var(--dark-body);
+  --color-dark-body: var(--dark-body);
   --color-dark-description: var(--dark-description);
   --color-dark-border: var(--dark-border);
 }
@@ -104,7 +103,6 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /**************** 라이트 모드 색상 추가 ****************/
   --dark-title: #171415;
   --dark-body: #171415;
   --dark-description: #5a5153;
@@ -144,7 +142,6 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 
-  /**************** 다크 모드 색상 추가 ****************/
   --dark-title: #f5f5f5;
   --dark-body: #171415;
   --dark-description: #c5c0c1;
@@ -161,34 +158,23 @@
 }
 
 /* ==========================================================================
-   커스텀 컴포넌트 스타일
+   React Calendar (react-calendar)
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   React Calendar (react-calendar)
-   -------------------------------------------------------------------------- */
+/* react-calendar 전체를 투명하게 하고, 외곽은 portal wrapper가 담당 */
 .react-calendar-custom {
   border: none !important;
-  font-family: inherit;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-.dark .react-calendar-custom {
-  background: #1f2937;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 /* 네비게이션 */
 .react-calendar-custom .react-calendar__navigation {
-  background: #f9fafb;
-  margin-bottom: 0;
+  background: transparent !important;
+  margin-bottom: 4px !important;
   height: 44px;
-}
-.dark .react-calendar-custom .react-calendar__navigation {
-  background: #1f2937;
 }
 
 .react-calendar-custom .react-calendar__navigation button {
@@ -196,80 +182,55 @@
   background: none;
   font-size: 16px;
   font-weight: 600;
-  color: #374151;
-}
-.dark .react-calendar-custom .react-calendar__navigation button {
-  color: #d1d5db;
+  color: var(--foreground);
+  transition: background-color 0.2s;
 }
 
 .react-calendar-custom .react-calendar__navigation button:enabled:hover,
 .react-calendar-custom .react-calendar__navigation button:enabled:focus {
-  background-color: #e5e7eb;
-}
-.dark .react-calendar-custom .react-calendar__navigation button:enabled:hover,
-.dark .react-calendar-custom .react-calendar__navigation button:enabled:focus {
-  background-color: #374151;
+  background-color: var(--accent);
 }
 
-/* 요일 */
+/* 요일 헤더 */
 .react-calendar-custom .react-calendar__month-view__weekdays {
   text-align: center;
   font-weight: 600;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--muted-foreground);
   padding: 8px 0;
-  background: #f9fafb;
-}
-.dark .react-calendar-custom .react-calendar__month-view__weekdays {
-  color: #9ca3af;
-  background: #1f2937;
+  background: transparent !important;
 }
 
 .react-calendar-custom .react-calendar__month-view__weekdays__weekday {
   padding: 0.5em;
 }
 
-/* 일요일 헤더 (첫 번째 요일) */
+/* 일요일/토요일 헤더 색 */
 .react-calendar-custom
   .react-calendar__month-view__weekdays__weekday:first-child
   abbr {
-  color: var(--color-red-100) !important;
-}
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__weekdays__weekday:first-child
-  abbr {
-  color: var(--color-red-100) !important;
+  color: var(--color-red-100);
 }
 
-/* 토요일 헤더 (마지막 요일) */
 .react-calendar-custom
   .react-calendar__month-view__weekdays__weekday:last-child
   abbr {
-  color: var(--color-blue-100) !important;
-}
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__weekdays__weekday:last-child
-  abbr {
-  color: var(--color-blue-100) !important;
+  color: var(--color-blue-100);
 }
 
 /* 날짜 셀 */
 .react-calendar-custom .react-calendar__tile {
   max-width: 100%;
   padding: 10px 6px;
-  background: none;
+  background: transparent !important;
   text-align: center;
   line-height: 16px;
   font-size: 0.875rem;
-  color: #374151;
+  color: var(--foreground);
   transition: all 0.2s ease;
 }
-.dark .react-calendar-custom .react-calendar__tile {
-  color: #d1d5db;
-}
 
+/* 날짜 hover */
 .react-calendar-custom .react-calendar__tile:enabled:hover,
 .react-calendar-custom .react-calendar__tile:enabled:focus {
   background-color: var(--color-main-100);
@@ -278,437 +239,491 @@
   transform: scale(1.08);
   font-weight: 600;
 }
+
 .dark .react-calendar-custom .react-calendar__tile:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile:enabled:focus {
   background-color: var(--color-main-500);
   color: var(--color-main-100);
-  border-radius: 8px;
-  transform: scale(1.08);
-  font-weight: 600;
 }
 
-/* 일요일 날짜 (각 행의 첫 번째) */
+/* 일/토 */
 .react-calendar-custom
   .react-calendar__month-view__days__day:nth-child(7n + 1):not(
     .react-calendar__month-view__days__day--neighboringMonth
   )
   abbr {
-  color: var(--color-red-100) !important;
-}
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__days__day:nth-child(7n + 1):not(
-    .react-calendar__month-view__days__day--neighboringMonth
-  )
-  abbr {
-  color: var(--color-red-100) !important;
+  color: var(--color-red-100);
 }
 
-/* 토요일 날짜 (각 행의 마지막) */
 .react-calendar-custom
   .react-calendar__month-view__days__day:nth-child(7n):not(
     .react-calendar__month-view__days__day--neighboringMonth
   )
   abbr {
-  color: var(--color-blue-100) !important;
-}
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__days__day:nth-child(7n):not(
-    .react-calendar__month-view__days__day--neighboringMonth
-  )
-  abbr {
-  color: var(--color-blue-100) !important;
+  color: var(--color-blue-100);
 }
 
-/* 오늘 날짜 */
+/* 오늘 */
 .react-calendar-custom .react-calendar__tile--now {
-  background: var(--color-main-100);
+  background-color: var(--color-main-100) !important;
   border-radius: 8px;
   font-weight: 700;
   color: var(--color-main-500);
-  border: 1px solid var(--color-main-100);
 }
+
 .dark .react-calendar-custom .react-calendar__tile--now {
-  background: var(--color-main-500);
-  border-radius: 8px;
-  font-weight: 700;
+  background-color: var(--color-main-500) !important;
   color: var(--color-main-100);
-  border: 1px solid var(--color-main-500);
 }
 
 .react-calendar-custom .react-calendar__tile--now:enabled:hover,
 .react-calendar-custom .react-calendar__tile--now:enabled:focus {
-  background: var(--color-main-200);
+  background-color: var(--color-main-200);
   transform: scale(1.1);
 }
+
 .dark .react-calendar-custom .react-calendar__tile--now:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile--now:enabled:focus {
-  background: var(--color-main-400);
-  transform: scale(1.1);
+  background-color: var(--color-main-400);
 }
 
 /* 선택된 날짜 */
 .react-calendar-custom .react-calendar__tile--active {
-  background: var(--color-main-400) !important;
-  color: white !important;
+  background-color: var(--color-main-400) !important;
+  color: #fff !important;
   border-radius: 8px;
   font-weight: 700;
-  border: 1px solid var(--color-main-400);
 }
+
 .dark .react-calendar-custom .react-calendar__tile--active {
-  background: var(--color-main-300) !important;
-  border-radius: 8px;
-  font-weight: 700;
-  color: white !important;
-  border: 1px solid var(--color-main-300);
+  background-color: var(--color-main-300) !important;
 }
 
 .react-calendar-custom .react-calendar__tile--active:enabled:hover,
 .react-calendar-custom .react-calendar__tile--active:enabled:focus {
-  background: var(--color-main-500) !important;
+  background-color: var(--color-main-500);
   transform: scale(1.1);
 }
+
 .dark .react-calendar-custom .react-calendar__tile--active:enabled:hover,
 .dark .react-calendar-custom .react-calendar__tile--active:enabled:focus {
-  background: var(--color-main-400) !important;
-  transform: scale(1.1);
+  background-color: var(--color-main-400);
 }
 
-/* 이웃 월 날짜 (이전/다음 달) */
+/* 이웃 월 */
 .react-calendar-custom
   .react-calendar__month-view__days__day--neighboringMonth {
-  color: #d1d5db;
-  background-color: #f9fafb;
-}
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__days__day--neighboringMonth {
-  color: #6b7280;
-  background-color: #111827;
+  color: var(--muted-foreground);
+  background: transparent !important;
 }
 
-/* 비활성화 */
+/* 비활성 날짜 */
 .react-calendar-custom .react-calendar__tile:disabled {
-  background-color: #f3f4f6;
-  color: #9ca3af;
-}
-.dark .react-calendar-custom .react-calendar__tile:disabled {
-  background-color: #1f2937;
-  color: #6b7280;
+  background: transparent !important;
+  color: var(--muted-foreground);
 }
 
-/* --------------------------------------------------------------------------
-   React Big Calendar (react-big-calendar) - 캘린더뷰
-   -------------------------------------------------------------------------- */
+/* ==========================================================================
+   React Big Calendar - 주간/일간 뷰 시간 그리드
+   ========================================================================== */
 
-/* 공통 요소 */
+/* 1. 시간 헤더 - 컴포넌트에서 스타일 처리, CSS는 최소화 */
+.rbc-time-header-gutter {
+  min-width: 70px !important;
+  max-width: 70px !important;
+  padding: 0 !important; /* TimeColumnHeader 컴포넌트가 padding 처리 */
+}
+
+/* 2. 시간 슬롯 그룹 (1시간 = 60px) */
+.rbc-timeslot-group {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  height: 60px !important;
+  flex: none !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* 3. 개별 시간 슬롯 (15분 = 15px) */
+.rbc-time-slot {
+  min-height: 15px !important;
+  max-height: 15px !important;
+  height: 15px !important;
+  flex: 1 1 15px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .rbc-time-slot {
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 4. 시간 라벨 (08:00, 09:00...) */
+.rbc-label {
+  height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  padding-right: 8px !important;
+  color: var(--muted-foreground) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+/* 5. 날짜 컬럼 슬롯 */
+.rbc-day-slot .rbc-timeslot-group {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  height: 60px !important;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  min-height: 15px !important;
+  max-height: 15px !important;
+  height: 15px !important;
+}
+
+/* 6. 시간 컬럼 너비 */
+.rbc-time-column {
+  min-width: 70px !important;
+}
+
+/* 7. 전체 컨테이너 */
+.rbc-time-view {
+  border: 1px solid var(--border) !important;
+}
+
+.rbc-time-header {
+  border-bottom: none !important; /* 개별 헤더가 border 처리 */
+}
+
+.rbc-time-content {
+  border-top: 1px solid var(--border) !important;
+}
+/* ==========================================================================
+   React Big Calendar (react-big-calendar)
+   ========================================================================== */
+
+/* 공통 */
 .rbc-calendar {
-  background-color: white;
-}
-.rbc-header {
-  border-color: var(--color-gray-200) !important;
-  background-color: white;
-  color: var(--color-gray-700);
+  background-color: var(--background);
+  padding: 16px;
 }
 
-/* 헤더 공휴일 색상 (일요일, 토요일) */
-.rbc-header:first-child {
-  color: var(--color-red-100) !important;
+.rbc-header {
+  border-color: var(--border);
+  background-color: var(--background);
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  border-right: none;
 }
+
+.rbc-header + .rbc-header {
+  border-left: 1px solid var(--border);
+}
+
+/* 일요일/토요일 헤더 - 라이트/다크 공통 */
+.rbc-header:first-child {
+  color: var(--color-red-100);
+}
+
 .rbc-header:last-child {
-  color: var(--color-blue-100) !important;
+  color: var(--color-blue-100);
 }
 
 .rbc-day-bg {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
+  transition: background-color 0.2s;
 }
+
 .rbc-event {
-  border: none !important;
+  border: none;
 }
 
 /* 툴바 버튼 */
 .rbc-toolbar button {
-  color: var(--color-gray-600);
-  border: 1px solid var(--color-gray-200);
-  background-color: white;
+  color: var(--muted-foreground);
+  border: 1px solid var(--border);
+  background-color: var(--background);
   transition: all 0.2s;
 }
+
 .rbc-toolbar button:hover {
   background-color: var(--color-main-200);
   border-color: var(--color-main-200);
   color: white;
 }
-.rbc-toolbar button:active,
-.rbc-toolbar button.rbc-active {
-  background-color: var(--color-main-300) !important;
-  border-color: var(--color-main-300) !important;
-  color: white !important;
+
+.dark .rbc-toolbar button:hover {
+  background-color: var(--color-main-300);
+  border-color: var(--color-main-300);
 }
 
-/* 오늘 날짜 */
-.rbc-today {
-  background-color: var(--color-main-200);
-  opacity: 0.6;
-  border: 2px solid var(--color-main-400) !important;
-  box-shadow: 0 0 0 1px var(--color-main-200);
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  background-color: var(--color-main-300);
+  border-color: var(--color-main-300);
+  color: white;
 }
+
+.dark .rbc-toolbar button:active,
+.dark .rbc-toolbar button.rbc-active {
+  background-color: var(--color-main-400);
+  border-color: var(--color-main-400);
+}
+
+/* 오늘 날짜 - border 제거 */
+.rbc-today {
+  background-color: var(--color-main-100);
+  opacity: 0.8;
+}
+
+.dark .rbc-today {
+  background-color: var(--color-main-500);
+  opacity: 0.3;
+}
+
 .rbc-button-link {
-  color: var(--color-main-400) !important;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
+  color: var(--color-main-400);
+  background: none;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.dark .rbc-button-link {
+  color: var(--color-main-200);
 }
 
 /* 이전/다음 달 날짜 */
 .rbc-off-range-bg {
-  background-color: var(--color-gray-100) !important;
+  background-color: var(--muted);
 }
 
-/* 날짜 셀 호버 효과 */
+.dark .rbc-off-range-bg {
+  background-color: var(--card);
+}
+
+/* 날짜 셀 호버 */
 .rbc-day-bg:hover {
-  background-color: var(--color-main-100) !important;
-  transition: background-color 0.2s;
-}
-.rbc-off-range-bg:hover {
-  background-color: var(--color-gray-200) !important;
+  background-color: var(--color-main-100);
 }
 
-/* 공휴일 (일요일, 토요일) */
+.dark .rbc-day-bg:hover {
+  background-color: var(--color-main-600);
+}
+
+.rbc-off-range-bg:hover {
+  background-color: var(--accent);
+}
+
+.dark .rbc-off-range-bg:hover {
+  background-color: var(--secondary);
+}
+
+/* 일요일/토요일 날짜 - 라이트/다크 공통 */
 .rbc-date-cell:nth-child(7n + 1),
 .rbc-date-cell:nth-child(7n + 1) a,
 .rbc-date-cell:nth-child(7n + 1) .rbc-button-link {
-  color: var(--color-red-100) !important;
+  color: var(--color-red-100);
 }
+
 .rbc-date-cell:nth-child(7n),
 .rbc-date-cell:nth-child(7n) a,
 .rbc-date-cell:nth-child(7n) .rbc-button-link {
-  color: var(--color-blue-100) !important;
+  color: var(--color-blue-100);
 }
 
 /* 드래그 선택 영역 */
 .rbc-slot-selection {
-  background-color: var(--color-main-200) !important;
-  opacity: 0.5 !important;
+  background-color: var(--color-main-200);
+  opacity: 0.5;
+}
+
+.dark .rbc-slot-selection {
+  background-color: var(--color-main-300);
+  opacity: 0.6;
 }
 
 /* 월뷰 */
 .rbc-month-view {
-  background-color: white;
-}
-.rbc-month-row {
-  border-color: var(--color-gray-200) !important;
+  background-color: var(--background);
 }
 
-/* 날짜 셀에 position relative 추가 (배지 표시용) */
+.rbc-month-row {
+  border-color: var(--border);
+}
+
+/* 날짜 셀 position */
 .rbc-day-bg {
   position: relative;
 }
 
 /* 주뷰, 일뷰 */
 .rbc-time-view {
-  background-color: white;
-  border-color: var(--color-gray-200) !important;
+  background-color: var(--background);
+  border-color: var(--border);
 }
+
 .rbc-time-header {
-  background-color: white;
+  background-color: var(--background);
 }
+
 .rbc-time-header-content {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
+
 .rbc-time-content {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
+
 .rbc-day-slot {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
 
 /* 시간 슬롯 */
 .rbc-time-slot {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
+
 .rbc-timeslot-group {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
 
 /* 시간 라벨 */
 .rbc-label {
-  color: var(--color-gray-600);
+  color: var(--muted-foreground);
 }
 
 /* 일정뷰 */
 .rbc-agenda-view {
-  background-color: white;
+  background-color: var(--background);
 }
+
 .rbc-agenda-table {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
 }
+
 .rbc-agenda-date-cell,
 .rbc-agenda-time-cell,
 .rbc-agenda-event-cell {
-  border-color: var(--color-gray-200) !important;
+  border-color: var(--border);
+  color: var(--foreground);
 }
 
-/* --------------------------------------------------------------------------
-   다크모드
-   -------------------------------------------------------------------------- */
-.dark {
-  /* 공통 요소 */
-  .rbc-calendar {
-    background-color: var(--color-gray-700);
-  }
-  .rbc-header {
-    border-color: var(--color-gray-500) !important;
-    background-color: var(--color-gray-600);
-    color: var(--color-gray-100);
-  }
+/* 스크롤바 숨김 유틸리티 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
-  /* 헤더 공휴일 색상 (일요일, 토요일) - 다크모드 */
-  .rbc-header:first-child {
-    color: var(--color-red-100) !important;
-  }
-  .rbc-header:last-child {
-    color: var(--color-blue-100) !important;
-  }
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
 
-  .rbc-day-bg {
-    border-color: var(--color-gray-500) !important;
-  }
+/* ==========================================================================
+   Modal & Task Form 최적화 CSS
+   ========================================================================== */
 
-  /* 툴바 버튼 */
-  .rbc-toolbar button {
-    color: var(--color-gray-200);
-    border-color: var(--color-gray-500);
-    background-color: var(--color-gray-600);
-  }
-  .rbc-toolbar button:hover {
-    background-color: var(--color-main-300);
-    border-color: var(--color-main-300);
-    color: white;
-  }
-  .rbc-toolbar button:active,
-  .rbc-toolbar button.rbc-active {
-    background-color: var(--color-main-400) !important;
-    border-color: var(--color-main-400) !important;
-    color: white !important;
-  }
+/* 모달 스크롤 컨테이너 */
+.modal-scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+}
 
-  /* 오늘 날짜 */
-  .rbc-today {
-    background-color: var(--color-main-300);
-    opacity: 0.4;
-    border: 2px solid var(--color-main-200) !important;
-    box-shadow: 0 0 0 1px var(--color-main-400);
-  }
-  .rbc-button-link {
-    color: var(--color-main-200) !important;
-  }
+.modal-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
 
-  /* 이전/다음 달 날짜 */
-  .rbc-off-range-bg {
-    background-color: var(--color-gray-700) !important;
-  }
+.modal-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-  /* 날짜 셀 호버 효과 */
-  .rbc-day-bg:hover {
-    background-color: var(--color-main-600) !important;
-    transition: background-color 0.2s;
-  }
-  .rbc-off-range-bg:hover {
-    background-color: var(--color-gray-600) !important;
-  }
+.modal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-300);
+  border-radius: 3px;
+}
 
-  /* 래퍼 내부의 day-bg도 호버 효과 적용 (다크모드) */
-  .rbc-day-bg-wrapper:has(.rbc-day-bg):hover .rbc-day-bg {
-    background-color: var(--color-main-600) !important;
-    transition: background-color 0.2s;
-  }
+.dark .modal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-600);
+}
 
-  .rbc-day-bg-wrapper:has(.rbc-off-range-bg):hover .rbc-off-range-bg {
-    background-color: var(--color-gray-600) !important;
-  }
+.modal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-400);
+}
 
-  /* 오늘 날짜 래퍼 스타일 (다크모드) */
-  .rbc-day-bg-wrapper:has(.rbc-today) .rbc-today {
-    background-color: var(--color-main-300);
-    opacity: 0.4;
-    border: 2px solid var(--color-main-200) !important;
-    box-shadow: 0 0 0 1px var(--color-main-400);
-  }
+.dark .modal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-500);
+}
 
-  /* 공휴일 (일요일, 토요일) */
-  .rbc-date-cell:nth-child(7n + 1),
-  .rbc-date-cell:nth-child(7n + 1) a,
-  .rbc-date-cell:nth-child(7n + 1) .rbc-button-link {
-    color: var(--color-red-100) !important;
-  }
-  .rbc-date-cell:nth-child(7n),
-  .rbc-date-cell:nth-child(7n) a,
-  .rbc-date-cell:nth-child(7n) .rbc-button-link {
-    color: var(--color-blue-100) !important;
-  }
+/* Task Form 레이아웃 */
+.task-form-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+}
 
-  /* 드래그 선택 영역 */
-  .rbc-slot-selection {
-    background-color: var(--color-main-300) !important;
-    opacity: 0.6 !important;
-  }
+.task-form-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+}
 
-  /* 월뷰 */
-  .rbc-month-view {
-    background-color: var(--color-gray-700);
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-month-row {
-    border-color: var(--color-gray-500) !important;
-  }
+.task-form-footer {
+  flex-shrink: 0;
+  background: inherit;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: auto;
+}
 
-  /* 주뷰, 일뷰 */
-  .rbc-time-view {
-    background-color: var(--color-gray-700);
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-time-header {
-    background-color: var(--color-gray-600);
-  }
-  .rbc-time-header-content {
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-time-content {
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-day-slot {
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-events-container {
-    border-color: var(--color-gray-500) !important;
-  }
+/* 입력 필드 포커스 스타일 통일 */
+.input-focus-style {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-  /* 시간 슬롯 */
-  .rbc-time-slot {
-    border-color: var(--color-gray-600) !important;
-  }
-  .rbc-timeslot-group {
-    border-color: var(--color-gray-600) !important;
-  }
+.input-focus-style:focus {
+  outline: none;
+  border-color: var(--color-main-400);
+  box-shadow: 0 0 0 3px rgba(106, 146, 154, 0.15);
+}
 
-  /* 시간 라벨 */
-  .rbc-label {
-    color: var(--color-gray-200);
-  }
+.dark .input-focus-style:focus {
+  border-color: var(--color-main-300);
+  box-shadow: 0 0 0 3px rgba(106, 146, 154, 0.25);
+}
 
-  /* 일정뷰 */
-  .rbc-agenda-view {
-    background-color: var(--color-gray-700);
+/* ==========================================================================
+   캘린더 포탈 컨테이너 (wrapper)
+   ========================================================================== */
+
+.calendar-portal {
+  position: fixed;
+  z-index: 9999;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+}
+
+.calendar-portal .react-calendar-custom {
+  animation: calendar-fade-in 0.15s ease-out;
+}
+
+@keyframes calendar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
   }
-  .rbc-agenda-table {
-    border-color: var(--color-gray-500) !important;
-  }
-  .rbc-agenda-date-cell,
-  .rbc-agenda-time-cell,
-  .rbc-agenda-event-cell {
-    border-color: var(--color-gray-500) !important;
-    color: var(--color-gray-100);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

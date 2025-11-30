@@ -208,7 +208,7 @@ const SubtaskList = ({
                     if (e.key === "Escape") handleCancelEdit();
                   }}
                   autoFocus
-                  className="flex-1 px-2 py-1 text-sm border border-main-300 dark:border-main-600 rounded focus:outline-none focus:ring-2 focus:ring-main-300 dark:bg-gray-800 dark:text-gray-200"
+                  className="flex-1 px-2 py-1 text-sm border border-main-300 dark:border-main-600 rounded input-focus-style dark:bg-gray-800 dark:text-gray-200"
                 />
                 <button
                   onClick={() => handleSaveEdit(subtask.id)}

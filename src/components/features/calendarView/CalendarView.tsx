@@ -1,14 +1,12 @@
 "use client";
 
 // React 및 라이브러리
-import { useCallback, useState } from "react";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay, min, max } from "date-fns";
-import { is, ko } from "date-fns/locale";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useCallback, useState, useMemo } from "react";
+import { useSession } from "next-auth/react";
+import { format } from "date-fns";
 
 // 타입
-import { Task } from "@/types/kanban";
+import { Task, TaskPriority } from "@/types/kanban";
 
 // 컴포넌트
 import Modal from "@/components/ui/Modal";
@@ -16,39 +14,27 @@ import TaskAdd from "@/components/features/task/add/TaskAdd";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import CalendarHeader from "@/components/features/calendarView/components/CalendarHeader";
 import CalendarHelp from "@/components/features/calendarView/components/CalendarHelp";
-import WeekHeader from "@/components/features/calendarView/components/WeekHeader";
-import DayHeader from "@/components/features/calendarView/components/DayHeader";
-import MonthHeader from "@/components/features/calendarView/components/MonthHeader";
-import MonthDateHeader from "@/components/features/calendarView/components/MonthDateHeader";
-import TimeColumnHeader from "@/components/features/calendarView/components/TimeColumnHeader";
-import TimeSlotWrapper from "@/components/features/calendarView/components/TimeSlotWrapper";
+import CalendarStats from "@/components/features/calendarView/components/CalendarStats";
+import CalendarFilter from "@/components/features/calendarView/components/CalendarFilter";
+import CalendarNavigation from "@/components/features/calendarView/components/CalendarNavigation";
+import WeekView from "@/components/features/calendarView/weekViews";
+import MonthView from "@/components/features/calendarView/monthViews";
+import DayView from "@/components/features/calendarView/dayViews";
+import AgendaView from "@/components/features/calendarView/agendaViews";
 
 // Hooks
 import { useCalendarState } from "@/hooks/calendar/useCalendarState";
-import { useCalendarEvents } from "@/hooks/calendar/useCalendarEvents";
 import { useCalendarKeyboard } from "@/hooks/calendar/useCalendarKeyboard";
 
 // 유틸
-import { getDaysDiff } from "@/lib/utils/dateUtils";
-import { getCalendarEventColor } from "@/lib/utils/taskUtils";
 import { showToast } from "@/lib/utils/toast";
 
-// 상수
-import {
-  CALENDAR_MESSAGES,
-  CALENDAR_TIME_CONFIG,
-  CALENDAR_INTERACTION_CONFIG,
-} from "./constants/calendarConfig";
-
-// Localizer 설정
-const locales = { ko };
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date()),
-  getDay,
-  locales,
-});
+// 필터 인터페이스
+interface CalendarFilter {
+  priority: TaskPriority | "all";
+  assignee: "all" | "assigned" | "unassigned" | "me";
+  date: "all" | "today" | "thisWeek" | "overdue";
+}
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -66,6 +52,7 @@ interface CalendarViewProps {
   onDeleteTask?: (taskId: string) => void;
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
+  onProjectInfoClick?: () => void;
 }
 
 export default function CalendarView({
@@ -77,6 +64,7 @@ export default function CalendarView({
   onDeleteTask,
   onSelectTask,
   onTaskCreated,
+  onProjectInfoClick,
 }: CalendarViewProps) {
   // 프로젝트 정보 추출
   const projectId = project?.project_id || "";
@@ -109,14 +97,10 @@ export default function CalendarView({
     setCurrentDate,
     currentView,
     setCurrentView,
-    currentTime,
   } = useCalendarState({
     projectStartedAt,
     projectEndedAt,
   });
-
-  // 이벤트 변환
-  const events = useCalendarEvents(tasks);
 
   // 키보드 단축키
   useCalendarKeyboard({
@@ -132,21 +116,104 @@ export default function CalendarView({
     setCurrentView,
   });
 
-  // 더블클릭 감지 상태 (로컬)
-  const [lastClickTime, setLastClickTime] = useState<number>(0);
-  const [lastClickedSlot, setLastClickedSlot] = useState<string>("");
+  // 필터 상태
+  const [showFilter, setShowFilter] = useState(false);
+  const [filter, setFilter] = useState<CalendarFilter>({
+    priority: "all",
+    assignee: "all",
+    date: "all",
+  });
+
+  // 세션 정보
+  const { data: session } = useSession();
 
   /**
-   * 프로젝트 기간 범위 체크 함수
+   * 필터링된 태스크 목록
    */
-  const isOutsideProjectRange = useCallback(
-    (date: Date) => {
-      if (!projectStartedAt || !projectEndedAt) return false;
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      // 우선순위 필터
+      if (filter.priority !== "all" && task.priority !== filter.priority) {
+        return false;
+      }
 
-      const dateStr = format(date, "yyyy-MM-dd");
-      return dateStr < projectStartedAt || dateStr > projectEndedAt;
+      // 담당자 필터
+      if (filter.assignee !== "all") {
+        switch (filter.assignee) {
+          case "assigned":
+            if (!task.assigned_user_id) return false;
+            break;
+          case "unassigned":
+            if (task.assigned_user_id) return false;
+            break;
+          case "me":
+            if (
+              !session?.user?.user_id ||
+              task.assigned_user_id !== session.user.user_id
+            )
+              return false;
+            break;
+        }
+      }
+
+      // 날짜 필터
+      if (filter.date !== "all") {
+        const today = new Date();
+        const todayStr = format(today, "yyyy-MM-dd");
+
+        switch (filter.date) {
+          case "today":
+            // 오늘이 일정 범위(시작~종료) 안에 포함되어야 함
+            if (task.started_at && task.ended_at) {
+              const taskStartStr = task.started_at.split("T")[0];
+              const taskEndStr = task.ended_at.split("T")[0];
+              // 오늘이 시작일 이후이고, 종료일 이전이어야 함
+              if (todayStr < taskStartStr || todayStr > taskEndStr)
+                return false;
+            } else {
+              // 시작일/종료일이 없으면 제외
+              return false;
+            }
+            break;
+          case "thisWeek":
+            const weekStart = new Date(today);
+            weekStart.setDate(today.getDate() - today.getDay());
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekStart.getDate() + 6);
+            const weekStartStr = format(weekStart, "yyyy-MM-dd");
+            const weekEndStr = format(weekEnd, "yyyy-MM-dd");
+
+            if (task.started_at && task.ended_at) {
+              const taskStartStr = task.started_at.split("T")[0];
+              const taskEndStr = task.ended_at.split("T")[0];
+              // 일정과 이번 주가 겹치는지 확인
+              if (taskEndStr < weekStartStr || taskStartStr > weekEndStr)
+                return false;
+            } else {
+              return false;
+            }
+            break;
+          case "overdue":
+            if (task.status === "done") return false;
+            if (!task.ended_at) return false;
+            const taskEndStr2 = task.ended_at.split("T")[0];
+            if (taskEndStr2 >= todayStr) return false;
+            break;
+        }
+      }
+
+      return true;
+    });
+  }, [tasks, filter, session]);
+
+  /**
+   * 필터 변경 핸들러
+   */
+  const handleFilterChange = useCallback(
+    (newFilter: Partial<CalendarFilter>) => {
+      setFilter((prev) => ({ ...prev, ...newFilter }));
     },
-    [projectStartedAt, projectEndedAt]
+    []
   );
 
   /**
@@ -205,104 +272,6 @@ export default function CalendarView({
   );
 
   /**
-   * 슬롯 선택 핸들러 (더블클릭 또는 드래그)
-   */
-  const handleSelectSlot = useCallback(
-    (slot: any) => {
-      // 프로젝트 종료 체크
-      if (projectEndedAt) {
-        const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
-        if (today > projectEndedAt) {
-          showToast("종료된 프로젝트입니다.", "warning");
-          return;
-        }
-      }
-
-      const startDate = new Date(slot.start);
-      const endDate = new Date(slot.end);
-
-      // 월간뷰에서 종료일 조정 (하루 빼기)
-      if (currentView === "month") {
-        endDate.setDate(endDate.getDate() - 1);
-      }
-
-      console.log("날짜 범위:", {
-        start: startDate,
-        end: endDate,
-        currentView,
-        projectStartedAt,
-        projectEndedAt,
-      });
-
-      // 프로젝트 범위 밖 날짜 체크 (프로젝트 기간이 설정된 경우만)
-      if (projectStartedAt && projectEndedAt) {
-        if (
-          isOutsideProjectRange(startDate) ||
-          isOutsideProjectRange(endDate)
-        ) {
-          showToast(
-            "프로젝트 기간 내에서만 일정을 추가할 수 있습니다.",
-            "warning"
-          );
-          return;
-        }
-      }
-
-      const slotKey = `${slot.start.getTime()}-${slot.end.getTime()}`;
-      const now = Date.now();
-      const timeDiff = now - lastClickTime;
-      const daysDiff = getDaysDiff(slot.start, slot.end);
-
-      console.log("클릭 감지 정보:", {
-        slotKey,
-        lastClickedSlot,
-        timeDiff,
-        daysDiff,
-        threshold: CALENDAR_INTERACTION_CONFIG.doubleClickThreshold,
-      });
-
-      // 모달 열기 조건:
-      // 1. 드래그로 여러 날짜 선택 (daysDiff > 1)
-      // 2. 같은 슬롯 더블클릭 (300ms 이내)
-      // 3. 주간/일간 뷰에서 첫 클릭 (즉시 모달 열기)
-      const shouldOpenModal =
-        daysDiff > 1 ||
-        (slotKey === lastClickedSlot &&
-          timeDiff < CALENDAR_INTERACTION_CONFIG.doubleClickThreshold) ||
-        currentView !== "month";
-
-      console.log("모달 열기 결정:", shouldOpenModal);
-
-      if (shouldOpenModal) {
-        setSelectedDates({
-          started_at: format(startDate, "yyyy-MM-dd"),
-          ended_at: format(endDate, "yyyy-MM-dd"),
-        });
-        setShowTaskAddModal(true);
-        setLastClickTime(0);
-        setLastClickedSlot("");
-        console.log("태스크 추가 모달 열림");
-      } else {
-        setLastClickTime(now);
-        setLastClickedSlot(slotKey);
-        console.log("더블클릭 대기 상태");
-      }
-    },
-    [
-      currentView,
-      projectStartedAt,
-      projectEndedAt,
-      lastClickTime,
-      lastClickedSlot,
-      setSelectedDates,
-      setShowTaskAddModal,
-      setLastClickTime,
-      setLastClickedSlot,
-      isOutsideProjectRange,
-    ]
-  );
-
-  /**
    * Task 추가 성공 핸들러
    */
   const handleTaskAddSuccess = useCallback(
@@ -310,43 +279,10 @@ export default function CalendarView({
       await onCreateTask?.(taskData);
       setShowTaskAddModal(false);
       setSelectedDates(null);
-      onTaskCreated?.();
+      // onTaskCreated 호출 제거 - handleCreateTask에서 이미 로컬 상태 업데이트함
     },
-    [onCreateTask, onTaskCreated, setShowTaskAddModal, setSelectedDates]
+    [onCreateTask, setShowTaskAddModal, setSelectedDates]
   );
-
-  /**
-   * 이벤트 선택 핸들러
-   */
-  const handleSelectEvent = useCallback(
-    (event: any) => {
-      setSelectedTask(event.task);
-      setShowTaskDetailModal(true);
-      onSelectTask?.(event.task);
-    },
-    [onSelectTask, setSelectedTask, setShowTaskDetailModal]
-  );
-
-  /**
-   * 이벤트 스타일링
-   */
-  const eventStyleGetter = useCallback((event: any) => {
-    const isDark = document.documentElement.classList.contains("dark");
-    const backgroundColor = getCalendarEventColor(event.task.status, isDark);
-    const isHighPriority = event.task.priority === "high";
-
-    return {
-      style: {
-        backgroundColor,
-        color: isDark ? "#f3f4f6" : "#ffffff",
-        border: `1px solid ${backgroundColor}`,
-        borderLeft: `4px solid ${backgroundColor}`,
-        borderRadius: "6px",
-        fontWeight: isHighPriority ? "600" : "500",
-        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-      },
-    };
-  }, []);
 
   return (
     <>
@@ -358,108 +294,242 @@ export default function CalendarView({
           projectEndedAt={projectEndedAt}
           currentView={currentView}
           currentDate={currentDate}
-          eventsCount={events.length}
+          eventsCount={filteredTasks.length}
           showHelp={showHelp}
+          showFilter={showFilter}
           onToggleHelp={() => setShowHelp(!showHelp)}
+          onToggleFilter={() => setShowFilter(!showFilter)}
+          onProjectInfoClick={onProjectInfoClick}
+          onAddTask={() => {
+            const today = new Date();
+            setSelectedDates({
+              started_at: format(today, "yyyy-MM-dd"),
+              ended_at: format(today, "yyyy-MM-dd"),
+            });
+            setShowTaskAddModal(true);
+          }}
         />
 
         {/* 도움말 */}
         {showHelp && <CalendarHelp />}
 
-        {/* 캘린더 본체 */}
-        <div className="flex-1 p-4 overflow-hidden">
-          <div className="h-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg overflow-hidden">
-            {/* 뷰별 안내 텍스트 */}
-            {currentView !== "month" && (
-              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
-                <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-2">
-                  <svg
-                    className="w-3 h-3"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  {currentView === "week" &&
-                    "더블클릭하거나 드래그하여 일정을 추가하세요"}
-                  {currentView === "day" &&
-                    "시간대를 선택하여 세부 일정을 관리하세요"}
-                  {currentView === "agenda" &&
-                    "일정 목록을 확인하고 클릭하여 상세보기"}
-                </div>
-              </div>
-            )}
-
-            <Calendar
-              localizer={localizer}
-              events={events}
-              selectable
-              messages={CALENDAR_MESSAGES}
-              culture="ko"
-              date={currentDate}
-              view={currentView}
-              onNavigate={handleNavigate}
-              onView={setCurrentView}
-              onSelectSlot={handleSelectSlot}
-              onSelectEvent={handleSelectEvent}
-              min={CALENDAR_TIME_CONFIG.minTime}
-              max={CALENDAR_TIME_CONFIG.maxTime}
-              step={CALENDAR_TIME_CONFIG.step}
-              timeslots={CALENDAR_TIME_CONFIG.timeslots}
-              scrollToTime={CALENDAR_TIME_CONFIG.scrollToTime}
-              dayLayoutAlgorithm="overlap"
-              popup
-              popupOffset={{ x: 10, y: 10 }}
-              showMultiDayTimes
-              views={["month", "week", "day", "agenda"]}
-              getNow={() => currentTime}
-              // 프로젝트 기간 제한
-              {...(projectStartedAt && {
-                minDate: new Date(projectStartedAt),
-              })}
-              {...(projectEndedAt && {
-                maxDate: new Date(projectEndedAt),
-              })}
-              style={{ height: "100%" }}
-              eventPropGetter={eventStyleGetter}
-              components={{
-                month: {
-                  header: MonthHeader,
-                  dateHeader: (props: any) => (
-                    <MonthDateHeader
-                      {...props}
-                      projectStartedAt={projectStartedAt}
-                      projectEndedAt={projectEndedAt}
-                    />
-                  ),
-                },
-                week: {
-                  header: (props: any) => (
-                    <WeekHeader
-                      {...props}
-                      projectStartedAt={projectStartedAt}
-                      projectEndedAt={projectEndedAt}
-                    />
-                  ),
-                },
-                day: {
-                  header: (props: any) => (
-                    <DayHeader
-                      {...props}
-                      projectStartedAt={projectStartedAt}
-                      projectEndedAt={projectEndedAt}
-                    />
-                  ),
-                },
-                timeGutterHeader: TimeColumnHeader,
-                timeSlotWrapper: TimeSlotWrapper,
-              }}
+        {/* 필터 */}
+        {showFilter && (
+          <div className="px-2 sm:px-4">
+            <CalendarFilter
+              filter={filter}
+              onFilterChange={handleFilterChange}
+              taskCount={filteredTasks.length}
+              totalCount={tasks.length}
             />
           </div>
+        )}
+
+        {/* 캘린더 본체 */}
+        <div className="flex-1 min-h-0 flex flex-col p-2 sm:p-3">
+          {currentView === "week" ? (
+            // 커스텀 주간 뷰
+            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+              {/* 네비게이션 툴바 */}
+              <CalendarNavigation
+                currentDate={currentDate}
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                onViewChange={setCurrentView}
+              />
+              <WeekView
+                tasks={filteredTasks}
+                currentDate={currentDate}
+                projectStartedAt={projectStartedAt}
+                projectEndedAt={projectEndedAt}
+                onSelectSlot={(
+                  startDate: Date,
+                  endDate: Date,
+                  startHour?: number,
+                  endHour?: number
+                ) => {
+                  // 프로젝트 종료 체크
+                  if (projectEndedAt) {
+                    const today = new Date().toISOString().split("T")[0];
+                    if (today > projectEndedAt) {
+                      showToast("종료된 프로젝트입니다.", "warning");
+                      return;
+                    }
+                  }
+
+                  setSelectedDates({
+                    started_at: format(startDate, "yyyy-MM-dd"),
+                    ended_at: format(endDate, "yyyy-MM-dd"),
+                    start_time:
+                      startHour !== undefined
+                        ? `${startHour.toString().padStart(2, "0")}:00`
+                        : undefined,
+                    end_time:
+                      endHour !== undefined
+                        ? `${endHour.toString().padStart(2, "0")}:00`
+                        : undefined,
+                  });
+                  setShowTaskAddModal(true);
+                }}
+                onSelectEvent={(task) => {
+                  setSelectedTask(task);
+                  setShowTaskDetailModal(true);
+                  onSelectTask?.(task);
+                }}
+              />
+            </div>
+          ) : currentView === "month" ? (
+            // 커스텀 월간 뷰
+            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+              {/* 네비게이션 툴바 */}
+              <CalendarNavigation
+                currentDate={currentDate}
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                onViewChange={setCurrentView}
+              />
+              <MonthView
+                tasks={filteredTasks}
+                currentDate={currentDate}
+                projectStartedAt={projectStartedAt}
+                projectEndedAt={projectEndedAt}
+                onSelectSlot={(date: Date) => {
+                  // 프로젝트 종료 체크
+                  if (projectEndedAt) {
+                    const today = new Date().toISOString().split("T")[0];
+                    if (today > projectEndedAt) {
+                      showToast("종료된 프로젝트입니다.", "warning");
+                      return;
+                    }
+                  }
+
+                  setSelectedDates({
+                    started_at: format(date, "yyyy-MM-dd"),
+                    ended_at: format(date, "yyyy-MM-dd"),
+                  });
+                  setShowTaskAddModal(true);
+                }}
+                onSelectRange={(startDate: Date, endDate: Date) => {
+                  // 프로젝트 종료 체크
+                  if (projectEndedAt) {
+                    const today = new Date().toISOString().split("T")[0];
+                    if (today > projectEndedAt) {
+                      showToast("종료된 프로젝트입니다.", "warning");
+                      return;
+                    }
+                  }
+
+                  // 드래그로 날짜 범위 선택
+                  setSelectedDates({
+                    started_at: format(startDate, "yyyy-MM-dd"),
+                    ended_at: format(endDate, "yyyy-MM-dd"),
+                  });
+                  setShowTaskAddModal(true);
+                }}
+                onSelectEvent={(task) => {
+                  setSelectedTask(task);
+                  setShowTaskDetailModal(true);
+                  onSelectTask?.(task);
+                }}
+              />
+            </div>
+          ) : currentView === "day" ? (
+            // 커스텀 일간 뷰
+            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+              {/* 네비게이션 툴바 */}
+              <CalendarNavigation
+                currentDate={currentDate}
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                onViewChange={setCurrentView}
+              />
+              <DayView
+                tasks={filteredTasks}
+                currentDate={currentDate}
+                projectStartedAt={projectStartedAt}
+                projectEndedAt={projectEndedAt}
+                onSelectSlot={(
+                  date: Date,
+                  startHour?: number,
+                  endHour?: number
+                ) => {
+                  // 프로젝트 종료 체크
+                  if (projectEndedAt) {
+                    const today = new Date().toISOString().split("T")[0];
+                    if (today > projectEndedAt) {
+                      showToast("종료된 프로젝트입니다.", "warning");
+                      return;
+                    }
+                  }
+
+                  setSelectedDates({
+                    started_at: format(date, "yyyy-MM-dd"),
+                    ended_at: format(date, "yyyy-MM-dd"),
+                    start_time:
+                      startHour !== undefined
+                        ? `${startHour.toString().padStart(2, "0")}:00`
+                        : undefined,
+                    end_time:
+                      endHour !== undefined
+                        ? `${endHour.toString().padStart(2, "0")}:00`
+                        : undefined,
+                  });
+                  setShowTaskAddModal(true);
+                }}
+                onSelectEvent={(task) => {
+                  setSelectedTask(task);
+                  setShowTaskDetailModal(true);
+                  onSelectTask?.(task);
+                }}
+              />
+            </div>
+          ) : (
+            // 커스텀 일정(Agenda) 뷰
+            <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+              {/* 네비게이션 툴바 */}
+              <CalendarNavigation
+                currentDate={currentDate}
+                currentView={currentView}
+                onNavigate={handleNavigate}
+                onViewChange={setCurrentView}
+              />
+              <AgendaView
+                tasks={filteredTasks}
+                currentDate={currentDate}
+                projectStartedAt={projectStartedAt}
+                projectEndedAt={projectEndedAt}
+                onSelectSlot={(date: Date) => {
+                  // 프로젝트 종료 체크
+                  if (projectEndedAt) {
+                    const today = new Date().toISOString().split("T")[0];
+                    if (today > projectEndedAt) {
+                      showToast("종료된 프로젝트입니다.", "warning");
+                      return;
+                    }
+                  }
+
+                  setSelectedDates({
+                    started_at: format(date, "yyyy-MM-dd"),
+                    ended_at: format(date, "yyyy-MM-dd"),
+                  });
+                  setShowTaskAddModal(true);
+                }}
+                onSelectEvent={(task) => {
+                  setSelectedTask(task);
+                  setShowTaskDetailModal(true);
+                  onSelectTask?.(task);
+                }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 하단: 통계 */}
+        <div className="sm:hidden">
+          <CalendarStats tasks={filteredTasks} compact />
+        </div>
+        <div className="hidden sm:block">
+          <CalendarStats tasks={filteredTasks} />
         </div>
       </div>
 
@@ -484,6 +554,11 @@ export default function CalendarView({
             }}
             initialStartDate={selectedDates.started_at}
             initialEndDate={selectedDates.ended_at}
+            initialStartTime={selectedDates.start_time}
+            initialEndTime={selectedDates.end_time}
+            initialUseTime={
+              !!(selectedDates.start_time || selectedDates.end_time)
+            }
           />
         </Modal>
       )}

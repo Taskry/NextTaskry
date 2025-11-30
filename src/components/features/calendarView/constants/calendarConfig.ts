@@ -29,9 +29,9 @@ export const CALENDAR_MESSAGES = {
  * 역할: 주간/일간 뷰의 시간 범위 및 단위 설정
  */
 export const CALENDAR_TIME_CONFIG = {
-  minTime: new Date(0, 0, 0, 8, 0, 0), // 표시 시작: 오전 8시
-  maxTime: new Date(0, 0, 0, 23, 59, 0), // 표시 종료: 오후 11시 59분
-  scrollToTime: new Date(0, 0, 0, 8, 0, 0), // 초기 스크롤 위치: 오전 8시
+  minTime: new Date(0, 0, 0, 7, 0, 0), // 표시 시작: 오전 7시
+  maxTime: new Date(0, 0, 0, 22, 0, 0), // 표시 종료: 오후 10시
+  scrollToTime: new Date(0, 0, 0, 9, 0, 0), // 초기 스크롤 위치: 오전 9시 (업무 시작)
   step: 15, // 시간 간격: 15분
   timeslots: 4, // 시간당 슬롯 개수: 4개 (15분 × 4)
 };

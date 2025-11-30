@@ -227,11 +227,10 @@ function TimePicker({
           className={`
             w-full h-10 pl-3 pr-10
             border border-gray-300 dark:border-gray-600 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-main-300 dark:focus:ring-main-500 
-            focus:border-main-500
+            input-focus-style
             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
             placeholder:text-gray-400 dark:placeholder:text-gray-500
-            disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed
+            disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60
             text-sm transition-all
           `}
         />

@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 // 메인 기능 컴포넌트들 - 칸반보드, 캘린더, 네비게이션
-import CalendarView from "@/components/features/CalendarView/CalendarView";
+import CalendarView from "@/components/features/calendarView/CalendarView";
 import KanbanBoard from "@/components/features/kanban/KanbanBoard";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
@@ -28,17 +28,13 @@ import { useSession } from "next-auth/react";
 
 // Supabase 실시간 구독 - 다중 사용자 동시 작업 지원
 import { supabase } from "@/lib/supabase/supabase";
-<<<<<<< HEAD
-import MemoView from "@/components/features/kanban/MemoView";
-import { el, ro } from "date-fns/locale";
-import { set } from "date-fns";
-=======
 import { ProjectRole } from "@/types";
->>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
 
 // 메모 기능 컴포넌트 - 실시간 협업 메모
 import MemoView from "@/components/features/kanban/MemoView";
-import { set } from "date-fns";
+
+// 프로젝트 정보 패널
+import ProjectInfoPanel from "@/components/features/project/ProjectInfoPanel";
 
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용
 type NavItem = "calendar" | "kanban" | "memo" | "project";
@@ -60,25 +56,18 @@ export default function ProjectPage() {
 
   const router = useRouter();
 
-<<<<<<< HEAD
-  const [projectName, setProjectName] = useState<string>("");
-  const [kanbanBoardId, setKanbanBoardId] = useState<string>("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [currentView, setCurrentView] = useState<NavItem>("kanban");
-  const [showMemoPanel, setShowMemoPanel] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { data: session } = useSession();
-=======
   // === 핵심 상태 관리 ===
   const [projectId, setProjectId] = useState<string>(""); // sessionStorage에서 가져올 프로젝트 ID
   const [projectName, setProjectName] = useState<string>(""); // 프로젝트 이름 (헤더 표시용)
-  const [kanbanBoardId, setKanbanBoardId] = useState<string>(""); // 칸반보드 ID (실시간 구독용)
+  const [projectStartDate, setProjectStartDate] = useState<string>(""); // 프로젝트 시작일 (D-day 계산용)
+  const [projectEndDate, setProjectEndDate] = useState<string>(""); // 프로젝트 종료일 (D-day 계산용)
+  const [kanbanBoardId, setKanbanBoardId] = useState<string>(""); // 칸반보드 ID (실시간 구독용)h
   const [tasks, setTasks] = useState<Task[]>([]); // 태스크 목록 (실시간 동기화)
->>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
 
   // === UI 상태 관리 ===
   const [currentView, setCurrentView] = useState<NavItem>("kanban"); // 메인 뷰 (칸반/캘린더)
   const [showMemoPanel, setShowMemoPanel] = useState(false); // 메모 패널 토글 상태
+  const [showProjectInfoPanel, setShowProjectInfoPanel] = useState(false); // 프로젝트 정보 패널 토글 상태
   const [loading, setLoading] = useState(true); // 초기 데이터 로딩 상태
 
   // === 권한 관리 ===
@@ -109,9 +98,6 @@ export default function ProjectPage() {
     setProjectId(storedProjectId);
   }, [router]);
 
-<<<<<<< HEAD
-
-=======
   /**
    * 👤 사용자 역할 기반 인가 시스템
    *
@@ -144,15 +130,7 @@ export default function ProjectPage() {
     };
     fetchRole();
   }, [projectId, session?.user?.user_id]);
->>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
 
-  // 프로젝트 정보 state 추가
-  const [project, setProject] = useState<{
-    project_id?: string; // optional
-    project_name: string; // 항상 필요한 값
-    started_at?: string;
-    ended_at?: string;
-  } | null>(null);
   /**
    * 📊 프로젝트 데이터 통합 로딩 + 칸반보드 자동 생성
    *
@@ -173,6 +151,7 @@ export default function ProjectPage() {
       try {
         // projectId 유효성 검사
         if (!projectId || projectId === "undefined" || projectId === "null") {
+          console.warn("⚠️ Invalid projectId:", projectId);
           setLoading(false);
           return;
         }
@@ -182,17 +161,15 @@ export default function ProjectPage() {
 
         if (projectRes.ok) {
           const projectData = await projectRes.json();
-          setProject({
-            project_id: projectData.project_id,
-            project_name: projectData.project_name,
-            started_at: projectData.started_at,
-            ended_at: projectData.ended_at,
-          });
+          setProjectName(projectData.project_name || "이름 없는 프로젝트");
+          setProjectStartDate(projectData.started_at || "");
+          setProjectEndDate(projectData.ended_at || "");
         } else {
-          setProject({
-            project_name: "알 수 없는 프로젝트",
-          });
+          setProjectName("알 수 없는 프로젝트");
+          setProjectStartDate("");
+          setProjectEndDate("");
         }
+
         // 2. 칸반보드 ID 가져오기 (또는 생성) - API Route 사용
         let boardId = null;
 
@@ -216,6 +193,7 @@ export default function ProjectPage() {
              * - 사용자가 처음 워크스페이스 접속 시 자동으로 생성
              * - 표준 워크플로우 강제: todo → inprogress → done
              */
+            console.log("⚠️ 칸반보드가 없어서 새로 생성합니다.");
 
             const createRes = await fetch("/api/kanban/boards", {
               method: "POST",
@@ -274,6 +252,7 @@ export default function ProjectPage() {
    */
   useEffect(() => {
     if (!projectId || !kanbanBoardId) return;
+    console.log("리얼타임 업데이트 설정 실행");
 
     // 칸반보드별 채널 생성 (네임스페이스 분리)
     const channel = supabase
@@ -287,6 +266,8 @@ export default function ProjectPage() {
           filter: `kanban_board_id=eq.${kanbanBoardId}`, // 현재 보드의 태스크만
         },
         (payload) => {
+          console.log("리얼타임 업데이트 수신:", payload.eventType, payload);
+
           if (payload.eventType === "INSERT") {
             const newTaskRaw = payload.new as any;
 
@@ -318,8 +299,10 @@ export default function ProjectPage() {
               setTasks((prev) => {
                 // 🛡️ 중복 추가 방지 (방어적 프로그래밍)
                 if (prev.some((t) => t.id === enrichedTask.id)) {
+                  console.log("이미 존재하는 Task");
                   return prev;
                 }
+                console.log("새로운 Task 추가:", enrichedTask.title);
                 return [...prev, enrichedTask];
               });
             };
@@ -362,13 +345,17 @@ export default function ProjectPage() {
           } else if (payload.eventType === "DELETE") {
             const deletedTask = payload.old as Task;
             setTasks((prev) => prev.filter((t) => t.id !== deletedTask.id));
+            console.log("Task 삭제:", deletedTask.title);
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Supabase 채널 상태:", status);
+      });
 
     // 🧹 컴포넌트 언마운트 시 채널 정리 (메모리 누수 방지)
     return () => {
+      console.log("Supabase 채널 해제");
       supabase.removeChannel(channel);
     };
   }, [projectId, kanbanBoardId]);
@@ -376,10 +363,9 @@ export default function ProjectPage() {
   /**
    * 📝 Task 생성 핸들러
    *
-   * Single Source of Truth 패턴:
-   * - DB 업데이트만 수행
-   * - UI 업데이트는 Realtime 구독을 통해 자동 반영
-   * - 낙관적 업데이트 대신 일관성 우선
+   * 하이브리드 패턴:
+   * - DB 업데이트 후 즉시 로컬 상태 업데이트 (빠른 피드백)
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
@@ -392,8 +378,12 @@ export default function ProjectPage() {
     }
 
     if (data) {
-      // 로컬 상태 업데이트 안 함 - Realtime이 처리
-      // setTasks((prev) => [...prev, data]);
+      // 즉시 로컬 상태 업데이트 (낙관적 업데이트)
+      setTasks((prev) => {
+        // 중복 방지
+        if (prev.some((t) => t.id === data.id)) return prev;
+        return [...prev, data];
+      });
       showToast("작업이 생성되었습니다.", "success");
     }
   };
@@ -401,28 +391,27 @@ export default function ProjectPage() {
   /**
    * ✏️ Task 수정 핸들러
    *
-   * 실시간 동기화 우선 전략:
-   * - 서버 업데이트 후 Realtime 이벤트로 UI 반영
-   * - 동시 편집 시 충돌 방지
-   * - 데이터 정합성 보장
+   * 하이브리드 패턴:
+   * - 서버 업데이트 후 즉시 로컬 상태 반영
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
-    await updateTask(taskId, updates);
+    const { data, error } = await updateTask(taskId, updates);
 
-    // 로컬 상태 업데이트 안 함 - Realtime이 처리
-    // if (result.data) {
-    //   setTasks((prev) =>
-    //     prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-    //   );
-    // }
+    if (!error && data) {
+      // 즉시 로컬 상태 업데이트
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      );
+    }
   };
 
   /**
    * 🗑️ Task 삭제 핸들러
    *
-   * 안전한 삭제 처리:
-   * - 서버에서 삭제 성공 시에만 성공 메시지
-   * - UI는 Realtime DELETE 이벤트로 자동 업데이트
+   * 하이브리드 패턴:
+   * - 서버 삭제 성공 시 즉시 로컬 상태 반영
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleDeleteTask = async (taskId: string) => {
     const { error } = await deleteTask(taskId);
@@ -432,8 +421,8 @@ export default function ProjectPage() {
       return;
     }
 
-    // 로컬 상태 업데이트 안 함 - Realtime이 처리
-    // setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    // 즉시 로컬 상태 업데이트
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
     showToast("작업이 삭제되었습니다.", "success");
   };
 
@@ -488,30 +477,47 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
-      <div className="flex-1 flex overflow-hidden gap-4 min-h-0 p-6">
-        {/* 🖥️ 메인 콘텐츠 영역 - 레스폰시브 레이아웃 */}
-        <div
-          className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
-            showMemoPanel ? "flex-[0.7]" : "flex-1" // 메모 패널 열릴 때 70% 차지
+      <div className="flex-1 flex overflow-hidden gap-2 lg:gap-3 min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+        {/* 📋 프로젝트 정보 패널 - 왼쪽 사이드바 */}
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
+            showProjectInfoPanel
+              ? `w-[240px] lg:w-[280px] ${
+                  showMemoPanel ? "xl:w-[260px]" : "xl:w-[300px]"
+                } opacity-100`
+              : "w-0 opacity-0"
           }`}
         >
+          <ProjectInfoPanel
+            projectId={projectId}
+            projectName={projectName}
+            projectStartDate={projectStartDate}
+            projectEndDate={projectEndDate}
+            tasks={tasks}
+            onClose={() => setShowProjectInfoPanel(false)}
+          />
+        </aside>
+
+        {/* 🖥️ 메인 콘텐츠 영역 */}
+        <main className="flex flex-col overflow-hidden transition-all duration-300 min-h-0 flex-1 min-w-0">
           <div className="flex-1 overflow-hidden min-h-0">
             {/* 📋 칸반보드 뷰 - dnd-kit 드래그앤드롭 */}
             {currentView === "kanban" && (
               <KanbanBoard
-                projectName={project?.project_name || "이름 없는 프로젝트"}
                 boardId={kanbanBoardId}
                 tasks={tasks}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
-<<<<<<< HEAD
-            
-=======
-                userRole={userRole} // 권한 기반 UI 제어
->>>>>>> 08f2782 (feat: 워크스페이스 리얼타임 구독에 담당자 정보 포함)
-                projectId={projectId}
-                project={project}
+                onProjectInfoClick={() =>
+                  setShowProjectInfoPanel((prev) => !prev)
+                }
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
               />
             )}
 
@@ -520,27 +526,37 @@ export default function ProjectPage() {
               <CalendarView
                 tasks={tasks}
                 boardId={kanbanBoardId}
-                project={project}
+                project={{
+                  project_id: projectId,
+                  project_name: projectName,
+                  started_at: projectStartDate,
+                  ended_at: projectEndDate,
+                }}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
                 onSelectTask={() => {}} // 태스크 선택 시 처리 (미구현)
                 onTaskCreated={handleRefresh} // 캘린더에서 생성 후 새로고침
+                onProjectInfoClick={() =>
+                  setShowProjectInfoPanel((prev) => !prev)
+                }
               />
             )}
           </div>
-        </div>
+        </main>
 
-        {/* 📝 메모 패널 - 슬라이드 애니메이션 */}
-        <div
-          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 ${
+        {/* 📝 메모 패널 - 오른쪽 사이드바 */}
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
             showMemoPanel
-              ? "flex-[0.3] opacity-100" // 열린 상태: 30% 차지
-              : "w-0 opacity-0" // 닫힌 상태: 완전히 숨김
+              ? `w-[240px] lg:w-[280px] ${
+                  showProjectInfoPanel ? "xl:w-[260px]" : "xl:w-[300px]"
+                } opacity-100`
+              : "w-0 opacity-0"
           }`}
         >
           <MemoView projectId={projectId} />
-        </div>
+        </aside>
       </div>
 
       {/* 🧭 하단 네비게이션 - 고정 위치 */}
