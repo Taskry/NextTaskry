@@ -156,7 +156,9 @@ export default function NoticeDetail() {
         )}
       </article>
 
-      <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
+      {!isEditing && (
+        <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
+      )}
 
       <NoticeActionButtons
         admin={admin}
