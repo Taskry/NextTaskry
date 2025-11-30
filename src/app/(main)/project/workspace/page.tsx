@@ -359,10 +359,9 @@ export default function ProjectPage() {
   /**
    * 📝 Task 생성 핸들러
    *
-   * Single Source of Truth 패턴:
-   * - DB 업데이트만 수행
-   * - UI 업데이트는 Realtime 구독을 통해 자동 반영
-   * - 낙관적 업데이트 대신 일관성 우선
+   * 하이브리드 패턴:
+   * - DB 업데이트 후 즉시 로컬 상태 업데이트 (빠른 피드백)
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleCreateTask = async (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
@@ -375,8 +374,12 @@ export default function ProjectPage() {
     }
 
     if (data) {
-      // 로컬 상태 업데이트 안 함 - Realtime이 처리
-      // setTasks((prev) => [...prev, data]);
+      // 즉시 로컬 상태 업데이트 (낙관적 업데이트)
+      setTasks((prev) => {
+        // 중복 방지
+        if (prev.some((t) => t.id === data.id)) return prev;
+        return [...prev, data];
+      });
       showToast("작업이 생성되었습니다.", "success");
     }
   };
@@ -384,28 +387,27 @@ export default function ProjectPage() {
   /**
    * ✏️ Task 수정 핸들러
    *
-   * 실시간 동기화 우선 전략:
-   * - 서버 업데이트 후 Realtime 이벤트로 UI 반영
-   * - 동시 편집 시 충돌 방지
-   * - 데이터 정합성 보장
+   * 하이브리드 패턴:
+   * - 서버 업데이트 후 즉시 로컬 상태 반영
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleUpdateTask = async (taskId: string, updates: Partial<Task>) => {
-    await updateTask(taskId, updates);
+    const { data, error } = await updateTask(taskId, updates);
 
-    // 로컬 상태 업데이트 안 함 - Realtime이 처리
-    // if (result.data) {
-    //   setTasks((prev) =>
-    //     prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
-    //   );
-    // }
+    if (!error && data) {
+      // 즉시 로컬 상태 업데이트
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, ...updates } : t))
+      );
+    }
   };
 
   /**
    * 🗑️ Task 삭제 핸들러
    *
-   * 안전한 삭제 처리:
-   * - 서버에서 삭제 성공 시에만 성공 메시지
-   * - UI는 Realtime DELETE 이벤트로 자동 업데이트
+   * 하이브리드 패턴:
+   * - 서버 삭제 성공 시 즉시 로컬 상태 반영
+   * - Realtime은 다른 사용자의 변경사항 동기화용
    */
   const handleDeleteTask = async (taskId: string) => {
     const { error } = await deleteTask(taskId);
@@ -415,8 +417,8 @@ export default function ProjectPage() {
       return;
     }
 
-    // 로컬 상태 업데이트 안 함 - Realtime이 처리
-    // setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    // 즉시 로컬 상태 업데이트
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
     showToast("작업이 삭제되었습니다.", "success");
   };
 
