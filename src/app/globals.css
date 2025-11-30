@@ -161,24 +161,19 @@
    React Calendar (react-calendar)
    ========================================================================== */
 
+/* react-calendar 전체를 투명하게 하고, 외곽은 portal wrapper가 담당 */
 .react-calendar-custom {
-  border: none;
-  font-family: inherit;
-  background-color: var(--background);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-.dark .react-calendar-custom {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3),
-    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
 
 /* 네비게이션 */
 .react-calendar-custom .react-calendar__navigation {
-  background-color: var(--muted);
-  margin-bottom: 0;
+  background: transparent !important;
+  margin-bottom: 4px !important;
   height: 44px;
 }
 
@@ -203,14 +198,14 @@
   font-size: 0.75rem;
   color: var(--muted-foreground);
   padding: 8px 0;
-  background-color: var(--muted);
+  background: transparent !important;
 }
 
 .react-calendar-custom .react-calendar__month-view__weekdays__weekday {
   padding: 0.5em;
 }
 
-/* 일요일/토요일 헤더 - 라이트/다크 공통 */
+/* 일요일/토요일 헤더 색 */
 .react-calendar-custom
   .react-calendar__month-view__weekdays__weekday:first-child
   abbr {
@@ -227,7 +222,7 @@
 .react-calendar-custom .react-calendar__tile {
   max-width: 100%;
   padding: 10px 6px;
-  background: none;
+  background: transparent !important;
   text-align: center;
   line-height: 16px;
   font-size: 0.875rem;
@@ -235,6 +230,7 @@
   transition: all 0.2s ease;
 }
 
+/* 날짜 hover */
 .react-calendar-custom .react-calendar__tile:enabled:hover,
 .react-calendar-custom .react-calendar__tile:enabled:focus {
   background-color: var(--color-main-100);
@@ -250,7 +246,7 @@
   color: var(--color-main-100);
 }
 
-/* 일요일/토요일 날짜 - 라이트/다크 공통 */
+/* 일/토 */
 .react-calendar-custom
   .react-calendar__month-view__days__day:nth-child(7n + 1):not(
     .react-calendar__month-view__days__day--neighboringMonth
@@ -267,16 +263,16 @@
   color: var(--color-blue-100);
 }
 
-/* 오늘 날짜 */
+/* 오늘 */
 .react-calendar-custom .react-calendar__tile--now {
-  background-color: var(--color-main-100);
+  background-color: var(--color-main-100) !important;
   border-radius: 8px;
   font-weight: 700;
   color: var(--color-main-500);
 }
 
 .dark .react-calendar-custom .react-calendar__tile--now {
-  background-color: var(--color-main-500);
+  background-color: var(--color-main-500) !important;
   color: var(--color-main-100);
 }
 
@@ -293,14 +289,14 @@
 
 /* 선택된 날짜 */
 .react-calendar-custom .react-calendar__tile--active {
-  background-color: var(--color-main-400);
-  color: white;
+  background-color: var(--color-main-400) !important;
+  color: #fff !important;
   border-radius: 8px;
   font-weight: 700;
 }
 
 .dark .react-calendar-custom .react-calendar__tile--active {
-  background-color: var(--color-main-300);
+  background-color: var(--color-main-300) !important;
 }
 
 .react-calendar-custom .react-calendar__tile--active:enabled:hover,
@@ -314,22 +310,16 @@
   background-color: var(--color-main-400);
 }
 
-/* 이웃 월 날짜 */
+/* 이웃 월 */
 .react-calendar-custom
   .react-calendar__month-view__days__day--neighboringMonth {
   color: var(--muted-foreground);
-  background-color: var(--muted);
+  background: transparent !important;
 }
 
-.dark
-  .react-calendar-custom
-  .react-calendar__month-view__days__day--neighboringMonth {
-  background-color: var(--card);
-}
-
-/* 비활성화 */
+/* 비활성 날짜 */
 .react-calendar-custom .react-calendar__tile:disabled {
-  background-color: var(--muted);
+  background: transparent !important;
   color: var(--muted-foreground);
 }
 
@@ -627,4 +617,113 @@
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ==========================================================================
+   Modal & Task Form 최적화 CSS
+   ========================================================================== */
+
+/* 모달 스크롤 컨테이너 */
+.modal-scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.modal-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-300);
+  border-radius: 3px;
+}
+
+.dark .modal-scroll-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-600);
+}
+
+.modal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-400);
+}
+
+.dark .modal-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-500);
+}
+
+/* Task Form 레이아웃 */
+.task-form-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 120px);
+}
+
+.task-form-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+}
+
+.task-form-footer {
+  flex-shrink: 0;
+  background: inherit;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+/* 입력 필드 포커스 스타일 통일 */
+.input-focus-style {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-focus-style:focus {
+  outline: none;
+  border-color: var(--color-main-400);
+  box-shadow: 0 0 0 3px rgba(106, 146, 154, 0.15);
+}
+
+.dark .input-focus-style:focus {
+  border-color: var(--color-main-300);
+  box-shadow: 0 0 0 3px rgba(106, 146, 154, 0.25);
+}
+
+/* ==========================================================================
+   캘린더 포탈 컨테이너 (wrapper)
+   ========================================================================== */
+
+.calendar-portal {
+  position: fixed;
+  z-index: 9999;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+}
+
+.calendar-portal .react-calendar-custom {
+  animation: calendar-fade-in 0.15s ease-out;
+}
+
+@keyframes calendar-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
