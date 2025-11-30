@@ -23,9 +23,11 @@ import KanbanLayout from "@/components/layout/KanbanLayout";
 import { showToast } from "@/lib/utils/toast";
 import KanbanHeader from "./components/KanbanHeader";
 import KanbanHelp from "./components/KanbanHelp";
+import KanbanLegend from "./components/KanbanLegend";
 import KanbanFilterComponent, {
   KanbanFilterType,
 } from "./components/KanbanFilter";
+import { useKanbanKeyboard } from "@/hooks/kanban/useKanbanKeyboard";
 
 interface KanbanBoardProps {
   tasks: Task[];
@@ -43,6 +45,7 @@ interface KanbanBoardProps {
   onDeleteTask?: (taskId: string) => void;
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
+  onProjectInfoClick?: () => void;
 }
 
 const KanbanBoard = ({
@@ -54,6 +57,7 @@ const KanbanBoard = ({
   onDeleteTask,
   onSelectTask,
   onTaskCreated,
+  onProjectInfoClick,
 }: KanbanBoardProps) => {
   const projectId = project?.project_id || "";
   const projectName = project?.project_name || "이름 없는 프로젝트";
@@ -78,6 +82,17 @@ const KanbanBoard = ({
     priority: "all",
     assignee: "all",
     date: "all",
+  });
+
+  // 키보드 단축키
+  useKanbanKeyboard({
+    showTaskAddModal,
+    showTaskDetailModal: !!selectedTask,
+    setShowTaskAddModal,
+    setShowTaskDetailModal: (show: boolean) => {
+      if (!show) setSelectedTask(null);
+    },
+    setSelectedTask: () => setSelectedTask(null),
   });
 
   const { data: session, status } = useSession();
@@ -323,52 +338,73 @@ const KanbanBoard = ({
 
   return (
     <KanbanLayout projectId={projectId}>
-      <KanbanHeader
-        projectName={projectName}
-        onAddClick={() => setShowTaskAddModal(true)}
-        onToggleFilter={() => setShowFilter(!showFilter)}
-        onToggleHelp={() => setShowHelp(!showHelp)}
-        showHelp={showHelp}
-        tasksCount={tasks.length}
-        project={project}
-      />
-
-      <KanbanFilterComponent
-        filter={filter}
-        onFilterChange={handleFilterChange}
-        showFilter={showFilter}
-        taskCount={filteredTasks.length}
-        totalCount={tasks.length}
-      />
-
-      {showHelp && <KanbanHelp />}
-
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragCancel={handleDragCancel}
-        modifiers={[]}
-      >
-        <ColumnGrid
-          groupedTasks={groupedTasks}
-          projectId={projectId}
-          onTaskClick={handleTaskClick}
+      {/* 전체 컨테이너 - 캘린더와 동일한 구조 */}
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+        {/* 칸반 헤더 */}
+        <KanbanHeader
+          projectName={projectName}
+          onAddClick={() => setShowTaskAddModal(true)}
+          onToggleFilter={() => setShowFilter(!showFilter)}
+          onToggleHelp={() => setShowHelp(!showHelp)}
+          showHelp={showHelp}
+          tasksCount={tasks.length}
+          project={project}
+          onProjectInfoClick={onProjectInfoClick}
         />
 
-        <DragOverlay dropAnimation={null}>
-          {activeTask && (
-            <div className="transform-none opacity-90">
-              <TaskCard
-                task={activeTask}
-                projectId={projectId}
-                onClick={() => {}}
-                isOverlay
-              />
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+        {/* 도움말 */}
+        {showHelp && <KanbanHelp />}
+
+        {/* 필터 */}
+        {showFilter && (
+          <div className="px-2 sm:px-4">
+            <KanbanFilterComponent
+              filter={filter}
+              onFilterChange={handleFilterChange}
+              showFilter={showFilter}
+              taskCount={filteredTasks.length}
+              totalCount={tasks.length}
+            />
+          </div>
+        )}
+
+        {/* 칸반 본체 */}
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+          modifiers={[]}
+        >
+          <ColumnGrid
+            groupedTasks={groupedTasks}
+            projectId={projectId}
+            onTaskClick={handleTaskClick}
+            isDragging={!!activeTask}
+          />
+
+          <DragOverlay dropAnimation={null}>
+            {activeTask && (
+              <div className="transform-none opacity-90">
+                <TaskCard
+                  task={activeTask}
+                  projectId={projectId}
+                  onClick={() => {}}
+                  isOverlay
+                />
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+
+        {/* 하단: 통계 + 범례 */}
+        <div className="sm:hidden">
+          <KanbanLegend tasks={tasks} compact />
+        </div>
+        <div className="hidden sm:block">
+          <KanbanLegend tasks={tasks} />
+        </div>
+      </div>
 
       {selectedTask && (
         <Modal isOpen onClose={() => setSelectedTask(null)}>
@@ -404,24 +440,31 @@ function ColumnGrid({
   groupedTasks,
   projectId,
   onTaskClick,
+  isDragging,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
   projectId: string;
   onTaskClick: (task: Task) => void;
+  isDragging: boolean;
 }) {
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-      <div className="flex gap-4 h-full min-h-[600px] justify-center min-w-fit px-4 py-4">
-        {KANBAN_COLUMNS.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            id={column.id}
-            title={column.title}
-            tasks={groupedTasks[column.id] || []}
-            projectId={projectId}
-            onTaskClick={onTaskClick}
-          />
-        ))}
+    <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
+      <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
+          <div className="flex gap-2 sm:gap-3 md:gap-4 h-full justify-start sm:justify-center min-w-fit p-2 sm:p-3 md:p-4">
+            {KANBAN_COLUMNS.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                tasks={groupedTasks[column.id] || []}
+                projectId={projectId}
+                onTaskClick={onTaskClick}
+                isDragging={isDragging}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

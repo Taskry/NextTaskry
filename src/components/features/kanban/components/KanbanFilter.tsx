@@ -29,7 +29,7 @@ export default function KanbanFilter({
   if (!showFilter) return null;
 
   return (
-    <div className="mx-4 mb-4 px-5 py-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+    <div className="mt-4 mb-4 px-5 py-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
       <div className="flex flex-col gap-3">
         {/* 우선순위 */}
         <div className="flex items-center gap-4">
