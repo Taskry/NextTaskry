@@ -33,6 +33,9 @@ import { ProjectRole } from "@/types";
 // 메모 기능 컴포넌트 - 실시간 협업 메모
 import MemoView from "@/components/features/kanban/MemoView";
 
+// 프로젝트 정보 패널
+import ProjectInfoPanel from "@/components/features/project/ProjectInfoPanel";
+
 // 네비게이션 타입 정의 - 하단 탭 네비게이션용
 type NavItem = "calendar" | "kanban" | "memo" | "project";
 
@@ -64,6 +67,7 @@ export default function ProjectPage() {
   // === UI 상태 관리 ===
   const [currentView, setCurrentView] = useState<NavItem>("kanban"); // 메인 뷰 (칸반/캘린더)
   const [showMemoPanel, setShowMemoPanel] = useState(false); // 메모 패널 토글 상태
+  const [showProjectInfoPanel, setShowProjectInfoPanel] = useState(false); // 프로젝트 정보 패널 토글 상태
   const [loading, setLoading] = useState(true); // 초기 데이터 로딩 상태
 
   // === 권한 관리 ===
@@ -473,25 +477,41 @@ export default function ProjectPage() {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pt-14">
-      <div className="flex-1 flex overflow-hidden gap-4 min-h-0 p-6">
-        {/* 🖥️ 메인 콘텐츠 영역 - 레스폰시브 레이아웃 */}
-        <div
-          className={`flex flex-col overflow-hidden transition-all duration-300 min-h-0 ${
-            showMemoPanel ? "flex-[0.7]" : "flex-1" // 메모 패널 열릴 때 70% 차지
+      <div className="flex-1 flex overflow-hidden gap-2 lg:gap-3 min-h-0 p-3 sm:p-4 lg:p-5 max-w-[1600px] mx-auto w-full">
+        {/* 📋 프로젝트 정보 패널 - 왼쪽 사이드바 */}
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
+            showProjectInfoPanel
+              ? `w-[240px] lg:w-[280px] ${
+                  showMemoPanel ? "xl:w-[260px]" : "xl:w-[300px]"
+                } opacity-100`
+              : "w-0 opacity-0"
           }`}
         >
+          <ProjectInfoPanel
+            projectId={projectId}
+            projectName={projectName}
+            projectStartDate={projectStartDate}
+            projectEndDate={projectEndDate}
+            tasks={tasks}
+            onClose={() => setShowProjectInfoPanel(false)}
+          />
+        </aside>
+
+        {/* 🖥️ 메인 콘텐츠 영역 */}
+        <main className="flex flex-col overflow-hidden transition-all duration-300 min-h-0 flex-1 min-w-0">
           <div className="flex-1 overflow-hidden min-h-0">
             {/* 📋 칸반보드 뷰 - dnd-kit 드래그앤드롭 */}
             {currentView === "kanban" && (
               <KanbanBoard
-                projectName={projectName}
                 boardId={kanbanBoardId}
                 tasks={tasks}
                 onCreateTask={handleCreateTask}
                 onUpdateTask={handleUpdateTask}
                 onDeleteTask={handleDeleteTask}
-                userRole={userRole} // 권한 기반 UI 제어
-                projectId={projectId}
+                onProjectInfoClick={() =>
+                  setShowProjectInfoPanel((prev) => !prev)
+                }
                 project={{
                   project_id: projectId,
                   project_name: projectName,
@@ -517,21 +537,26 @@ export default function ProjectPage() {
                 onDeleteTask={handleDeleteTask}
                 onSelectTask={() => {}} // 태스크 선택 시 처리 (미구현)
                 onTaskCreated={handleRefresh} // 캘린더에서 생성 후 새로고침
+                onProjectInfoClick={() =>
+                  setShowProjectInfoPanel((prev) => !prev)
+                }
               />
             )}
           </div>
-        </div>
+        </main>
 
-        {/* 📝 메모 패널 - 사이드바 방식 */}
-        <div
-          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 ${
+        {/* 📝 메모 패널 - 오른쪽 사이드바 */}
+        <aside
+          className={`flex flex-col transition-all duration-300 overflow-hidden min-h-0 shrink-0 ${
             showMemoPanel
-              ? "flex-[0.3] opacity-100" // 열린 상태: 30% 차지
-              : "w-0 opacity-0" // 닫힌 상태: 완전히 숨김
+              ? `w-[240px] lg:w-[280px] ${
+                  showProjectInfoPanel ? "xl:w-[260px]" : "xl:w-[300px]"
+                } opacity-100`
+              : "w-0 opacity-0"
           }`}
         >
           <MemoView projectId={projectId} />
-        </div>
+        </aside>
       </div>
 
       {/* 🧭 하단 네비게이션 - 고정 위치 */}
