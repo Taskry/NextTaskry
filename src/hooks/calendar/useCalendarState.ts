@@ -29,6 +29,8 @@ export function useCalendarState(props?: UseCalendarStateProps) {
   const [selectedDates, setSelectedDates] = useState<{
     started_at: string;
     ended_at: string;
+    start_time?: string;
+    end_time?: string;
   } | null>(null);
 
   // UI 상태
