@@ -11,7 +11,7 @@ import {
 } from "date-fns";
 import { ko } from "date-fns/locale";
 import { Task } from "@/types/kanban";
-import AgendaEventCard from "./AgendaEventCard";
+import AgendaEventCard from "@/components/features/calendarView/agendaViews/AgendaEventCard";
 
 interface AgendaViewProps {
   tasks: Task[];

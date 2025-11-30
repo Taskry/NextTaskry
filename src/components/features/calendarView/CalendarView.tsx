@@ -52,6 +52,7 @@ interface CalendarViewProps {
   onDeleteTask?: (taskId: string) => void;
   onSelectTask?: (task: Task) => void;
   onTaskCreated?: () => void;
+  onProjectInfoClick?: () => void;
 }
 
 export default function CalendarView({
@@ -63,6 +64,7 @@ export default function CalendarView({
   onDeleteTask,
   onSelectTask,
   onTaskCreated,
+  onProjectInfoClick,
 }: CalendarViewProps) {
   // 프로젝트 정보 추출
   const projectId = project?.project_id || "";
@@ -297,6 +299,7 @@ export default function CalendarView({
           showFilter={showFilter}
           onToggleHelp={() => setShowHelp(!showHelp)}
           onToggleFilter={() => setShowFilter(!showFilter)}
+          onProjectInfoClick={onProjectInfoClick}
           onAddTask={() => {
             const today = new Date();
             setSelectedDates({

@@ -23,6 +23,7 @@ interface CalendarHeaderProps {
   onToggleHelp: () => void;
   onToggleFilter?: () => void;
   onAddTask?: () => void;
+  onProjectInfoClick?: () => void;
 }
 
 export default function CalendarHeader({
@@ -37,6 +38,7 @@ export default function CalendarHeader({
   onToggleHelp,
   onToggleFilter,
   onAddTask,
+  onProjectInfoClick,
 }: CalendarHeaderProps) {
   console.log(projectName);
   // 뷰별 날짜 포맷
@@ -151,11 +153,35 @@ export default function CalendarHeader({
   return (
     <div className="px-3 sm:px-6 py-3 sm:py-4 mb-2 sm:mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 shadow-sm">
       <div className="flex items-center justify-between">
-        {/* 왼쪽: 제목 + 프로젝트 기간 */}
+        {/* 왼쪽: 제목 + 프로젝트 정보 버튼 + 기간 */}
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg sm:text-xl font-bold text-white dark:text-gray-100">
-            {projectName || "캘린더"}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-bold text-white dark:text-gray-100">
+              {projectName || "캘린더"}
+            </h2>
+            {/* 프로젝트 정보 버튼 */}
+            {onProjectInfoClick && (
+              <button
+                onClick={onProjectInfoClick}
+                className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                title="프로젝트 정보"
+              >
+                <svg
+                  className="w-5 h-5 text-white/80 hover:text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
           {/* 프로젝트 기간 & 상태 뱃지 (KanbanHeader와 동일) */}
           {projectPeriod && (
             <div className="flex items-center gap-2 text-xs text-white/80 dark:text-gray-200">
