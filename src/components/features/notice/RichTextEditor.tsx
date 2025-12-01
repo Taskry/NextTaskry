@@ -154,6 +154,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
 
     const ToolbarButton = ({ format, children, shortcut }: any) => (
       <button
+        type="button"
         onClick={() => applyFormat(format)}
         className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
         title={shortcut}
@@ -181,6 +182,7 @@ const RichTextEditor = forwardRef<HTMLTextAreaElement, RichTextEditorProps>(
 
           {/* 프리뷰 토글 */}
           <button
+            type="button"
             onClick={() => setShowPreview(!showPreview)}
             className="text-sm transition-all border border-border rounded-sm px-3 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-100/20"
           >
