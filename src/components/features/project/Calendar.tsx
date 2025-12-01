@@ -55,6 +55,8 @@ export function Calendar22({
             selected={value} // 외부에서 받은 value를 Calendar의 selected 프롭에 전달
             captionLayout="dropdown"
             onSelect={handleSelectDate} // 수정된 핸들러 사용
+            startMonth={new Date(1900, 0)} 
+            endMonth={new Date(2100, 11)} 
           />
         </PopoverContent>
       </Popover>
