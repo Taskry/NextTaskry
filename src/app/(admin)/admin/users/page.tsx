@@ -41,9 +41,10 @@ export default function AdminUsersPage() {
     return matchName && matchRole;
   });
 
-  const rowsPerPage = 10; //한페이지에 몇명을 보여줄지
-  //slice(포함, 불포함) => 새로운 배열 반환
-  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage); //전체유저 / 한페이지보여줄유저
+
+
+  const rowsPerPage = 10; 
+  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage); 
   const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const paginatedUsers = filteredUsers.slice(

@@ -50,25 +50,6 @@ export default function InviteDecisionModal_V2({ invite, onCloseModal }: { invit
   }
 
 
-
-  //service_only 초대는 모달을 띄우지 않고 자동 처리 => 무한 토스트!!!
-  // if (invitation_type === "service_only") {
-  //   handleServiceOnlyAccept();
-  //   return null;
-  // }
-  //렌더링 과정에서 네트워크 요청, 라우팅, localStorage, toast 같은 side-effect를 실행하면 안 됨. 이건 전부 useEffect 안에서 해야 함.
-  /**
-   * 
-   * 4-1. useRef가 여기서 하는 역할
-      useRef는 current라는 값을 가진 객체를 반환하고,
-      이 current는 리렌더링이 되어도 유지됨.
-      하지만 current를 바꿔도 컴포넌트를 리렌더링시키지 않음.
-      즉, “컴포넌트 인스턴스 안에 숨겨진 로컬 변수”처럼 쓸 수 있음.
-  * 
-  * 
-  */
-
-
  /**
    * service_only 자동 수락 처리
    */
