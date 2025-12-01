@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       email,
       project_id,    //프로젝트 초대일때만사용
       project_role, //프로젝트 초대일때만사용
-      invited_by, // 관리자 user_id (프론트에서 보내는 값)
+      invited_by, // 관리자 user_id
     } = body;
 
     //email, 초대타입 필수!
