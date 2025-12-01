@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/shadcn/Skeleton";
 
 export const ProjectCardSkeleton = () => {
   return (
-    <div className="border rounded-lg py-6 px-4 space-y-3">
+    <div className="border rounded-lg py-6 px-4 space-y-2">
       {/* 제목 */}
       <Skeleton className="h-6 w-[70%]" />
 
