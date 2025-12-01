@@ -105,7 +105,7 @@ export default function AdminInviteModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-      <div className="bg-white dark:bg-black rounded-xl p-6 w-[420px]">
+      <div className="bg-white dark:bg-black rounded-xl p-6 w-[600px]">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">유저 초대</h2>

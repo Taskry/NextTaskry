@@ -101,20 +101,23 @@ export async function POST(req: Request) {
 
     
     // 1. 중복 초대 검사 - 초대는 보냈지만 pendding 상태 수락 아직 안한 상태 재초대 불가
-    const query = supabaseAdmin
+    // const query = supabaseAdmin
+    const {data: existingInvite} = await supabaseAdmin
       .from("project_invitation_new")
-      .select("invitation_id, status, invitation_type, project_id")
+      // .select("invitation_id, status, invitation_type, project_id")
+      .select("invitation_id")
       .eq("invited_email", email)
-      .eq("status", "pending");
+      .eq("status", "pending")
+      .maybeSingle();
 
-      //같은 프로젝트에 초대가 된 적이 있는지 중독체크
-    if (invitation_type === "project") {
-      query.eq("project_id", project_id);
-    } else {
-      query.eq("invitation_type", "service_only");
-    } //서비스초대는 프로젝트 체크 필요없음
+    //   //같은 프로젝트에 초대가 된 적이 있는지 중독체크
+    // if (invitation_type === "project") {
+    //   query.eq("project_id", project_id);
+    // } else {
+    //   query.eq("invitation_type", "service_only");
+    // } //서비스초대는 프로젝트 체크 필요없음
 
-    const { data: existingInvite } = await query.maybeSingle();
+    // const { data: existingInvite } = await query.maybeSingle();
 
     if (existingInvite) {
       return NextResponse.json(
