@@ -65,7 +65,7 @@ export default function ProjectBoard() {
       }
 
       if (!data) {
-        setIsLoading(true);
+        setIsLoading(false);
         return;
       }
 
