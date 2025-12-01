@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { Icon } from "@/components/shared/Icon";
 import { useModal } from "@/hooks/useModal";
 import Modal from "@/components/ui/Modal";
+import Button from "@/components/ui/Button";
 
 // 메모 최대 길이 제한
 const MEMO_MAX_LENGTH = 5000;
@@ -453,28 +454,22 @@ const MemoView = ({ projectId }: MemoFormProps) => {
   return (
     <div className="h-full flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       {/* 헤더 */}
-      <div className="flex items-center justify-between px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-t-lg shadow-sm">
-        <h2 className="text-xl font-bold text-white dark:text-gray-100">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 shadow-sm">
+        <h2 className="text-sm font-bold text-white dark:text-gray-100">
           메모
         </h2>
-        <div className="flex items-center gap-3">
-          <div className="text-sm font-medium text-white/90 dark:text-gray-200 text-right">
-            <div>{filteredMemos.length}개</div>
-            {searchTerm && (
-              <div className="text-xs text-white/70 dark:text-gray-300">
-                &quot;{searchTerm}&quot; 검색결과
-              </div>
-            )}
-          </div>
-
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-white/90 dark:text-gray-200">
+            {filteredMemos.length}개
+          </span>
           <button
             onClick={() => setShowFilter(!showFilter)}
-            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-white/20 rounded-md transition-colors"
             title={showFilter ? "필터 닫기" : "필터 열기"}
           >
             <Icon
               type="filter"
-              size={16}
+              size={14}
               className={`text-white transition-transform duration-300 ${
                 showFilter ? "scale-110" : ""
               }`}
@@ -483,121 +478,112 @@ const MemoView = ({ projectId }: MemoFormProps) => {
         </div>
       </div>
 
-      {/* 필터 영역 - 버튼 스타일 */}
-      <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          showFilter ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-        }`}
-      >
-        <div className="mx-4 mb-4 px-4 py-4 border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm space-y-4">
+      {/* 필터 영역 */}
+      {showFilter && (
+        <div className="m-2 p-2.5 border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50 rounded-lg space-y-2.5">
           {/* 작성자 & 고정 필터 */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              표시:
+          <div className="space-y-1">
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">
+              표시
             </span>
-            <button
-              onClick={() => setFilter("all")}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
-                filter === "all"
-                  ? "bg-main-500 text-white shadow-sm"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              전체
-            </button>
-            <button
-              onClick={() => setFilter("mine")}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
-                filter === "mine"
-                  ? "bg-main-500 text-white shadow-sm"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              내 메모만
-            </button>
-            <button
-              onClick={() => setFilter("pinned")}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1 ${
-                filter === "pinned"
-                  ? "bg-main-500 text-white shadow-sm"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M16,12V4H17V2H7V4H8V12L6,14V16H11.2V22H12.8V16H18V14L16,12Z" />
-              </svg>
-              고정됨
-            </button>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setFilter("all")}
+                className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
+                  filter === "all"
+                    ? "bg-main-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                }`}
+              >
+                전체
+              </button>
+              <button
+                onClick={() => setFilter("mine")}
+                className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
+                  filter === "mine"
+                    ? "bg-main-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                }`}
+              >
+                내 메모
+              </button>
+              <button
+                onClick={() => setFilter("pinned")}
+                className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors flex items-center justify-center gap-0.5 ${
+                  filter === "pinned"
+                    ? "bg-main-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                }`}
+              >
+                <Icon type="pin" size={9} />
+                고정
+              </button>
+            </div>
           </div>
 
           {/* 검색 */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              검색:
+          <div className="space-y-1">
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">
+              검색
             </span>
-            <div className="flex-1 relative">
+            <div className="relative">
+              <Icon
+                type="search"
+                size={12}
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
+              />
               <input
                 type="text"
-                placeholder="메모 내용, 작성자 검색..."
+                placeholder="메모, 작성자..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 focus:border-transparent"
+                className="w-full pl-6 pr-6 py-1 text-[11px] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 input-focus-style"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                 >
-                  <svg
-                    className="w-3 h-3 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <Icon type="x" size={10} className="text-gray-400" />
                 </button>
               )}
             </div>
           </div>
 
           {/* 정렬 */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-              정렬:
+          <div className="space-y-1">
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium uppercase">
+              정렬
             </span>
-            <button
-              onClick={() => setSort("newest")}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
-                sort === "newest"
-                  ? "bg-main-500 text-white shadow-sm"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              최신순
-            </button>
-            <button
-              onClick={() => setSort("oldest")}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
-                sort === "oldest"
-                  ? "bg-main-500 text-white shadow-sm"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              오래된순
-            </button>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setSort("newest")}
+                className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
+                  sort === "newest"
+                    ? "bg-main-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                }`}
+              >
+                최신순
+              </button>
+              <button
+                onClick={() => setSort("oldest")}
+                className={`flex-1 px-2 py-1 text-[11px] font-medium rounded transition-colors ${
+                  sort === "oldest"
+                    ? "bg-main-500 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-main-300"
+                }`}
+              >
+                오래된순
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 에러 메시지 */}
       {error && (
-        <div className="mx-4 mb-2 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
+        <div className="mx-2 sm:mx-4 mb-2 px-3 sm:px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg">
           <div className="flex items-center gap-2 text-sm text-red-700 dark:text-red-300">
             <svg
               className="w-4 h-4 shrink-0"
@@ -616,7 +602,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
       )}
 
       {/* 메모 입력 폼 */}
-      <div className="px-4 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="m-2 p-2.5 border-b border-gray-200 dark:border-gray-700">
         <div className="relative">
           <textarea
             value={newMemo}
@@ -626,7 +612,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
             placeholder="메모를 입력하세요..."
             disabled={loadingMemos}
             rows={3}
-            className="w-full p-3 pr-10 border-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg resize-none text-sm focus:outline-none focus:ring-2 focus:ring-main-400 dark:focus:ring-main-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
+            className="w-full p-3 sm:p-4 pr-8 sm:pr-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 rounded-xl resize-none text-sm input-focus-style transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-gray-100 disabled:opacity-50"
           />
           {newMemo && (
             <button
@@ -650,12 +636,12 @@ const MemoView = ({ projectId }: MemoFormProps) => {
             </button>
           )}
         </div>
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-2 sm:gap-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
               {newMemo.length} / {MEMO_MAX_LENGTH}
             </span>
-            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+            <span className="hidden sm:flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
               <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-[10px] border border-gray-300 dark:border-gray-600 font-mono">
                 Ctrl
               </kbd>
@@ -665,57 +651,59 @@ const MemoView = ({ projectId }: MemoFormProps) => {
               </kbd>
             </span>
           </div>
-          <button
+          <Button
             onClick={handleAddMemo}
             disabled={loadingMemos || !newMemo.trim()}
-            className="group relative px-4 py-2 bg-gradient-to-r from-main-400 to-main-500 dark:from-main-500 dark:to-main-600 text-white text-sm rounded-lg font-medium shadow-sm hover:shadow-md active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 overflow-hidden"
+            btnType="form"
+            icon="plus"
+            size={16}
+            className="w-full sm:w-auto"
           >
-            <span className="relative z-10 flex items-center justify-center">
-              {loadingMemos ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-              ) : (
-                "추가"
-              )}
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-main-500 to-main-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
+            {loadingMemos ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            ) : (
+              "추가"
+            )}
+          </Button>
         </div>
       </div>
 
       {/* 메모 목록 */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-2 space-y-3">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-main-400"></div>
           </div>
         ) : filteredMemos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <svg
-              className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 mb-4 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-amber-400 dark:text-amber-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
               {searchTerm
                 ? `"${searchTerm}"에 대한 검색 결과가 없습니다`
                 : filter === "mine"
                 ? "작성한 메모가 없습니다"
                 : filter === "pinned"
                 ? "고정된 메모가 없습니다"
-                : "메모가 없습니다"}
+                : "첫 번째 메모를 작성해보세요!"}
             </p>
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="text-xs text-main-500 dark:text-main-400 hover:underline mt-2"
+                className="mt-3 px-4 py-2 text-xs font-medium text-main-600 dark:text-main-400 bg-main-50 dark:bg-main-900/30 hover:bg-main-100 dark:hover:bg-main-900/50 rounded-lg transition-colors"
               >
                 검색어 지우기
               </button>
@@ -726,7 +714,11 @@ const MemoView = ({ projectId }: MemoFormProps) => {
             {filteredMemos.map((memo) => (
               <div
                 key={memo.memo_id}
-                className="group relative bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-700/50 p-3 hover:shadow-md transition-all group"
+                className={`group relative rounded-xl p-3 sm:p-4 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+                  memo.is_pinned
+                    ? "bg-main-50 dark:bg-main-900/30 border-2 border-main-200 dark:border-main-700/50"
+                    : "bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50"
+                }`}
               >
                 {/* 상단: 날짜 + 버튼들 */}
                 <div className="flex items-center justify-between mb-3">
@@ -736,10 +728,10 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                       onClick={() =>
                         handleTogglePin(memo.memo_id, memo.is_pinned)
                       }
-                      className={`p-1.5 rounded-lg transition-all ${
+                      className={`p-2 rounded-lg transition-all ${
                         memo.is_pinned
                           ? "text-main-500 dark:text-main-400 bg-main-50 dark:bg-main-900/30"
-                          : "text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                          : "text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-800"
                       }`}
                       title={memo.is_pinned ? "고정 해제" : "고정"}
                     >
@@ -782,7 +774,7 @@ const MemoView = ({ projectId }: MemoFormProps) => {
                   {isAuthor(memo.user_id) && (
                     <button
                       onClick={() => handleDeleteMemo(memo.memo_id)}
-                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                      className="p-2 rounded-lg text-gray-400 dark:text-gray-500 sm:opacity-0 sm:group-hover:opacity-100 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                       title="삭제"
                     >
                       <svg
@@ -831,13 +823,23 @@ const MemoView = ({ projectId }: MemoFormProps) => {
 
             {/* 더보기 버튼 */}
             {hasMore && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center pt-4 pb-2">
                 <button
                   onClick={loadMoreMemos}
                   disabled={isLoading}
-                  className="px-4 py-2 text-sm text-main-600 dark:text-main-400 hover:bg-main-50 dark:hover:bg-main-900/20 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-main-600 dark:text-main-400 bg-main-50 dark:bg-main-900/30 hover:bg-main-100 dark:hover:bg-main-900/50 border border-main-200 dark:border-main-700/50 rounded-xl transition-all disabled:opacity-50"
                 >
-                  {isLoading ? "로딩 중..." : "더보기"}
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-main-500 border-t-transparent"></div>
+                      로딩 중...
+                    </>
+                  ) : (
+                    <>
+                      <Icon type="chevronDown" size={16} />
+                      더보기
+                    </>
+                  )}
                 </button>
               </div>
             )}

@@ -1,18 +1,21 @@
 "use client";
 
-import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { showToast } from "@/lib/utils/toast";
 import { Icon } from "@/components/shared/Icon";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import ProfileModal from "@/app/(auth)/login/components/ProfileModal";
-import { useSession } from "next-auth/react";
-import { showToast } from "@/lib/utils/toast";
+import Button from "@/components/ui/Button";
+import { isAdmin } from "@/lib/utils/auth";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: session } = useSession();
+  const admin = isAdmin(session);
 
   useEffect(() => {
     setMounted(true);
@@ -31,10 +34,10 @@ export function Header() {
       <header
         className="
       fixed top-0 left-0 right-0 z-50 
-      w-full h-14 
+      w-full py-3 
       border-b border-border 
       flex items-center justify-between 
-      px-6 
+      
       bg-bakground backdrop-blur-md"
       >
         <div className="w-full max-w-[1280px] px-10 mx-auto flex justify-between">
@@ -48,20 +51,39 @@ export function Header() {
           </Link>
 
           <div className="flex items-center gap-4">
-            <button
+            <Button
+              btnType="icon"
+              icon="userCircle"
+              size={20}
+              className="w-10 h-10"
               onClick={handleLoginModal}
-              className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:border-main-500 transition"
-            >
-              <Icon
-                type="userCircle"
-                size={20}
-                className="text-gray-600 dark:text-gray-300"
-              />
-            </button>
+            ></Button>
 
-            <button
+            <Link href="/notice">
+              <Button
+                btnType="icon"
+                icon="speakerphone"
+                size={20}
+                className="w-10 h-10"
+              ></Button>
+            </Link>
+
+            {admin && (
+              <Link href="/admin?tabs=users">
+                <Button
+                  btnType="icon"
+                  icon="crown"
+                  size={20}
+                  className="w-10 h-10"
+                ></Button>
+              </Link>
+            )}
+
+            <Button
+              btnType="icon"
+              size={20}
+              className="w-10 h-10"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:border-main-500 transition"
             >
               {!mounted ? (
                 <Icon
@@ -82,17 +104,7 @@ export function Header() {
                   className="text-gray-600 dark:text-gray-300"
                 />
               )}
-            </button>
-
-            <button className="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:border-main-500 transition">
-              <Link href="/notice">
-                <Icon
-                  type="speakerphone"
-                  size={20}
-                  className="text-gray-600 dark:text-gray-300"
-                />
-              </Link>
-            </button>
+            </Button>
           </div>
         </div>
       </header>

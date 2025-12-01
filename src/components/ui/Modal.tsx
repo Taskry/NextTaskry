@@ -148,7 +148,7 @@ export default function Modal({
             )}
             {config?.buttonConfirmText && (
               <Button
-                btnType="form"
+                btnType="basic"
                 variant="warning"
                 onClick={onConfirm}
                 disabled={buttonDisabled ?? config.buttonDisabled}

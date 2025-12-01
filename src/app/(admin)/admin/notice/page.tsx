@@ -10,7 +10,8 @@ import { showToast } from "@/lib/utils/toast";
 import { Notice } from "@/types/notice";
 import { formatDate } from "@/lib/utils/utils";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
-import { useNoticeDelete } from "@/hooks/useNoticeDelete";
+import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
+import CommonPagination from "@/components/ui/CommonPagination";
 
 export default function AdminNoticesPage() {
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -111,14 +112,14 @@ export default function AdminNoticesPage() {
                       btnType="icon"
                       icon="edit"
                       size={16}
-                      variant="basic"
+                      variant="primary"
                     />
                   </Link>
                   <Button
                     btnType="icon"
                     icon="trash"
                     size={16}
-                    variant="basic"
+                    variant="warning"
                     onClick={() => handleDelete(notice.announcement_id)}
                   />
                 </div>
@@ -127,7 +128,7 @@ export default function AdminNoticesPage() {
           ))}
 
           {/* 페이지네이션 */}
-          <NoticePagination
+          <CommonPagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}

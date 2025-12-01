@@ -6,13 +6,13 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { updateNotice } from "@/lib/api/notices";
 import { SectionHeader } from "@/components/shared/SectionHeader";
 import { showToast } from "@/lib/utils/toast";
-import { useNoticeDetail } from "@/hooks/useNoticeDetail";
+import { useNoticeDetail } from "@/hooks/notice/useNoticeDetail";
 import { NoticeViewMode } from "@/components/features/notice/NoticeViewMode";
-import { NoticeEditMode } from "@/components/features/notice/NoticeEditMode";
+import { NoticeForm } from "@/components/features/notice/NoticeForm";
 import { NoticeNavigation } from "@/components/features/notice/NoticeNavigation";
 import { NoticeActionButtons } from "@/components/features/notice/NoticeActionButtons";
-import { useNoticeDelete } from "@/hooks/useNoticeDelete";
-import { NoticeEditState } from "@/types/notice";
+import { useNoticeDelete } from "@/hooks/notice/useNoticeDelete";
+import { useNoticeForm } from "@/hooks/notice/useNoticeForm";
 import { isAdmin } from "@/lib/utils/auth";
 import { NOTICE_MESSAGES } from "@/lib/constants/notices";
 import Link from "next/link";
@@ -20,9 +20,9 @@ import Container from "@/components/shared/Container";
 import Button from "@/components/ui/Button";
 
 export default function NoticeDetail() {
-  const params = useParams(); // notice/123
+  const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams(); // notice/123?edit=true
+  const searchParams = useSearchParams();
 
   // ------------------ ID 추출 및 타입 안정성 확보
   const { data: session } = useSession();
@@ -31,68 +31,90 @@ export default function NoticeDetail() {
 
   // ------------------ 공지사항 데이터 로드
   const { notice, nextNotice, prevNotice, isLoading, error, reload } =
-    // 게시판 목록에서 -> 상세로 접근하는데, 이때 notice id는 알고 있음?
-    // prop으로 정보를 받으면 되지 않을까? -> 지금은 전체 공지사항 목록 불러다가 아이디를 찾고 있음
-    // -> 찾아보고 수정해볼 것
     useNoticeDetail(noticeId);
 
   // ------------------ 수정 모드 상태 관리
   const [isEditing, setIsEditing] = useState(
     searchParams.get("edit") === "true"
   );
-  const [editState, setEditState] = useState<NoticeEditState>({
-    title: "",
-    content: "",
-    isImportant: false,
-  });
 
-  // ------------------ 공지사항 로드 시 수정 상태 초기화
-  // 251128 기존에 notice가 바뀔 때마다 상태를 업데이트해서 에러린트 발생
-  // -> editState는 수정 모드에서만 사용되므로 수정 모드 진입 시에만 초기화하도록 수정
+  // ------------------ 폼 상태 및 유효성 검사(커스텀 훅 사용)
+  const {
+    formData,
+    errors,
+    validateForm,
+    handleTitleChange,
+    handleContentChange,
+    handleImportantChange,
+    resetForm,
+  } = useNoticeForm();
+
+  // ------------------ formData 초기화 플래그(한 번만 초기화하기 위함)
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // ------------------ notice 데이터가 처음 로드되었을 때만 formData 초기화
+  // 조건: 공지사항이 존재하고, 수정 모드이고, 아직 초기화가 안 됐을 때
+  if (notice && isEditing && !isInitialized) {
+    resetForm({
+      title: notice.title,
+      content: notice.content,
+      isImportant: notice.is_important,
+    });
+    setIsInitialized(true);
+  }
+
+  // ------------------ 수정 모드 진입
   const handleEdit = useCallback(() => {
     if (notice) {
-      setEditState({
+      resetForm({
         title: notice.title,
         content: notice.content,
         isImportant: notice.is_important,
       });
     }
     setIsEditing(true);
-  }, [notice]);
+  }, [notice, resetForm]);
 
+  // ------------------ 수정 취소
   const handleCancel = useCallback(() => {
-    setIsEditing(false);
+    setIsEditing(false); // 조회 모드로 전환
+    setIsInitialized(false); // 초기화 플래그 리셋
     if (notice) {
-      setEditState({
+      resetForm({
         title: notice.title,
         content: notice.content,
         isImportant: notice.is_important,
       });
     }
-  }, [notice]);
-  // ------------------ END 공지사항 로드 시 수정 상태 초기화
+  }, [notice, resetForm]);
 
   // ------------------ 수정 시 저장 핸들러
   const handleSave = useCallback(async () => {
     if (!notice) return;
 
+    // 유효성 검사(제목/내용 필수, 제목 길이 제한)
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       await updateNotice(notice.announcement_id, {
-        title: editState.title,
-        content: editState.content,
-        is_important: editState.isImportant,
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        is_important: formData.isImportant,
       });
       showToast(NOTICE_MESSAGES.UPDATE_SUCCESS, "success");
       setIsEditing(false);
+      setIsInitialized(false); // 저장 후 초기화 플래그 리셋
       await reload();
       router.refresh();
     } catch (error) {
       console.error("수정 오류:", error);
       showToast(NOTICE_MESSAGES.UPDATE_ERROR, "error");
     }
-  }, [notice, editState, reload, router]);
+  }, [notice, formData, validateForm, reload, router]);
 
-  // 251128 기존 삭제 핸들러 작성 -> hooks로 따로 빼서 호출
+  // ------------------ 삭제 핸들러
   const handleDelete = useNoticeDelete({
     redirectTo: "/notice",
   });
@@ -125,29 +147,29 @@ export default function NoticeDetail() {
       <SectionHeader
         title="공지사항"
         description="공지사항을 안내합니다."
-        className="mb-10 "
+        className="mb-10"
       />
 
       <article className="mx-auto">
         {isEditing ? (
-          <NoticeEditMode
-            editState={editState}
-            onTitleChange={(title) =>
-              setEditState((prev) => ({ ...prev, title }))
-            }
-            onContentChange={(content) =>
-              setEditState((prev) => ({ ...prev, content }))
-            }
-            onImportantChange={(isImportant) =>
-              setEditState((prev) => ({ ...prev, isImportant }))
-            }
+          // 수정 모드
+          <NoticeForm
+            formData={formData}
+            errors={errors}
+            onTitleChange={handleTitleChange}
+            onContentChange={handleContentChange}
+            onImportantChange={handleImportantChange}
+            mode="edit"
           />
         ) : (
+          // 조회 모드: 상세 내용 확인
           <NoticeViewMode notice={notice} />
         )}
       </article>
 
-      <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
+      {!isEditing && (
+        <NoticeNavigation nextNotice={nextNotice} prevNotice={prevNotice} />
+      )}
 
       <NoticeActionButtons
         admin={admin}

@@ -39,12 +39,12 @@ export default function KanbanLayout({
 
   return (
     <KanbanLayoutContext.Provider value={{ showMemoPanel, toggleMemoPanel }}>
-      <div className="flex h-full w-full overflow-hidden gap-4">
+      <div className="flex h-full w-full overflow-hidden gap-2 md:gap-4">
         {/* 칸반 영역 */}
         <main
           className={`
             h-full flex flex-col transition-all duration-300 min-w-0
-            ${showMemoPanel ? "flex-[0.7]" : "flex-1"}
+            ${showMemoPanel ? "flex-1 lg:flex-[0.65] xl:flex-[0.7]" : "flex-1"}
           `}
         >
           {children}
@@ -54,7 +54,11 @@ export default function KanbanLayout({
         <aside
           className={`
             h-full transition-all duration-300 overflow-hidden
-            ${showMemoPanel ? "flex-[0.3] opacity-100" : "w-0 opacity-0"}
+            ${
+              showMemoPanel
+                ? "w-[280px] sm:w-[320px] md:w-[360px] lg:flex-[0.35] xl:flex-[0.3] min-w-[280px] max-w-[400px] lg:max-w-none opacity-100"
+                : "w-0 opacity-0"
+            }
           `}
         >
           {showMemoPanel && <MemoView projectId={projectId} />}

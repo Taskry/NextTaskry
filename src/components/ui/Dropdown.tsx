@@ -86,7 +86,7 @@ export default function DropdownToggle({
       {isOpen && (
         <ul
           role="menu"
-          className={`border rounded-sm py-3 w-40 absolute top-12 bg-white ${primaryBorderColor.Color2[0]}`}
+          className={`border rounded-sm py-3 w-40 absolute top-12 bg-white dark:bg-gray-800 ${primaryBorderColor.Color2[0]}`}
         >
           {getOptions?.map((option) => {
             const isSelected = option.value === currentValue;
@@ -95,7 +95,7 @@ export default function DropdownToggle({
               <li
                 key={option.value}
                 role="menuitem"
-                className="hover:bg-gray-100"
+                className="hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => listItemActive()}
               >
                 <button

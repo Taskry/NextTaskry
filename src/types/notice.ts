@@ -40,23 +40,6 @@ export interface NoticePaginationProps {
 }
 
 // ------------------------------------------------------
-// 수정 타입
-// ------------------------------------------------------
-
-export interface NoticeEditState {
-  title: string;
-  content: string;
-  isImportant: boolean;
-}
-
-export interface NoticeEditModeProps {
-  editState: NoticeEditState;
-  onTitleChange: (title: string) => void;
-  onContentChange: (content: string) => void;
-  onImportantChange: (isImportant: boolean) => void;
-}
-
-// ------------------------------------------------------
 // 공지사항 수정, 삭제, 저장 버튼 타입
 // ------------------------------------------------------
 
@@ -100,8 +83,27 @@ export interface NoticeListProps {
 // ------------------------------------------------------
 // 공지사항 삭제 타입
 // ------------------------------------------------------
-
 export interface UseNoticeDeleteProps {
   onSuccess?: () => void | Promise<void>;
   redirectTo?: string;
+}
+
+// ------------------------------------------------------
+// 공지사항 폼 타입
+// ------------------------------------------------------
+export interface NoticeFormData {
+  title: string;
+  content: string;
+  isImportant: boolean;
+}
+export interface NoticeFormProps {
+  formData: NoticeFormData;
+  errors: {
+    title: string;
+    content: string;
+  };
+  onTitleChange: (title: string) => void;
+  onContentChange: (content: string) => void;
+  onImportantChange: (isImportant: boolean) => void;
+  mode?: "create" | "edit";
 }

@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { format } from "date-fns";
 import {
   DndContext,
   DragEndEvent,
@@ -11,41 +13,100 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { KANBAN_COLUMNS } from "@/lib/constants";
-import {  Task, TaskStatus } from "@/types";
+import { Task, TaskStatus } from "@/types";
 import KanbanColumn from "@/components/features/kanban/KanbanColumn";
+import TaskCard from "@/components/features/task/card/TaskCard";
 import Modal from "@/components/ui/Modal";
 import TaskDetail from "@/components/features/task/detail/TaskDetail";
 import TaskAdd from "@/components/features/task/add/TaskAdd";
 import KanbanLayout from "@/components/layout/KanbanLayout";
+import { showToast } from "@/lib/utils/toast";
+import KanbanHeader from "./components/KanbanHeader";
+import KanbanHelp from "./components/KanbanHelp";
+import KanbanLegend from "./components/KanbanLegend";
+import KanbanFilterComponent, {
+  KanbanFilterType,
+} from "./components/KanbanFilter";
+import { useKanbanKeyboard } from "@/hooks/kanban/useKanbanKeyboard";
 
 interface KanbanBoardProps {
-  projectName: string;
-  boardId: string;
   tasks: Task[];
-  onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
-  onDeleteTask: (taskId: string) => void;
-  onCreateTask: (
+  boardId: string;
+  project?: {
+    project_id?: string;
+    project_name: string;
+    started_at?: string;
+    ended_at?: string;
+  } | null;
+  onCreateTask?: (
     taskData: Omit<Task, "id" | "created_at" | "updated_at">
   ) => void;
-  
-  projectId: string;
+  onUpdateTask?: (taskId: string, updates: Partial<Task>) => void;
+  onDeleteTask?: (taskId: string) => void;
+  onSelectTask?: (task: Task) => void;
+  onTaskCreated?: () => void;
+  onProjectInfoClick?: () => void;
 }
 
 const KanbanBoard = ({
-  projectName,
+  tasks = [],
   boardId,
-  tasks,
+  project,
+  onCreateTask,
   onUpdateTask,
   onDeleteTask,
-  onCreateTask,
-
-  projectId,
+  onSelectTask,
+  onTaskCreated,
+  onProjectInfoClick,
 }: KanbanBoardProps) => {
+  const projectId = project?.project_id || "";
+  const projectName = project?.project_name || "이름 없는 프로젝트";
+  const projectStartedAt = project?.started_at;
+  const projectEndedAt = project?.ended_at;
+
+  console.log("KanbanBoard - Project Info:", {
+    project,
+    projectName,
+    projectStartedAt,
+    projectEndedAt,
+    boardId,
+    projectId,
+  });
+
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskAddModal, setShowTaskAddModal] = useState(false);
-  const [activeTask, setActiveTask] = useState<Task | null>(null); // 드래그 중인 Task
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [showFilter, setShowFilter] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [filter, setFilter] = useState<KanbanFilterType>({
+    priority: "all",
+    assignee: "all",
+    date: "all",
+  });
 
-  // 센서 설정: 8px 이상 움직여야 드래그 시작 (클릭과 구분)
+  // 키보드 단축키
+  useKanbanKeyboard({
+    showTaskAddModal,
+    showTaskDetailModal: !!selectedTask,
+    setShowTaskAddModal,
+    setShowTaskDetailModal: (show: boolean) => {
+      if (!show) setSelectedTask(null);
+    },
+    setSelectedTask: () => setSelectedTask(null),
+  });
+
+  const { data: session, status } = useSession();
+
+  const isOutsideProjectRange = useCallback(
+    (date: Date) => {
+      if (!projectStartedAt || !projectEndedAt) return false;
+
+      const dateStr = format(date, "yyyy-MM-dd");
+      return dateStr < projectStartedAt || dateStr > projectEndedAt;
+    },
+    [projectStartedAt, projectEndedAt]
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -54,130 +115,304 @@ const KanbanBoard = ({
     })
   );
 
-  // 상태별로 Task 그룹핑
+  const filteredTasks = useMemo(() => {
+    if (status === "loading") {
+      return [];
+    }
+
+    if (filter.assignee === "me") {
+      console.log("내 작업 필터 활성화");
+      console.log("세션 상태:", status);
+      console.log("현재 사용자 ID:", session?.user?.user_id);
+      console.log(
+        "전체 태스크:",
+        tasks.map((t) => ({
+          id: t.id,
+          title: t.title,
+          assigned_user_id: t.assigned_user_id,
+        }))
+      );
+    }
+
+    return tasks.filter((task) => {
+      if (filter.priority !== "all" && task.priority !== filter.priority) {
+        return false;
+      }
+
+      if (filter.assignee !== "all") {
+        if (filter.assignee === "assigned" && !task.assigned_user_id) {
+          return false;
+        }
+        if (filter.assignee === "unassigned" && task.assigned_user_id) {
+          return false;
+        }
+        if (filter.assignee === "me") {
+          const currentUserId = session?.user?.user_id;
+          const taskUserId = task.assigned_user_id;
+
+          console.log(
+            `태스크 '${task.title}' 체크 - 할당된 사용자: ${taskUserId}, 현재 사용자: ${currentUserId}`
+          );
+          console.log("타입 체크:", typeof taskUserId, typeof currentUserId);
+
+          const taskUserIdStr = taskUserId ? String(taskUserId) : null;
+          const currentUserIdStr = currentUserId ? String(currentUserId) : null;
+
+          if (!taskUserIdStr || taskUserIdStr !== currentUserIdStr) {
+            return false;
+          }
+        }
+      }
+
+      if (filter.date !== "all") {
+        const now = new Date();
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+
+        if (filter.date === "today") {
+          if (!task.ended_at) return false;
+
+          const taskDate = task.ended_at.includes("T")
+            ? new Date(task.ended_at)
+            : new Date(task.ended_at + "T00:00:00");
+
+          const taskDateOnly = new Date(
+            taskDate.getFullYear(),
+            taskDate.getMonth(),
+            taskDate.getDate()
+          );
+
+          if (taskDateOnly.getTime() !== today.getTime()) {
+            return false;
+          }
+        } else if (filter.date === "thisWeek") {
+          if (!task.ended_at) return false;
+
+          const weekStart = new Date(today);
+          weekStart.setDate(today.getDate() - today.getDay());
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+
+          const taskDate = task.ended_at.includes("T")
+            ? new Date(task.ended_at)
+            : new Date(task.ended_at + "T00:00:00");
+
+          const taskDateOnly = new Date(
+            taskDate.getFullYear(),
+            taskDate.getMonth(),
+            taskDate.getDate()
+          );
+
+          if (taskDateOnly < weekStart || taskDateOnly > weekEnd) {
+            return false;
+          }
+        } else if (filter.date === "overdue") {
+          if (!task.ended_at || task.status === "done") return false;
+
+          const taskDate = task.ended_at.includes("T")
+            ? new Date(task.ended_at)
+            : new Date(task.ended_at + "T00:00:00");
+
+          const taskDateOnly = new Date(
+            taskDate.getFullYear(),
+            taskDate.getMonth(),
+            taskDate.getDate()
+          );
+
+          if (taskDateOnly >= today) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  }, [tasks, filter, session, status]);
+
   const groupedTasks = KANBAN_COLUMNS.reduce((acc, column) => {
-    acc[column.id] = tasks.filter((task) => task.status === column.id);
+    const columnTasks = filteredTasks.filter(
+      (task) => task.status === column.id
+    );
+    acc[column.id] = columnTasks;
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
-  // 드래그 시작할 때
-  const handleDragStart = (event: DragStartEvent) => {
-    const taskId = event.active.id as string;
-    const task = tasks.find((t) => t.id === taskId);
-    setActiveTask(task || null);
-  };
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const taskId = event.active.id as string;
+      const task = tasks.find((t) => t.id === taskId);
+      setActiveTask(task || null);
+    },
+    [tasks]
+  );
 
-  // 드래그 끝날 때 (상태 업데이트)
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-    // 드롭 영역이 없으면 취소
-    if (!over) {
-      setActiveTask(null);
-      return;
-    }
-
-    const taskId = active.id as string;
-
-    // over.id가 컬럼 id인지 Task id인지 구분
-    let newStatus: TaskStatus;
-
-    // KANBAN_COLUMNS에 있는 id면 컬럼
-    const isColumn = KANBAN_COLUMNS.some((col) => col.id === over.id);
-
-    if (isColumn) {
-      // 컬럼에 드롭한 경우
-      newStatus = over.id as TaskStatus;
-    } else {
-      // Task에 드롭한 경우 - 그 Task가 속한 컬럼 찾기
-      const targetTask = tasks.find((t) => t.id === over.id);
-      if (!targetTask) {
+      if (!over) {
         setActiveTask(null);
         return;
       }
-      newStatus = targetTask.status;
-    }
 
-    // Task 찾기
-    const task = tasks.find((t) => t.id === taskId);
+      if (isOutsideProjectRange(new Date())) {
+        showToast(
+          projectEndedAt &&
+            new Date().toISOString().split("T")[0] > projectEndedAt
+            ? "종료된 프로젝트입니다."
+            : "아직 시작되지 않은 프로젝트입니다.",
+          "warning"
+        );
+        setActiveTask(null);
+        return;
+      }
 
-    if (task && task.status !== newStatus) {
-      // ✅ taskId와 updates를 분리해서 전달
-      onUpdateTask(task.id, { status: newStatus });
-    }
+      const taskId = active.id as string;
+      let newStatus: TaskStatus;
 
+      const isColumn = KANBAN_COLUMNS.some((col) => col.id === over.id);
+
+      if (isColumn) {
+        newStatus = over.id as TaskStatus;
+      } else {
+        const targetTask = tasks.find((t) => t.id === over.id);
+        if (!targetTask) {
+          setActiveTask(null);
+          return;
+        }
+        newStatus = targetTask.status;
+      }
+
+      const task = tasks.find((t) => t.id === taskId);
+
+      if (task && task.status !== newStatus) {
+        onUpdateTask?.(task.id, { status: newStatus });
+      }
+
+      setActiveTask(null);
+    },
+    [tasks, onUpdateTask, projectEndedAt, isOutsideProjectRange]
+  );
+
+  const handleDragCancel = useCallback(() => {
     setActiveTask(null);
+  }, []);
+
+  const handleFilterChange = (key: keyof KanbanFilterType, value: string) => {
+    setFilter((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
-  // Task 생성 핸들러
-  const handleCreateTask = (
-    taskData: Omit<Task, "id" | "created_at" | "updated_at">
-  ) => {
-    onCreateTask(taskData);
-    setShowTaskAddModal(false);
-  };
+  const handleTaskAddSuccess = useCallback(
+    (taskData: Omit<Task, "id" | "created_at" | "updated_at">) => {
+      onCreateTask?.(taskData);
+      onTaskCreated?.();
+      setShowTaskAddModal(false);
+    },
+    [onCreateTask, onTaskCreated, setShowTaskAddModal]
+  );
 
-  // Task 수정 핸들러
   const handleUpdateTask = (taskId: string, updates: Partial<Task>) => {
-    onUpdateTask(taskId, updates);
+    onUpdateTask?.(taskId, updates);
     if (selectedTask?.id === taskId) {
       setSelectedTask({ ...selectedTask, ...updates });
     }
   };
 
-  // Task 삭제 핸들러
   const handleDeleteTask = (taskId: string) => {
-    onDeleteTask(taskId);
+    onDeleteTask?.(taskId);
     if (selectedTask?.id === taskId) {
       setSelectedTask(null);
     }
   };
 
+  const handleTaskClick = (task: Task) => {
+    setSelectedTask(task);
+    onSelectTask?.(task);
+  };
+
   return (
     <KanbanLayout projectId={projectId}>
-      {/* 헤더 */}
-      <Header
-        projectName={projectName}
-        onAddClick={() => setShowTaskAddModal(true)}
-       
-        projectId={projectId}
-      />
-
-      {/* DndContext로 감싸기 */}
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        {/* 칸반 컬럼 */}
-        <ColumnGrid
-          groupedTasks={groupedTasks}
-          projectId={projectId}
-          onTaskClick={setSelectedTask}
+      {/* 전체 컨테이너 - 캘린더와 동일한 구조 */}
+      <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+        {/* 칸반 헤더 */}
+        <KanbanHeader
+          projectName={projectName}
+          onAddClick={() => setShowTaskAddModal(true)}
+          onToggleFilter={() => setShowFilter(!showFilter)}
+          onToggleHelp={() => setShowHelp(!showHelp)}
+          showHelp={showHelp}
+          tasksCount={tasks.length}
+          project={project}
+          onProjectInfoClick={onProjectInfoClick}
         />
 
-        {/* 드래그 중인 Task 미리보기 (마우스 따라다님) */}
-        <DragOverlay>
-          {activeTask ? (
-            <div className="bg-white dark:bg-gray-700 p-4 rounded-lg shadow-2xl border-2 border-main-300 dark:border-main-400 opacity-95 rotate-2 transform scale-105">
-              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">
-                {activeTask.title}
-              </h3>
-              {activeTask.description && (
-                <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 line-clamp-2">
-                  {activeTask.description}
-                </p>
-              )}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+        {/* 도움말 */}
+        {showHelp && <KanbanHelp />}
 
-      {/* Task 상세 모달 */}
+        {/* 필터 */}
+        {showFilter && (
+          <div className="px-2 sm:px-4">
+            <KanbanFilterComponent
+              filter={filter}
+              onFilterChange={handleFilterChange}
+              showFilter={showFilter}
+              taskCount={filteredTasks.length}
+              totalCount={tasks.length}
+            />
+          </div>
+        )}
+
+        {/* 칸반 본체 */}
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+          modifiers={[]}
+        >
+          <ColumnGrid
+            groupedTasks={groupedTasks}
+            projectId={projectId}
+            onTaskClick={handleTaskClick}
+            isDragging={!!activeTask}
+          />
+
+          <DragOverlay dropAnimation={null}>
+            {activeTask && (
+              <div className="transform-none opacity-90">
+                <TaskCard
+                  task={activeTask}
+                  projectId={projectId}
+                  onClick={() => {}}
+                  isOverlay
+                />
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+
+        {/* 하단: 통계 + 범례 */}
+        <div className="sm:hidden">
+          <KanbanLegend tasks={tasks} compact />
+        </div>
+        <div className="hidden sm:block">
+          <KanbanLegend tasks={tasks} />
+        </div>
+      </div>
+
       {selectedTask && (
         <Modal isOpen onClose={() => setSelectedTask(null)}>
           <TaskDetail
-            task={selectedTask}
+            task={{
+              ...selectedTask,
+              project_id: selectedTask.project_id || projectId,
+            }}
             onUpdate={handleUpdateTask}
             onDelete={handleDeleteTask}
             onClose={() => setSelectedTask(null)}
@@ -185,13 +420,14 @@ const KanbanBoard = ({
         </Modal>
       )}
 
-      {/* Task 추가 모달 */}
       {showTaskAddModal && (
         <Modal isOpen onClose={() => setShowTaskAddModal(false)}>
           <TaskAdd
             boardId={boardId}
             projectId={projectId}
-            onSuccess={handleCreateTask}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
+            onSuccess={handleTaskAddSuccess}
             onCancel={() => setShowTaskAddModal(false)}
           />
         </Modal>
@@ -200,62 +436,35 @@ const KanbanBoard = ({
   );
 };
 
-// 헤더 컴포넌트
-function Header({
-  projectName,
-  onAddClick,
-
-}: {
-  projectName: string;
-  onAddClick: () => void;
- 
-  projectId: string;
-}) {
-
-  return (
-    <div className="flex justify-between items-center px-6 py-4 mb-4 border-b border-gray-200 dark:border-gray-500 bg-main-200 dark:bg-main-600 rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold text-white dark:text-gray-100">
-        {projectName}
-      </h2>
-
-      <div className="flex items-center gap-3">
-        
-        <button
-          onClick={onAddClick}
-          className="px-4 py-2 bg-main-400 dark:bg-main-500 text-white rounded-lg hover:bg-main-500 dark:hover:bg-main-400 active:bg-main-600 dark:active:bg-main-600 transition-all font-medium shadow-sm"
-        >
-          + 새 작업
-        </button>
-      </div>
-
-    
-    </div>
-  );
-}
-
-// 컬럼 그리드 컴포넌트
 function ColumnGrid({
   groupedTasks,
   projectId,
   onTaskClick,
+  isDragging,
 }: {
   groupedTasks: Record<TaskStatus, Task[]>;
   projectId: string;
   onTaskClick: (task: Task) => void;
+  isDragging: boolean;
 }) {
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4">
-      <div className="flex gap-4 h-full min-h-[600px] justify-center-safe">
-        {KANBAN_COLUMNS.map((column) => (
-          <KanbanColumn
-            key={column.id}
-            id={column.id}
-            title={column.title}
-            tasks={groupedTasks[column.id] || []}
-            projectId={projectId}
-            onTaskClick={onTaskClick}
-          />
-        ))}
+    <div className="flex-1 min-h-0 flex flex-col px-2 sm:px-4 py-2 sm:py-3">
+      <div className="h-full flex flex-col rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
+        <div className="flex-1 min-h-0 overflow-x-auto overflow-y-auto">
+          <div className="flex gap-2 sm:gap-3 md:gap-4 h-full justify-start sm:justify-center min-w-fit p-2 sm:p-3 md:p-4">
+            {KANBAN_COLUMNS.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                tasks={groupedTasks[column.id] || []}
+                projectId={projectId}
+                onTaskClick={onTaskClick}
+                isDragging={isDragging}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

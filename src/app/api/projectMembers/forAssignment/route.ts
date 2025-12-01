@@ -50,10 +50,6 @@ export async function GET(request: Request) {
       );
     }
 
-    console.log(
-      `프로젝트 멤버 조회 성공 [${projectId}]: ${members?.length || 0}명`
-    );
-
     return Response.json({
       message: `Task 담당자 프로젝트 멤버[${projectId}] 정보 조회`,
       data: members || [],

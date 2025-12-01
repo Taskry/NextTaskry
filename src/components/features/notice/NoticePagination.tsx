@@ -1,6 +1,15 @@
 "use client";
 
 import { Icon } from "@/components/shared/Icon";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/shadcn/Pagination";
+import { cn } from "@/lib/utils/utils";
 import { NoticePaginationProps } from "@/types/notice";
 
 export default function NoticePagination({
@@ -11,18 +20,28 @@ export default function NoticePagination({
   if (totalPages === 0) return null;
 
   return (
-    <nav className="flex justify-center mt-10">
-      <ul className="inline-flex items-center space-x-2">
+    <Pagination className="mx-auto mt-10">
+      <PaginationContent>
         {/* 이전 */}
-        <li>
-          <button
-            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
+        <PaginationItem>
+          <PaginationPrevious
+            className={cn(
+              "px-2 py-2 border border-border rounded cursor-pointer",
+              currentPage === 1 &&
+                "opacity-40 pointer-events-none cursor-not-allowed"
+            )}
+            onClick={(e) => {
+              if (currentPage === 1) {
+                e.preventDefault();
+                return;
+              }
+              onPageChange(currentPage - 1);
+            }}
+            aria-disabled={currentPage === 1}
           >
             <Icon type="arrowDown" className="rotate-90" size={17} />
-          </button>
-        </li>
+          </PaginationPrevious>
+        </PaginationItem>
 
         {/* 
           페이지 번호
@@ -31,29 +50,38 @@ export default function NoticePagination({
          */}
 
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <li key={page}>
-            <button
-              className={`px-3 py-1 border border-border rounded cursor-pointer ${
-                page === currentPage ? "border-main-200 text-main-200" : ""
-              }`}
+          <PaginationItem key={page}>
+            <PaginationLink
               onClick={() => onPageChange(page)}
+              isActive={page === currentPage}
+              className="cursor-pointer"
             >
               {page}
-            </button>
-          </li>
+            </PaginationLink>
+          </PaginationItem>
         ))}
 
         {/* 다음 */}
-        <li>
-          <button
-            className="px-2 py-2 border border-border rounded disabled:opacity-40 cursor-pointer"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
+        <PaginationItem>
+          <PaginationNext
+            className={cn(
+              "px-2 py-2 border border-border rounded cursor-pointer",
+              currentPage === totalPages &&
+                "opacity-40 pointer-events-none cursor-not-allowed"
+            )}
+            onClick={(e) => {
+              if (currentPage === totalPages) {
+                e.preventDefault();
+                return;
+              }
+              onPageChange(currentPage + 1);
+            }}
+            aria-disabled={currentPage === totalPages}
           >
             <Icon type="arrowDown" className="rotate-270" size={16} />
-          </button>
-        </li>
-      </ul>
-    </nav>
+          </PaginationNext>
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
   );
 }
