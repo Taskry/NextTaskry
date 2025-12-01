@@ -12,8 +12,8 @@ import { useProjectBoard } from "@/providers/ProjectBoardProvider";
 import Container from "@/components/shared/Container";
 import ProjectBoardEmpty from "./ProjectBoardEmpty";
 import ProjectCard from "./ProjectCard";
-import ProjectPagination from "./ProjectPagination";
 import CommonPagination from "@/components/ui/CommonPagination";
+import { ProjectCardSkeleton } from "@/components/ui/ProjectCardSkeleton";
 
 export default function ProjectBoard() {
   const { data: session, status } = useSession();
@@ -42,6 +42,7 @@ export default function ProjectBoard() {
 
         // 참여 중인 프로젝트가 없는 경우 초기화 후 리턴
         if (!memberData || memberData.length === 0) {
+          setIsLoading(false);
           setTotalPage(0);
           setProjectList([]);
           setProjectMember({});
@@ -63,7 +64,10 @@ export default function ProjectBoard() {
         setTotalPage(totalPages);
       }
 
-      if (!data) return;
+      if (!data) {
+        setIsLoading(true);
+        return;
+      }
 
       // 프로젝트 목록 가공
       const formattedProjects = data.map((project) => ({
@@ -131,6 +135,25 @@ export default function ProjectBoard() {
           프로젝트를 불러오는 중입니다...
         </span>
       </div>
+      // <div className="pb-10">
+      //   <div className="h-[calc(100vh-400px)] overflow-y-auto">
+      //     <div
+      //         className="
+      //           grid
+      //           grid-cols-1
+      //           sm:grid-cols-1
+      //           md:grid-cols-2
+      //           lg:grid-cols-3
+      //           gap-4"
+      //       >
+      //         {Array.from({length: 12}).map((_, index) => {
+      //           return (
+      //             <ProjectCardSkeleton key={index} />
+      //           );
+      //         })}
+      //       </div>
+      //     </div>
+      //   </div>
     );
   }
 
@@ -167,11 +190,6 @@ export default function ProjectBoard() {
         </div>
       </div>
       <div>
-        {/* <ProjectPagination
-          currentPage={currentPage}
-          totalPage={totalPage}
-          onPageChange={handlePageChange}
-        /> */}
         <CommonPagination
           currentPage={currentPage}
           totalPages={totalPage}
