@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Task, TaskStatus } from "@/types/kanban";
 import {
   getTaskStatusBarStyle,
@@ -42,65 +43,150 @@ const POPUP_MARGIN = 8;
 // 컴팩트 모드 전환 높이 임계값
 const COMPACT_HEIGHT_THRESHOLD = 60;
 
+// 호버 딜레이 (ms)
+const HOVER_ENTER_DELAY = 150;
+const HOVER_LEAVE_DELAY = 200;
+
 export default function MonthEventCard({
   tasks,
   onSelectEvent,
 }: MonthEventCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
   const [popupStyle, setPopupStyle] = useState<PopupStyle>({});
   const [isCompact, setIsCompact] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const hoverEnterTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const hoverLeaveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 컨테이너 높이 감지하여 컴팩트 모드 전환
+  // 컨테이너 높이 감지하여 컴팩트 모드 전환 (throttle 적용)
   useEffect(() => {
+    let rafId: number;
+    let lastHeight = 0;
+
     const checkHeight = () => {
       if (containerRef.current) {
         const height = containerRef.current.clientHeight;
-        setIsCompact(height < COMPACT_HEIGHT_THRESHOLD);
+        // 높이가 변경된 경우에만 상태 업데이트
+        if (Math.abs(height - lastHeight) > 5) {
+          lastHeight = height;
+          setIsCompact(height < COMPACT_HEIGHT_THRESHOLD);
+        }
       }
+    };
+
+    const throttledCheckHeight = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        checkHeight();
+        rafId = 0;
+      });
     };
 
     checkHeight();
 
-    // ResizeObserver로 높이 변화 감지
-    const resizeObserver = new ResizeObserver(checkHeight);
+    // ResizeObserver로 높이 변화 감지 (throttle 적용)
+    const resizeObserver = new ResizeObserver(throttledCheckHeight);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  // 호버 시 팝업 위치를 동적으로 계산
+  // 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (hoverEnterTimerRef.current) clearTimeout(hoverEnterTimerRef.current);
+      if (hoverLeaveTimerRef.current) clearTimeout(hoverLeaveTimerRef.current);
+    };
+  }, []);
+
+  // 팝업 위치 계산 함수
+  const calculatePopupPosition = useCallback(() => {
+    if (!containerRef.current) return;
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    const style: PopupStyle = {};
+
+    // 가로 위치 계산: 오른쪽 공간이 부족하면 왼쪽으로
+    if (rect.left + POPUP_WIDTH + POPUP_MARGIN > viewportWidth) {
+      style.right = viewportWidth - rect.right;
+    } else {
+      style.left = rect.left;
+    }
+
+    // 세로 위치 계산: 아래 공간이 부족하면 위로
+    if (rect.bottom + POPUP_MAX_HEIGHT + POPUP_MARGIN > viewportHeight) {
+      style.bottom = viewportHeight - rect.top + POPUP_MARGIN;
+    } else {
+      style.top = rect.bottom + POPUP_MARGIN;
+    }
+
+    setPopupStyle(style);
+  }, []);
+
+  // 호버 시작 (딜레이 적용)
   const handleMouseEnter = useCallback(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
+    // 떠나는 타이머가 있으면 취소
+    if (hoverLeaveTimerRef.current) {
+      clearTimeout(hoverLeaveTimerRef.current);
+      hoverLeaveTimerRef.current = null;
+    }
 
-      const style: PopupStyle = {};
+    setIsHovered(true);
 
-      // 가로 위치 계산: 오른쪽 공간이 부족하면 왼쪽으로
-      if (rect.left + POPUP_WIDTH + POPUP_MARGIN > viewportWidth) {
-        style.right = viewportWidth - rect.right;
-      } else {
-        style.left = rect.left;
-      }
+    // 이미 팝업이 표시 중이면 딜레이 없이 위치만 업데이트
+    if (showPopup) {
+      calculatePopupPosition();
+      return;
+    }
 
-      // 세로 위치 계산: 아래 공간이 부족하면 위로
-      if (rect.bottom + POPUP_MAX_HEIGHT + POPUP_MARGIN > viewportHeight) {
-        style.bottom = viewportHeight - rect.top + POPUP_MARGIN;
-      } else {
-        style.top = rect.bottom + POPUP_MARGIN;
-      }
+    // 딜레이 후 팝업 표시
+    hoverEnterTimerRef.current = setTimeout(() => {
+      calculatePopupPosition();
+      setShowPopup(true);
+    }, HOVER_ENTER_DELAY);
+  }, [showPopup, calculatePopupPosition]);
 
-      setPopupStyle(style);
+  // 호버 종료 (딜레이 적용)
+  const handleMouseLeave = useCallback(() => {
+    // 들어오는 타이머가 있으면 취소
+    if (hoverEnterTimerRef.current) {
+      clearTimeout(hoverEnterTimerRef.current);
+      hoverEnterTimerRef.current = null;
+    }
+
+    setIsHovered(false);
+
+    // 딜레이 후 팝업 숨김
+    hoverLeaveTimerRef.current = setTimeout(() => {
+      setShowPopup(false);
+    }, HOVER_LEAVE_DELAY);
+  }, []);
+
+  // 팝업 영역에 마우스가 들어올 때 (팝업 유지)
+  const handlePopupMouseEnter = useCallback(() => {
+    if (hoverLeaveTimerRef.current) {
+      clearTimeout(hoverLeaveTimerRef.current);
+      hoverLeaveTimerRef.current = null;
     }
     setIsHovered(true);
   }, []);
 
-  const handleMouseLeave = useCallback(() => {
+  // 팝업 영역에서 마우스가 나갈 때
+  const handlePopupMouseLeave = useCallback(() => {
     setIsHovered(false);
+    hoverLeaveTimerRef.current = setTimeout(() => {
+      setShowPopup(false);
+    }, HOVER_LEAVE_DELAY);
   }, []);
 
   if (tasks.length === 0) return null;
@@ -108,7 +194,8 @@ export default function MonthEventCard({
   return (
     <div
       ref={containerRef}
-      className="flex-1 min-h-0 overflow-hidden relative z-10"
+      className="flex-1 min-h-0 overflow-hidden relative"
+      style={{ zIndex: isHovered ? 50 : 10 }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -189,54 +276,61 @@ export default function MonthEventCard({
         </div>
       )}
 
-      {/* 호버 시 전체 리스트 표시 - fixed 포지션으로 화면 경계 벗어나지 않음 */}
-      {isHovered && tasks.length > 0 && (
-        <div
-          className="fixed z-9999 w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1"
-          style={popupStyle}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
-            {tasks.length}개의 일정
-          </div>
-          <div className="max-h-[200px] overflow-y-auto space-y-1">
-            {tasks.map((task) => {
-              const overdue = isTaskOverdue(task);
-              return (
-                <div
-                  key={task.id}
-                  className={`p-2 rounded-md text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors ${getTaskStatusBgColor(
-                    task.status as TaskStatus
-                  )}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelectEvent(task);
-                  }}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <div
-                      className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(
-                        task.status as TaskStatus
-                      )}`}
-                    />
-                    {overdue && (
-                      <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />
-                    )}
-                    {task.priority && (
-                      <span className="text-[10px]">
-                        {getPriorityIcon(task.priority)}
+      {/* 호버 시 전체 리스트 표시 - createPortal로 body에 렌더링하여 z-index 문제 해결 */}
+      {showPopup &&
+        tasks.length > 0 &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={popupRef}
+            className="fixed w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1 animate-in fade-in-0 zoom-in-95 duration-150"
+            style={{ ...popupStyle, zIndex: 9999 }}
+            onClick={(e) => e.stopPropagation()}
+            onMouseEnter={handlePopupMouseEnter}
+            onMouseLeave={handlePopupMouseLeave}
+          >
+            <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
+              {tasks.length}개의 일정
+            </div>
+            <div className="max-h-[200px] overflow-y-auto space-y-1">
+              {tasks.map((task) => {
+                const overdue = isTaskOverdue(task);
+                return (
+                  <div
+                    key={task.id}
+                    className={`p-2 rounded-md text-xs cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors ${getTaskStatusBgColor(
+                      task.status as TaskStatus
+                    )}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectEvent(task);
+                    }}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-2 h-2 rounded-full shrink-0 ${getTaskStatusDotColor(
+                          task.status as TaskStatus
+                        )}`}
+                      />
+                      {overdue && (
+                        <div className="w-2 h-2 rounded-full shrink-0 bg-red-500" />
+                      )}
+                      {task.priority && (
+                        <span className="text-[10px]">
+                          {getPriorityIcon(task.priority)}
+                        </span>
+                      )}
+                      <span className="font-medium truncate text-gray-800 dark:text-gray-200">
+                        {task.title}
                       </span>
-                    )}
-                    <span className="font-medium truncate text-gray-800 dark:text-gray-200">
-                      {task.title}
-                    </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+                );
+              })}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

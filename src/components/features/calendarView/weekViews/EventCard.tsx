@@ -80,7 +80,8 @@ export default function EventCard({ tasks, onSelectEvent }: EventCardProps) {
   return (
     <div
       ref={containerRef}
-      className="absolute left-1 right-1 top-1 bottom-1 z-10"
+      className="absolute left-1 right-1 top-1 bottom-1"
+      style={{ zIndex: isHovered ? 50 : 10 }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -124,8 +125,8 @@ export default function EventCard({ tasks, onSelectEvent }: EventCardProps) {
       {/* 호버 시 리스트 표시 - fixed 포지션으로 화면 경계 벗어나지 않음 */}
       {isHovered && tasks.length > 0 && (
         <div
-          className="fixed z-9999 w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1"
-          style={popupStyle}
+          className="fixed w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1"
+          style={{ ...popupStyle, zIndex: 9999 }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
