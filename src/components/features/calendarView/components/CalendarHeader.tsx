@@ -77,10 +77,12 @@ export default function CalendarHeader({
     today.setHours(0, 0, 0, 0);
 
     const startStr = startDate.toLocaleDateString("ko-KR", {
+      year: "numeric",
       month: "short",
       day: "numeric",
     });
     const endStr = endDate.toLocaleDateString("ko-KR", {
+      year: "numeric",
       month: "short",
       day: "numeric",
     });
@@ -193,6 +195,27 @@ export default function CalendarHeader({
                 className={`px-2 py-0.5 rounded-full font-medium ${projectPeriod.badgeColor}`}
               >
                 {projectPeriod.badgeText}
+              </span>
+            </div>
+          )}
+          {/* 종료된 프로젝트 안내 문구 */}
+          {projectPeriod?.status === "ended" && (
+            <div className="flex items-center gap-1.5 text-xs bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-200 px-2.5 py-1 rounded-md border border-sky-300 dark:border-sky-700">
+              <svg
+                className="w-4 h-4 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span className="font-medium">
+                이 프로젝트는 종료되었습니다. 일정 추가/수정이 제한됩니다.
               </span>
             </div>
           )}

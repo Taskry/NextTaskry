@@ -413,6 +413,8 @@ const KanbanBoard = ({
               ...selectedTask,
               project_id: selectedTask.project_id || projectId,
             }}
+            projectStartedAt={projectStartedAt}
+            projectEndedAt={projectEndedAt}
             onUpdate={handleUpdateTask}
             onDelete={handleDeleteTask}
             onClose={() => setSelectedTask(null)}
