@@ -12,12 +12,14 @@ interface SubtaskListProps {
   subtasks: Subtask[];
   editable?: boolean;
   onUpdate?: (subtasks: Subtask[]) => void;
+  disabled?: boolean;
 }
 
 const SubtaskList = ({
   subtasks,
   editable = false,
   onUpdate,
+  disabled = false,
 }: SubtaskListProps) => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
@@ -32,7 +34,7 @@ const SubtaskList = ({
   const completedCount = subtasks.filter((s) => s.completed).length;
 
   const handleToggleComplete = (subtaskId: string) => {
-    if (!editable || !onUpdate) return;
+    if (!editable || !onUpdate || disabled) return;
 
     const updated = subtasks.map((s) =>
       s.id === subtaskId ? { ...s, completed: !s.completed } : s
@@ -41,6 +43,7 @@ const SubtaskList = ({
   };
 
   const handleStartEdit = (subtask: Subtask) => {
+    if (disabled) return;
     setEditingId(subtask.id);
     setEditingTitle(subtask.title);
   };
@@ -63,7 +66,7 @@ const SubtaskList = ({
 
   // 서브태스크 삭제 확인 모달 열기
   const handleDelete = (subtaskId: string) => {
-    if (!editable || !onUpdate) return;
+    if (!editable || !onUpdate || disabled) return;
 
     setDeletingSubtaskId(subtaskId);
     openModal("delete", "하위 작업 삭제", "이 하위 작업을 삭제하시겠습니까?");
@@ -80,7 +83,7 @@ const SubtaskList = ({
   };
 
   const handleAddSubtask = () => {
-    if (!editable || !onUpdate || !newSubtaskTitle.trim()) return;
+    if (!editable || !onUpdate || !newSubtaskTitle.trim() || disabled) return;
 
     const newSubtask: Subtask = {
       id: `subtask-${Date.now()}`,
@@ -184,7 +187,7 @@ const SubtaskList = ({
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-[200px] overflow-y-auto">
         {sortedSubtasks.map((subtask) => (
           <div
             key={subtask.id}
@@ -194,7 +197,10 @@ const SubtaskList = ({
               type="checkbox"
               checked={subtask.completed}
               onChange={() => handleToggleComplete(subtask.id)}
-              className="w-4 h-4 cursor-pointer accent-main-500"
+              disabled={disabled}
+              className={`w-4 h-4 accent-main-500 ${
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
             />
 
             {editingId === subtask.id ? (
@@ -234,20 +240,22 @@ const SubtaskList = ({
                 >
                   {subtask.title}
                 </span>
-                <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-                  <button
-                    onClick={() => handleStartEdit(subtask)}
-                    className="text-gray-400 hover:text-main-500 dark:text-gray-500 dark:hover:text-main-400"
-                  >
-                    <Icon type="edit" size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(subtask.id)}
-                    className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
-                  >
-                    <Icon type="trash" size={16} />
-                  </button>
-                </div>
+                {!disabled && (
+                  <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                    <button
+                      onClick={() => handleStartEdit(subtask)}
+                      className="text-gray-400 hover:text-main-500 dark:text-gray-500 dark:hover:text-main-400"
+                    >
+                      <Icon type="edit" size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(subtask.id)}
+                      className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
+                    >
+                      <Icon type="trash" size={16} />
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -294,14 +302,16 @@ const SubtaskList = ({
           </button>
         </div>
       ) : (
-        <Button
-          variant="basic"
-          icon="plus"
-          onClick={() => setShowAddInput(true)}
-          className="mt-3 w-full"
-        >
-          하위 작업 추가
-        </Button>
+        !disabled && (
+          <Button
+            variant="basic"
+            icon="plus"
+            onClick={() => setShowAddInput(true)}
+            className="mt-3 w-full"
+          >
+            하위 작업 추가
+          </Button>
+        )
       )}
 
       {/* 삭제 확인 모달 */}

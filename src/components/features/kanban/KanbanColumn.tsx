@@ -85,11 +85,13 @@ const KanbanColumn = ({
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          {/* 지연 태스크 뱃지 */}
+          {/* 지연 태스크 뱃지 - 동그라미에 숫자만 표시 */}
           {overdueCount > 0 && (
-            <span className="flex items-center gap-1 bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full text-xs font-medium">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-              {overdueCount} 지연
+            <span
+              className="flex items-center justify-center w-5 h-5 bg-red-500 text-white rounded-full text-xs font-bold"
+              title={`지연된 작업 ${overdueCount}개`}
+            >
+              {overdueCount}
             </span>
           )}
           {/* 전체 개수 */}

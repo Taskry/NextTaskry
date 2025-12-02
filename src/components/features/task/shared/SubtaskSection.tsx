@@ -6,14 +6,21 @@ import { Subtask } from "@/types";
 export function SubtaskSection({
   subtasks,
   onUpdate,
+  disabled = false,
 }: {
   subtasks: Subtask[];
-  onUpdate: (list: Subtask[]) => void;
+  onUpdate?: (list: Subtask[]) => void;
+  disabled?: boolean;
 }) {
   return (
     <div>
       <FieldLabel icon="checkList" title="하위 할 일" />
-      <SubtaskList subtasks={subtasks} editable={true} onUpdate={onUpdate} />
+      <SubtaskList
+        subtasks={subtasks}
+        editable={!disabled}
+        onUpdate={onUpdate}
+        disabled={disabled}
+      />
     </div>
   );
 }

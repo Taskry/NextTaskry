@@ -413,7 +413,8 @@ export default function TaskDetail({
         <TitleField
           value={editedTask.title}
           isEditing={editingField === "title"}
-          onEdit={() => setEditingField("title")}
+          isProjectEnded={isProjectEnded}
+          onEdit={() => !isProjectEnded && setEditingField("title")}
           onChange={(v: string) => handleChange("title", v)}
           onBlur={() => setEditingField(null)}
           onCancel={() => {
@@ -426,8 +427,11 @@ export default function TaskDetail({
         <StatusPrioritySection
           status={editedTask.status}
           priority={editedTask.priority || "normal"}
-          onStatusChange={(v) => handleChange("status", v)}
-          onPriorityChange={(v) => handleChange("priority", v)}
+          disabled={isProjectEnded}
+          onStatusChange={(v) => !isProjectEnded && handleChange("status", v)}
+          onPriorityChange={(v) =>
+            !isProjectEnded && handleChange("priority", v)
+          }
         />
 
         {/* 📄 설명 필드 섹션 - 인라인 편집 가능 */}
@@ -435,7 +439,8 @@ export default function TaskDetail({
           <DescriptionField
             value={editedTask.description} // 현재 설명 내용
             isEditing={editingField === "description"} // 현재 편집 모드 여부
-            onEdit={() => setEditingField("description")} // 편집 모드 진입
+            isProjectEnded={isProjectEnded}
+            onEdit={() => !isProjectEnded && setEditingField("description")} // 편집 모드 진입
             onChange={(v: string) => handleChange("description", v)} // 내용 변경 시 업데이트
             onBlur={() => setEditingField(null)} // 포커스 잃으면 편집 모드 종료
             onCancel={() => {
@@ -452,7 +457,8 @@ export default function TaskDetail({
           isEditing={editingField === "assigned_user_id"} // 편집 모드 여부
           isLoading={isLoadingMembers || isLoadingAssignee} // 멤버 또는 assignee 로딩 상태
           members={members} // 프로젝트 멤버 목록 (API에서 조회)
-          onEdit={() => setEditingField("assigned_user_id")} // 편집 모드 진입
+          disabled={isProjectEnded}
+          onEdit={() => !isProjectEnded && setEditingField("assigned_user_id")} // 편집 모드 진입
           onChange={(v) => handleChange("assigned_user_id", v)} // 담당자 변경
           onBlur={() => setEditingField(null)} // 편집 모드 종료
           onCancel={() => {
@@ -483,7 +489,12 @@ export default function TaskDetail({
         {/* Subtasks */}
         <SubtaskSection
           subtasks={editedTask.subtasks || []}
-          onUpdate={(list) => handleChange("subtasks", list)}
+          onUpdate={
+            isProjectEnded
+              ? undefined
+              : (list) => handleChange("subtasks", list)
+          }
+          disabled={isProjectEnded}
         />
 
         {/* 📃 메모 섹션 - 인라인 편집 가능한 노트 필드 */}
@@ -491,7 +502,8 @@ export default function TaskDetail({
           <MemoField
             value={editedTask.memo} // 현재 메모 내용
             isEditing={editingField === "memo"} // 현재 편집 모드 여부
-            onEdit={() => setEditingField("memo")} // 편집 모드 진입
+            isProjectEnded={isProjectEnded}
+            onEdit={() => !isProjectEnded && setEditingField("memo")} // 편집 모드 진입
             onChange={(v: string) => handleChange("memo", v)} // 메모 내용 변경
             onBlur={() => setEditingField(null)} // 편집 모드 종료
             onCancel={() => {
