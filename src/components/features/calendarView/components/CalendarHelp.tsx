@@ -68,12 +68,6 @@ export default function CalendarHelp() {
         <div className="hidden sm:flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
           <span className="flex items-center gap-1.5">
             <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">
-              Ctrl+N
-            </kbd>
-            <span>새 일정</span>
-          </span>
-          <span className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-mono">
               ←→
             </kbd>
             <span>날짜 이동</span>

@@ -195,7 +195,7 @@ export default function MonthEventCard({
     <div
       ref={containerRef}
       className="flex-1 min-h-0 overflow-hidden relative"
-      style={{ zIndex: isHovered ? 50 : 10 }}
+      style={{ zIndex: isHovered ? 20 : 10 }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -284,7 +284,7 @@ export default function MonthEventCard({
           <div
             ref={popupRef}
             className="fixed w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1 animate-in fade-in-0 zoom-in-95 duration-150"
-            style={{ ...popupStyle, zIndex: 9999 }}
+            style={{ ...popupStyle, zIndex: 30 }}
             onClick={(e) => e.stopPropagation()}
             onMouseEnter={handlePopupMouseEnter}
             onMouseLeave={handlePopupMouseLeave}
@@ -303,6 +303,8 @@ export default function MonthEventCard({
                     )}`}
                     onClick={(e) => {
                       e.stopPropagation();
+                      setShowPopup(false);
+                      setIsHovered(false);
                       onSelectEvent(task);
                     }}
                   >
