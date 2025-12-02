@@ -126,7 +126,7 @@ export default function EventCard({ tasks, onSelectEvent }: EventCardProps) {
       {isHovered && tasks.length > 0 && (
         <div
           className="fixed w-[220px] bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2 space-y-1"
-          style={{ ...popupStyle, zIndex: 9999 }}
+          style={{ ...popupStyle, zIndex: 30 }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 pb-1 border-b border-gray-100 dark:border-gray-700">
@@ -143,6 +143,7 @@ export default function EventCard({ tasks, onSelectEvent }: EventCardProps) {
                   )}`}
                   onClick={(e) => {
                     e.stopPropagation();
+                    setIsHovered(false);
                     onSelectEvent(task);
                   }}
                 >
